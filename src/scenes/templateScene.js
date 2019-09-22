@@ -1,8 +1,7 @@
 /*global Phaser*/
-import * as ChangeScene from'./Changescene.js';
 export default class BootScene extends Phaser.Scene {
   constructor () {
-    super('Boot');
+    super('temp');
   }
 
   init (data) {
@@ -18,11 +17,8 @@ export default class BootScene extends Phaser.Scene {
   }
 
   create (data) {
-    // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this);
     //Create the scene
-    var text = this.add.text(this.centerX, this.centerY, 'this is the game start screen')
-    var text = this.add.text(this.centerX, this.centerY + 50, 'press enter to move to first level scene')
+
   }
 
   update (time, delta) {

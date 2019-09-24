@@ -10,7 +10,7 @@ export default class BootScene extends Phaser.Scene {
 
   preload () {
     // Preload assets
-
+    this.load.image("peggy", "./assets/spritesheets/mainCharacter")
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;

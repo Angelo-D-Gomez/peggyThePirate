@@ -21,8 +21,8 @@ export default class BootScene extends Phaser.Scene {
     // add event addSceneEventListeners
     ChangeScene.addSceneEventListeners(this);
     //Create the scene
-    var text = this.add.text(this.centerX, this.centerY, 'this is the game start screen')
-    var text = this.add.text(this.centerX, this.centerY + 50, 'press enter to move to first level scene')
+    var text = this.add.text(this.centerX-150, this.centerY, 'this is the game start screen')
+    var text = this.add.text(this.centerX-185, this.centerY + 50, 'press enter to move to first level scene')
   }
 
   update (time, delta) {

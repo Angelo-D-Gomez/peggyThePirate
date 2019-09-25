@@ -20,7 +20,14 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('bullet', './assets/sprites/bomb.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
-    this.load.image("enemy", "./assets/sprites/player_sprite.png")
+    this.load.image("enemy", "./assets/sprites/player_sprite.png");
+    this.load.image('L1', './assets/Level_1/LVL1.0.png')
+
+/*
+    //attemping to load tile map
+    this.load.image('tiles', './assets/Level_1/temp_tile.png');
+    this.load.tilemapTiledJSON('map', './assets/Level_1/Level_1.json');
+*/
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -40,24 +47,39 @@ export default class Level1 extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 1280, 960);
     this.cameras.main.startFollow(this.player);
 
+/*
+    // tile map failure
+    const map = this.make.tilemap({ key: 'map' });
+    const tileset = map.addTilesetImage('tile1.0', 'tiles');
+*/
+
     //  The platforms group contains the ground and the 2 ledges we can jump on
-    var platforms = this.physics.add.staticGroup();
+    //var platforms = this.physics.add.staticGroup();
     var bullets, enemy, bullet, enemyGroup;
     this.nextFire = 0;
     this.fireRate = 200;
     this.speed = 1000;
+
+    //alt name for platforms since using LVL1.0
+    var ground = this.add.image(1280/2, 960/2, 'L1');
+    ground.setScale(2);
+    ground = this.physics.add.staticGroup();
+    this.physics.add.collider(this.player, ground);
+
     //  Here we create the ground.
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+/*
     platforms
       .create(1280, 1000, "ground")
       .setScale(7)
       .refreshBody();
 
+
     //  Now let's create some ledges
     platforms.create(600, 400, "ground");
     platforms.create(50, 600, "ground");
     platforms.create(750, 700, "ground");
-
+*/
     //add bullet group
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -85,11 +107,11 @@ export default class Level1 extends Phaser.Scene {
     this.enemyGroup.children.iterate(function(child){
       child.setScale(0.5);
     });
-
+/*
     //collisions
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.enemyGroup, platforms);
-
+*/
     //create animation from spritesheet
   this.anims.create({
     key: "walk",

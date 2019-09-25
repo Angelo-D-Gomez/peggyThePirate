@@ -37,7 +37,8 @@ export default class Level1 extends Phaser.Scene {
   create (data) {
     //Create the scene
     ChangeScene.addSceneEventListeners(this);
-
+    var score;
+    this.score = 0;
     var background = this.add.sprite(1280/2, 960/2, "desert");
     this.player = this.physics.add.sprite(50, 50, 'peggy');
     this.player.setCollideWorldBounds(true);
@@ -106,6 +107,7 @@ export default class Level1 extends Phaser.Scene {
 
     this.enemyGroup.children.iterate(function(child){
       child.setScale(0.5);
+      child.setCollideWorldBounds(true);
     });
 /*
     //collisions
@@ -226,11 +228,20 @@ shoot(pointer) {
     console.log('hit');
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
-
+    this.score += 1;
+    console.log(this.score);
+    if(this.score >= 5){
+      this.success();
+    }
   }
 
   gameOver(){
-    //end game
+    //end game, goes to game over scene
     console.log('game over!');
+  }
+
+  success(){
+      console.log('success!');
+      //successfully completed game, changes to success scene
   }
 }

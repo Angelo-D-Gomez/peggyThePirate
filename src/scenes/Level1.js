@@ -242,6 +242,7 @@ shoot(pointer) {
 
   success(){
       console.log('success!');
+      this.scene.start('successScene');
       //successfully completed game, changes to success scene
   }
 }

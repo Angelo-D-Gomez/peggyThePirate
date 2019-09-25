@@ -36,6 +36,7 @@ export default class BootScene extends Phaser.Scene {
 
     this.peggyAvatar = this.add.image(this.centerX, this.centerY, 'peggyIcon');
     //Create the scene
+
     var title = this.add.text(this.centerX, (0.2*this.centerY), 'Peggy the Pirate:', {
       fill: '#ff00ff',
       fontSize: '55px',

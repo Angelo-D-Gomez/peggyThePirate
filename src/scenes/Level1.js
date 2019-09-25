@@ -1,6 +1,6 @@
 /*global Phaser*/
 import * as ChangeScene from'./Changescene.js';
-export default class BootScene extends Phaser.Scene {
+export default class Level1 extends Phaser.Scene {
   constructor () {
     super('Level1');
   }
@@ -10,10 +10,9 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload () {
-    // Preload assets
-<<<<<<< HEAD
+
     this.load.image("peggy", "./assets/spritesheets/mainCharacter")
-=======
+
     this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter.png", {
       frameHeight: 256,
       frameWidth: 256
@@ -23,7 +22,6 @@ export default class BootScene extends Phaser.Scene {
     this.load.image("ground", "./assets/sprites/platform.png");
     this.load.image("enemy", "./assets/sprites/player_sprite.png")
 
->>>>>>> master
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;

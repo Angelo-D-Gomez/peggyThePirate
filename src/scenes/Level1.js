@@ -13,9 +13,9 @@ export default class Level1 extends Phaser.Scene {
 
     this.load.image("peggy", "./assets/spritesheets/mainCharacter")
 
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter.png", {
-      frameHeight: 256,
-      frameWidth: 256
+    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+      frameHeight: 32,
+      frameWidth: 32
     });
     this.load.image('bullet', './assets/sprites/bomb.png');
     this.load.image("desert", "./assets/sprites/background.png");
@@ -42,7 +42,7 @@ export default class Level1 extends Phaser.Scene {
     var background = this.add.sprite(1280/2, 960/2, "desert");
     this.player = this.physics.add.sprite(50, 50, 'peggy');
     this.player.setCollideWorldBounds(true);
-    this.player.setScale(0.2);
+    this.player.setScale(1.5);
     this.physics.world.setBounds(0, 0, 1280, 960);
     this.player.setBounce(0.2);
     this.cameras.main.setBounds(0, 0, 1280, 960);

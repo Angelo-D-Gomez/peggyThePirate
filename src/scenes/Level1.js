@@ -20,7 +20,7 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('bullet', './assets/sprites/bomb.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
-    this.load.image("enemy", "./assets/sprites/player_sprite.png");
+    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
     this.load.image('L1', './assets/Level_1/LVL1.0.png')
 
 /*
@@ -106,7 +106,7 @@ export default class Level1 extends Phaser.Scene {
     });
 
     this.enemyGroup.children.iterate(function(child){
-      child.setScale(0.5);
+      child.setScale(3);
       child.setCollideWorldBounds(true);
     });
 /*

@@ -23,11 +23,11 @@ export default class Level1 extends Phaser.Scene {
     this.load.image("enemy", "./assets/sprites/player_sprite.png");
     this.load.image('L1', './assets/Level_1/LVL1.0.png')
 
-/*
+
     //attemping to load tile map
     this.load.image('tiles', './assets/Level_1/temp_tile.png');
-    this.load.tilemapTiledJSON('map', './assets/Level_1/Level_1.json');
-*/
+    this.load.tilemapTiledJSON('map', './assets/Level_1/LVL1.json');
+
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -47,25 +47,25 @@ export default class Level1 extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 1280, 960);
     this.cameras.main.startFollow(this.player);
 
-/*
+
     // tile map failure
     const map = this.make.tilemap({ key: 'map' });
-    const tileset = map.addTilesetImage('tile1.0', 'tiles');
-*/
+    var tileset = map.addTilesetImage('tile1.0', 'tiles');
+    const platforms = map.createStaticLayer('platforms', tileset, 0, 200);
+
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     //var platforms = this.physics.add.staticGroup();
     var bullets, enemy, bullet, enemyGroup;
     this.nextFire = 0;
     this.fireRate = 200;
-    this.speed = 1000;
-
+/*
     //alt name for platforms since using LVL1.0
     var ground = this.add.image(1280/2, 960/2, 'L1');
     ground.setScale(2);
     ground = this.physics.add.staticGroup();
-    this.physics.add.collider(this.player, ground);
-
+    this.physics.add.collider(ground, this.player);
+*/
     //  Here we create the ground.
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
 /*

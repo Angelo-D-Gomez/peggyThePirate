@@ -13,14 +13,14 @@ export default class Level1 extends Phaser.Scene {
 
     this.load.image("peggy", "./assets/spritesheets/mainCharacter")
 
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter.png", {
-      frameHeight: 256,
-      frameWidth: 256
+    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+      frameHeight: 32,
+      frameWidth: 32
     });
     this.load.image('bullet', './assets/sprites/bomb.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
-    this.load.image("enemy", "./assets/sprites/player_sprite.png");
+    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
     this.load.image('L1', './assets/Level_1/LVL1.0.png')
 
 
@@ -37,11 +37,12 @@ export default class Level1 extends Phaser.Scene {
   create (data) {
     //Create the scene
     ChangeScene.addSceneEventListeners(this);
-
+    var score;
+    this.score = 0;
     var background = this.add.sprite(1280/2, 960/2, "desert");
     this.player = this.physics.add.sprite(50, 50, 'peggy');
     this.player.setCollideWorldBounds(true);
-    this.player.setScale(0.2);
+    this.player.setScale(1.5);
     this.physics.world.setBounds(0, 0, 1280, 960);
     this.player.setBounce(0.2);
     this.cameras.main.setBounds(0, 0, 1280, 960);
@@ -85,7 +86,8 @@ export default class Level1 extends Phaser.Scene {
     });
 
     this.enemyGroup.children.iterate(function(child){
-      child.setScale(0.5);
+      child.setScale(3);
+      child.setCollideWorldBounds(true);
     });
 
     this.physics.add.collider(this.enemyGroup, platforms);
@@ -204,11 +206,21 @@ shoot(pointer) {
     console.log('hit');
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
-
+    this.score += 1;
+    console.log(this.score);
+    if(this.score >= 5){
+      this.success();
+    }
   }
 
   gameOver(){
-    //end game
+    //end game, goes to game over scene
     console.log('game over!');
+  }
+
+  success(){
+      console.log('success!');
+      this.scene.start('successScene');
+      //successfully completed game, changes to success scene
   }
 }

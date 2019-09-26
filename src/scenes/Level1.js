@@ -216,6 +216,7 @@ shoot(pointer) {
   gameOver(){
     //end game, goes to game over scene
     console.log('game over!');
+    this.scene.start('GameOver');
   }
 
   success(){

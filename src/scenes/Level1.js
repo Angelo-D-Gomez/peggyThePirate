@@ -112,7 +112,7 @@ export default class Level1 extends Phaser.Scene {
     // Update the scene
 
 
-    // Player Movement with WASD
+    // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed = 200;
 
@@ -126,8 +126,6 @@ export default class Level1 extends Phaser.Scene {
     else{
       speed = 200;
     }
-
-
     // Move Left
     if (movement.A.isDown){
       this.player.setVelocityX(-speed);
@@ -164,7 +162,7 @@ export default class Level1 extends Phaser.Scene {
 );
     this.input.on("pointerdown", this.shoot, this);
 
-//if player touches enemy
+    //if player touches enemy
     this.enemyGroup.children.each(
           function (b) {
             if (b.active) {

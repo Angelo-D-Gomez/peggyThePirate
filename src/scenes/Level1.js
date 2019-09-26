@@ -11,8 +11,6 @@ export default class Level1 extends Phaser.Scene {
 
   preload () {
 
-    this.load.image("peggy", "./assets/spritesheets/mainCharacter")
-
     this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
       frameHeight: 32,
       frameWidth: 32
@@ -44,7 +42,7 @@ export default class Level1 extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.physics.world.setBounds(0, 0, 1280, 960);
-    this.player.setBounce(0.2);
+    //this.player.setBounce(0.2);
     this.cameras.main.setBounds(0, 0, 1280, 960);
     this.cameras.main.startFollow(this.player);
 
@@ -113,38 +111,43 @@ export default class Level1 extends Phaser.Scene {
   update (time, delta) {
     // Update the scene
 
-    var cursors = this.input.keyboard.createCursorKeys();
+
+    // Player Movement with WASD
+    var movement = this.input.keyboard.addKeys('W, A, S, D');
     var speed = 5;
+    // Move Left
+    if (movement.A.isDown){
+      this.player.x -= speed;
+      this.player.flipX = true;
+      this.player.anims.play('walk', true);
+    }
+    // Move Right
+    else if (movement.D.isDown){
+      this.player.x += speed;
+      this.player.flipX = false;
+      this.player.anims.play('walk', true);
+    }
+    // Idle
+    else {
+      this.player.anims.play('idle', true);
+    }
+    // player can jump if they are touching the ground
+    // removed the bounce because it means you cant jump right away after
+    // intial jump because the bounce puts them in air
+    if (movement.W.isDown && this.player.body.onFloor()){
+      this.player.setVelocityY(-350);
+    }
+    //allows fast falling for more player mobility
+    // jump and fall speed need to be experimented with
+    else if(movement.S.isDown && !this.player.body.onFloor()){
+      this.player.setVelocityY(500);
+    }
 
     this.input.on(
   "pointermove",
   function(pointer){}, this
 );
-this.input.on("pointerdown", this.shoot, this);
-
-    if (cursors.left.isDown){
-      this.player.x -= speed;
-      this.player.flipX = true;
-      this.player.anims.play('walk', true);
-    }
-
-    else if (cursors.right.isDown){
-      this.player.x += speed;
-      this.player.flipX = false;
-      this.player.anims.play('walk', true);
-    }
-
-    else {
-      this.player.anims.play('idle', true);
-    }
-
-    if (cursors.down.isDown){
-      this.player.y += speed;
-    }
-
-    else if (cursors.up.isDown){
-      this.player.y -= speed;
-    }
+    this.input.on("pointerdown", this.shoot, this);
 
 //if player touches enemy
     this.enemyGroup.children.each(

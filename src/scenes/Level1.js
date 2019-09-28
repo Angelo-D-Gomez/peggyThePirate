@@ -35,6 +35,14 @@ export default class Level1 extends Phaser.Scene {
   create (data) {
     //Create the scene
     ChangeScene.addSceneEventListeners(this);
+
+    this.player;
+    var background;
+    var bullets;
+    var bullet;
+    var enemy;
+    var enemyGroup;
+
     var score;
     this.score = 0;
     var background = this.add.sprite(1280/2, 960/2, "desert");
@@ -55,7 +63,6 @@ export default class Level1 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platforms);
 
-    var bullets, enemy, bullet, enemyGroup;
     this.nextFire = 0;
     this.fireRate = 200;
 
@@ -154,6 +161,8 @@ export default class Level1 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(500);
     }
+
+    var bang = this.input.keyboard.addKeys('O');
 
 
     this.input.on(

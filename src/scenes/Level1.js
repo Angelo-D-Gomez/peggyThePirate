@@ -159,7 +159,7 @@ export default class Level1 extends Phaser.Scene {
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
     else if(movement.S.isDown && !this.player.body.onFloor()){
-      this.player.setVelocityY(345);
+      this.player.setVelocityY(300);
     }
 
     var bang = this.input.keyboard.addKeys('O');

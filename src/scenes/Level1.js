@@ -46,7 +46,7 @@ export default class Level1 extends Phaser.Scene {
     var score;
     this.score = 0;
     var background = this.add.sprite(1280/2, 960/2, "desert");
-    this.player = this.physics.add.sprite(50, 50, 'peggy');
+    this.player = this.physics.add.sprite(32, 32, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.physics.world.setBounds(0, 0, 1280, 960);
@@ -121,17 +121,17 @@ export default class Level1 extends Phaser.Scene {
 
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
-    var speed = 200;
+    var speed;
 
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
     // otherwise it wont change the speed variable before she
     // starts moving
     if (movement.SHIFT.isDown){
-      speed = 400;
+      speed = 210;
     }
     else{
-      speed = 200;
+      speed = 135;
     }
     // Move Left
     if (movement.A.isDown){
@@ -154,12 +154,12 @@ export default class Level1 extends Phaser.Scene {
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-250);
+      this.player.setVelocityY(-225);
     }
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
     else if(movement.S.isDown && !this.player.body.onFloor()){
-      this.player.setVelocityY(500);
+      this.player.setVelocityY(345);
     }
 
     var bang = this.input.keyboard.addKeys('O');

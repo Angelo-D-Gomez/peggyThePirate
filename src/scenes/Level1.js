@@ -26,6 +26,9 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('tiles', './assets/Level_1/temp_tile.png');
     this.load.tilemapTiledJSON('map', './assets/Level_1/LVL1.json');
 
+    // Load the gun sound effect
+    this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
+
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -42,6 +45,8 @@ export default class Level1 extends Phaser.Scene {
     var bullet;
     var enemy;
     var enemyGroup;
+
+    let gunSound = this.sound.add('gunAudio')
 
     var score;
     this.score = 0;
@@ -285,6 +290,8 @@ shoot(pointer) {
   var bullet = this.bullets.get();
   bullet.enableBody(true, this.player.x, this.player.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  // Play gun noise
+  gunSound.play();
 }
 
   hitEnemy(bullet, enemy){

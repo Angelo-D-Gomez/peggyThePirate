@@ -71,7 +71,7 @@ export default class Level1 extends Phaser.Scene {
     this.nextFire = 0;
     this.fireRate = 200;
 
-    //add bullet group
+    //add player's bullet group
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
       maxSize: 10
@@ -79,6 +79,18 @@ export default class Level1 extends Phaser.Scene {
 
     //how to get gravity of bullets to be zero??
     this.bullets.children.iterate(function(child){
+      child.body.gravity.y = 0;
+      child.body.gravity.x = 0;
+    });
+
+    //add enemy's bullet group
+    this.enemyBullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 10
+    });
+
+    //how to get gravity of bullets to be zero??
+    this.enemyBullets.children.iterate(function(child){
       child.body.gravity.y = 0;
       child.body.gravity.x = 0;
     });
@@ -104,6 +116,7 @@ export default class Level1 extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platforms);
 
+
     //create animation from spritesheet
   this.anims.create({
     key: "walk",
@@ -120,18 +133,19 @@ export default class Level1 extends Phaser.Scene {
   });
 
 //enemy has movement, varies per enemy
-
 //enemy1
-this.tweens.add({
+this.enemy1tween = this.add.tween({
   targets: this.enemy1,
   x: '-=200',
   ease: "Linear",
-  delay: 1000,
+  delay: 2000,
   duration: 2000,
   yoyo: true,
   repeat: -1,
-  flipX: true
+  flipX: true,
+  onLoop: this.enemyShoot(this.enemy1, this.enemyBullets)
 });
+
 //enemy2
 this.tweens.add({
   targets: this.enemy2,
@@ -197,8 +211,6 @@ this.enemyGroup.children.each(
 
   update (time, delta) {
     // Update the scene
-
-
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed;
@@ -251,7 +263,7 @@ this.enemyGroup.children.each(
 );
     this.input.on("pointerdown", this.shoot, this);
 
-
+//player's bullet kills enemies
     this.bullets.children.each(
           function (b) {
             if (b.active) {
@@ -278,8 +290,38 @@ this.enemyGroup.children.each(
             }
           }.bind(this) //binds to each children
         );
-}
 
+        //enemys's bullet kills player
+            this.enemyBullets.children.each(
+                  function (b) {
+                    if (b.active) {
+                      this.physics.add.overlap( //if bullet touches player, calls function
+                        b,
+                        this.player,
+                        this.hitPlayer,
+                        null,
+                        this
+                      );
+                      //refresh bullet group
+                      if (b.y < 0) { //if bullet off top of screen
+                        b.setActive(false);
+                      }
+                      else if (b.y > this.cameras.main.height) { //if bullet off bottom of screen
+                        b.setActive(false);
+                      }
+                      else if (b.x < 0){
+                        b.setActive(false);
+                      }
+                      else if (b.x > this.cameras.main.width){
+                        b.setActive(false);
+                      }
+                    }
+                  }.bind(this) //binds to each children
+                );
+    }
+
+
+//player shoots
 shoot(pointer) {
   if(this.player.flipX == false){
     var velocity = {x: 1000, y: 0};
@@ -294,6 +336,21 @@ shoot(pointer) {
   this.gunSound.play();
 }
 
+enemyShoot (enemy, bullets) {
+  console.log('enemy shoots!');
+  if(enemy.flipX == true){
+    var velocity = {x: 700, y: 0};
+  }
+  else{
+    var velocity = {x: -700, y: 0};
+  }
+  var bullet = bullets.get();
+  bullet.enableBody(true, enemy.x, enemy.y, true, true)
+  .setVelocity(velocity.x, velocity.y);
+}
+
+
+
   hitEnemy(bullet, enemy){
     console.log('hit');
     enemy.disableBody(true, true);
@@ -304,6 +361,13 @@ shoot(pointer) {
       this.success();
     }
   }
+
+    hitPlayer(bullet, player){
+      console.log('hit');
+      player.disableBody(true, true);
+      bullet.disableBody(true, true);
+      this.scene.start('GameOver');
+    }
 
   gameOver(){
     //end game, goes to game over scene

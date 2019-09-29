@@ -173,6 +173,21 @@ this.tweens.add({
   flipX: true
 });
 
+//if player touches enemy
+this.enemyGroup.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if enemyGroup touches player, calls function
+            b,
+            this.player,
+            this.gameOver,
+            null,
+            this
+          );
+        }
+      }.bind(this) //binds to each children
+    );
+
   }
 
   update (time, delta) {
@@ -230,21 +245,6 @@ this.tweens.add({
   function(pointer){}, this
 );
     this.input.on("pointerdown", this.shoot, this);
-
-    //if player touches enemy
-    this.enemyGroup.children.each(
-          function (b) {
-            if (b.active) {
-              this.physics.add.overlap( //if enemyGroup touches player, calls function
-                b,
-                this.player,
-                this.gameOver,
-                null,
-                this
-              );
-            }
-          }.bind(this) //binds to each children
-        );
 
 
     this.bullets.children.each(

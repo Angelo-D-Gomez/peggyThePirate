@@ -20,7 +20,10 @@ export default class Boss1 extends Phaser.Scene {
     this.load.image('boss', './assets/Boss1/bossPirate3.png');
 
     //background
-    this.load.image('background', './assets/Boss1/bossBackground.png')
+    this.load.image('background', './assets/Boss1/bossBackground.png');
+
+    //other game objects
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
 
 
     //Load tilemap and tileset
@@ -73,9 +76,9 @@ export default class Boss1 extends Phaser.Scene {
     this.boss.setScale(2);
     this.physics.add.collider(this.boss, platforms);
 
-
-
-
+    //Lets add bullets
+    var bullets;
+    
 
 
 
@@ -146,6 +149,12 @@ export default class Boss1 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+
+    //Player fires weapon
+    var bang = this.input.keyboard.addKeys('O');
+
+
+
 
   }
 }

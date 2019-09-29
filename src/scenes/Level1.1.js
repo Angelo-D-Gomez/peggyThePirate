@@ -1,7 +1,7 @@
 /*global Phaser*/
-export default class temp extends Phaser.Scene {
+export default class Level1.1 extends Phaser.Scene {
   constructor () {
-    super('temp');
+    super('Level1.1');
   }
 
   init (data) {
@@ -10,6 +10,11 @@ export default class temp extends Phaser.Scene {
 
   preload () {
     // Preload assets
+    // Peggy spritesheet
+    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;

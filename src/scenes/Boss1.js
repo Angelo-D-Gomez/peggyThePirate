@@ -17,7 +17,7 @@ export default class Boss1 extends Phaser.Scene {
     });
     //Boss sprite (maybe create sprite sheet for him to give him a
     // some life with animations)
-    this.load.image('boss', './assets/Boss1/bossPirate.png');
+    this.load.image('boss', './assets/Boss1/bossPirate3.png');
 
 
     //Load tilemap and tileset
@@ -123,5 +123,6 @@ export default class Boss1 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+
   }
 }

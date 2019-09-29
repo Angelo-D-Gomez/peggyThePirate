@@ -11,8 +11,6 @@ export default class Level1 extends Phaser.Scene {
 
   preload () {
 
-    this.load.image("peggy", "./assets/spritesheets/mainCharacter")
-
     this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
       frameHeight: 32,
       frameWidth: 32
@@ -37,6 +35,14 @@ export default class Level1 extends Phaser.Scene {
   create (data) {
     //Create the scene
     ChangeScene.addSceneEventListeners(this);
+
+    this.player;
+    var background;
+    var bullets;
+    var bullet;
+    var enemy;
+    var enemyGroup;
+
     var score;
     this.score = 0;
     var background = this.add.sprite(1280/2, 960/2, "desert");
@@ -44,7 +50,7 @@ export default class Level1 extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.physics.world.setBounds(0, 0, 1280, 960);
-    this.player.setBounce(0.2);
+    //this.player.setBounce(0.2);
     this.cameras.main.setBounds(0, 0, 1280, 960);
     this.cameras.main.startFollow(this.player);
 
@@ -57,7 +63,6 @@ export default class Level1 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platforms);
 
-    var bullets, enemy, bullet, enemyGroup;
     this.nextFire = 0;
     this.fireRate = 200;
 
@@ -113,40 +118,60 @@ export default class Level1 extends Phaser.Scene {
   update (time, delta) {
     // Update the scene
 
-    var cursors = this.input.keyboard.createCursorKeys();
-    var speed = 5;
+
+    // Player Movement with WASD and shift to sprint
+    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
+    var speed = 200;
+
+    // Hold down shift to make Peggy sprint
+    // this must come before input detection of WASD because
+    // otherwise it wont change the speed variable before she
+    // starts moving
+    if (movement.SHIFT.isDown){
+      speed = 400;
+    }
+    else{
+      speed = 200;
+    }
+    // Move Left
+    if (movement.A.isDown){
+      this.player.setVelocityX(-speed);
+      this.player.flipX = true;
+      this.player.anims.play('walk', true);
+    }
+    // Move Right
+    else if (movement.D.isDown){
+      this.player.setVelocityX(speed);
+      this.player.flipX = false;
+      this.player.anims.play('walk', true);
+    }
+    // Idle
+    else {
+      this.player.anims.play('idle', true);
+      this.player.setVelocityX(0);
+    }
+    // player can jump if they are touching the ground
+    // removed the bounce because it means you cant jump right away after
+    // intial jump because the bounce puts them in air
+    if (movement.W.isDown && this.player.body.onFloor()){
+      this.player.setVelocityY(-250);
+    }
+    //allows fast falling for more player mobility
+    // jump and fall speed need to be experimented with
+    else if(movement.S.isDown && !this.player.body.onFloor()){
+      this.player.setVelocityY(500);
+    }
+
+    var bang = this.input.keyboard.addKeys('O');
+
 
     this.input.on(
   "pointermove",
   function(pointer){}, this
 );
-this.input.on("pointerdown", this.shoot, this);
+    this.input.on("pointerdown", this.shoot, this);
 
-    if (cursors.left.isDown){
-      this.player.x -= speed;
-      this.player.flipX = true;
-      this.player.anims.play('walk', true);
-    }
-
-    else if (cursors.right.isDown){
-      this.player.x += speed;
-      this.player.flipX = false;
-      this.player.anims.play('walk', true);
-    }
-
-    else {
-      this.player.anims.play('idle', true);
-    }
-
-    if (cursors.down.isDown){
-      this.player.y += speed;
-    }
-
-    else if (cursors.up.isDown){
-      this.player.y -= speed;
-    }
-
-//if player touches enemy
+    //if player touches enemy
     this.enemyGroup.children.each(
           function (b) {
             if (b.active) {
@@ -216,6 +241,7 @@ shoot(pointer) {
   gameOver(){
     //end game, goes to game over scene
     console.log('game over!');
+    this.scene.start('GameOver');
   }
 
   success(){

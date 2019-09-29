@@ -79,16 +79,18 @@ export default class Level1 extends Phaser.Scene {
     });
 
     //automate adding multiple enemies to an enemy
-    this.enemyGroup = this.physics.add.group({
-      key: 'enemy',
-      repeat: 4,
-      setXY: {
-        x: 200,
-        y: 100,
-        stepX: 300,
-        stepY: 200
-      }
-    });
+    this.enemyGroup = this.physics.add.group({});
+
+    this.enemy1 = this.physics.add.sprite(400, 100, 'enemy');
+    this.enemy2 = this.physics.add.sprite(600, 350, 'enemy');
+    this.enemy3 = this.physics.add.sprite(900, 500, 'enemy');
+    this.enemy4 = this.physics.add.sprite(1100, 700, 'enemy');
+    this.enemy5 = this.physics.add.sprite(1400, 900, 'enemy');
+    this.enemyGroup.add(this.enemy1);
+    this.enemyGroup.add(this.enemy2);
+    this.enemyGroup.add(this.enemy3);
+    this.enemyGroup.add(this.enemy4);
+    this.enemyGroup.add(this.enemy5);
 
     this.enemyGroup.children.iterate(function(child){
       child.setScale(3);
@@ -112,6 +114,79 @@ export default class Level1 extends Phaser.Scene {
     repeat: -1
   });
 
+//enemy has movement, varies per enemy
+
+//enemy1
+this.tweens.add({
+  targets: this.enemy1,
+  x: '-=200',
+  ease: "Linear",
+  delay: 1000,
+  duration: 2000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+//enemy2
+this.tweens.add({
+  targets: this.enemy2,
+  x: '-=300',
+  ease: "Linear",
+  delay: 1000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+//enemy3
+this.tweens.add({
+  targets: this.enemy3,
+  x: '-=100',
+  ease: "Linear",
+  delay: 1000,
+  duration: 1000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true,
+  repeatDelay: 1000
+});
+//enemy4...doesn't move for now...but maybe could shoot bullets?
+this.tweens.add({
+  targets: this.enemy4,
+//  x: '-=100',
+  ease: "Linear",
+  delay: 1000,
+  duration: 1000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+//enemy5
+this.tweens.add({
+  targets: this.enemy5,
+  x: '-=500',
+  ease: "Linear",
+  delay: 1000,
+  duration: 5000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+
+//if player touches enemy
+this.enemyGroup.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if enemyGroup touches player, calls function
+            b,
+            this.player,
+            this.gameOver,
+            null,
+            this
+          );
+        }
+      }.bind(this) //binds to each children
+    );
 
   }
 
@@ -170,21 +245,6 @@ export default class Level1 extends Phaser.Scene {
   function(pointer){}, this
 );
     this.input.on("pointerdown", this.shoot, this);
-
-    //if player touches enemy
-    this.enemyGroup.children.each(
-          function (b) {
-            if (b.active) {
-              this.physics.add.overlap( //if enemyGroup touches player, calls function
-                b,
-                this.player,
-                this.gameOver,
-                null,
-                this
-              );
-            }
-          }.bind(this) //binds to each children
-        );
 
 
     this.bullets.children.each(

@@ -46,7 +46,7 @@ export default class Level1 extends Phaser.Scene {
     var enemy;
     var enemyGroup;
 
-    let gunSound = this.sound.add('gunAudio')
+    this.gunSound = this.sound.add('gunAudio')
 
     var score;
     this.score = 0;
@@ -291,7 +291,7 @@ shoot(pointer) {
   bullet.enableBody(true, this.player.x, this.player.y, true, true)
   .setVelocity(velocity.x, velocity.y);
   // Play gun noise
-  gunSound.play();
+  this.gunSound.play();
 }
 
   hitEnemy(bullet, enemy){

@@ -19,6 +19,9 @@ export default class Boss1 extends Phaser.Scene {
     // some life with animations)
     this.load.image('boss', './assets/Boss1/bossPirate3.png');
 
+    //background
+    this.load.image('background', './assets/Boss1/bossBackground.png')
+
 
     //Load tilemap and tileset
     this.load.image('tiles', './assets/Boss1/shipAndBeachTiles.png');
@@ -30,6 +33,10 @@ export default class Boss1 extends Phaser.Scene {
   }
 
   create (data) {
+    //load level background first, everything built on top of it
+    var background = this.add.image(800/2, 600/2, "background");
+
+
     //Create player character
     this.player = this.physics.add.sprite(400, 550, 'peggy');
     this.player.setCollideWorldBounds(true);
@@ -42,11 +49,13 @@ export default class Boss1 extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 800, 600);
     this.cameras.main.startFollow(this.player);
 
+
     //create level layout
     const map = this.make.tilemap({ key: 'map' });
     var tileset = map.addTilesetImage('shipAndBeachTiles', 'tiles');
     const platforms = map.createStaticLayer('Boss Room Platforms', tileset, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
+
 
     //player can stand on the platforms
     this.physics.add.collider(this.player, platforms);

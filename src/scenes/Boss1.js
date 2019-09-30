@@ -296,7 +296,7 @@ this.enemyGroup.children.each(
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-325);
+      this.player.setVelocityY(-225);
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility

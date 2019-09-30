@@ -26,6 +26,10 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('tiles', './assets/Level_1/temp_tile.png');
     this.load.tilemapTiledJSON('map', './assets/Level_1/LVL1.json');
 
+    // Load the gun/jump sound effect
+    this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
+    this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -40,6 +44,11 @@ export default class Level1 extends Phaser.Scene {
     var bullet;
     var enemy;
     var enemyGroup;
+
+    // Initialize audio effects
+    this.gunSound = this.sound.add('gunAudio');
+    this.jumpSound = this.sound.add('jumpAudio');
+    this.jumpSound.volume = 0.1;
 
     var score;
     this.score = 0;
@@ -243,6 +252,7 @@ this.enemyGroup.children.each(
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
       this.player.setVelocityY(-225);
+      this.jumpSound.play();
     }
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
@@ -328,6 +338,8 @@ shoot(pointer) {
   var bullet = this.bullets.get();
   bullet.enableBody(true, this.player.x, this.player.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  // Play gun noise
+  this.gunSound.play();
 }
 
 //function for enemy to shoot in a straight line, no aim

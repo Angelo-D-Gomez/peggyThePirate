@@ -24,6 +24,8 @@ export default class Boss1 extends Phaser.Scene {
 
     //other game objects
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
+    this.load.image('cannon', './assets/sprites/cannon.png');
+    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
 
 
     //Load tilemap and tileset
@@ -73,59 +75,156 @@ export default class Boss1 extends Phaser.Scene {
     this.physics.add.collider(this.player, platforms);
 
     //add Boss character to level
-    this.boss = this.physics.add.sprite(400, 96, 'boss');
-    this.boss.setScale(2);
+    this.boss = this.physics.add.sprite(512, 96, 'boss');
+    this.boss.setScale(2)
+              .flipX = true;
+
     this.physics.add.collider(this.boss, platforms);
-    this.physics.add.collider(this.player, this.boss);
-
-    this.bullets;
-    //Lets add bullets
-    var Bullet = new Phaser.Class({
-
-    Extends: Phaser.GameObjects.Image,
-
-    initialize:
-      function Bullet (scene){
-        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-        this.speed = Phaser.Math.GetSpeed(250, 1);
-},
-
-      fire: function (x, y, flipX){
-        if (flipX == true){
-          this.flipX = flipX
-          this.setPosition(x-16, y);
-        }
-        else{
-          this.flipX = flipX
-          this.setPosition(x+16, y);
-        }
 
 
-        this.setActive(true);
-        this.setVisible(true);
-},
 
-      update: function (time, delta){
-        if (this.flipX === true){
-          this.x -= this.speed * delta;
-        }
-        else{
-          this.x += this.speed * delta;
-        }
-        if (this.x < 0 || this.x > 800){
-          this.setActive(false);
-          this.setVisible(false);
-    }
-}
 
-});
-    this.bullets = this.add.group({
-      classType: Bullet,
-      maxSize: 10,
-      runChildUpdate: true
+    //add his cannons
+    this.cannon1 = this.physics.add.sprite(64, 64, 'cannon');
+    this.cannon1.setScale(2);
+    this.cannon2 = this.physics.add.sprite(736, 64, 'cannon');
+    this.cannon2.setScale(2);
+    this.physics.add.collider(this.cannon1, platforms);
+    this.physics.add.collider(this.cannon2, platforms);
+
+    //adding smaller enemies
+    this.enemyGroup = this.physics.add.group({});
+
+
+    this.enemy1 = this.physics.add.sprite(300, 550, 'enemy');
+    this.enemyGroup.add(this.enemy1);
+    this.enemy2 = this.physics.add.sprite(690, 518, 'enemy');
+    this.enemyGroup.add(this.enemy2);
+    this.enemy3 = this.physics.add.sprite(626, 262, 'enemy');
+    this.enemyGroup.add(this.enemy3);
+
+    this.enemyGroup.children.iterate(function(child){
+      child.setScale(3.5);
+      child.setCollideWorldBounds(true);
     });
-    this.lastFired = 0;
 
+    this.physics.add.collider(this.enemyGroup, platforms);
+
+      this.enemyGroup.add(this.boss);
+
+    this.nextFire = 0;
+    this.fireRate = 200;
+
+    //add player's bullet group
+    this.bullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 10
+    });
+    this.bullets.children.iterate(function(child){
+      child.body.gravity.y = 0;
+      child.body.gravity.x = 0;
+});
+    //add enemy's bullet group
+    this.enemyBullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 100
+});
+    //how to get gravity of bullets to be zero??
+    this.enemyBullets.children.iterate(function(child){
+      child.body.gravity.y = 0;
+      child.body.gravity.x = 0;
+});
+
+
+//cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge
+this.tweens.add({
+  targets: this.cannon1,
+  ease: "Linear",
+  x: '-=0',
+  delay: 1000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true,
+  onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets)},
+ onRepeatScope: this
+});
+this.tweens.add({
+  targets: this.cannon2,
+  ease: "Linear",
+  x: '-=0',
+  delay: 1000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true,
+  onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets)},
+ onRepeatScope: this
+});
+// pirate boss Movement
+this.tweens.add({
+  targets: this.boss,
+  x: '-=224',
+  ease: "Linear",
+  delay: 1000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+//now tweens for the lil guys movements
+//enemy 1
+this.tweens.add({
+  targets: this.enemy1,
+  x: '-=180',
+  ease: "Linear",
+  delay: 1000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+// enemy 2
+this.add.tween({
+  targets: this.enemy2,
+  x: '-=180',
+  ease: "Linear",
+  delay: 2000,
+  duration: 2000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true,
+  onRepeat: function(){this.enemyShoot(this.enemy2, this.enemyBullets)},
+ onRepeatScope: this
+});
+this.add.tween({
+  targets: this.enemy3,
+  x: '-=384',
+  ease: "Linear",
+  delay: 2000,
+  duration: 2000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true,
+  onRepeat: function(){this.enemyShoot(this.enemy3, this.enemyBullets)},
+ onRepeatScope: this
+});
+
+
+//if player touches enemy
+this.enemyGroup.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if enemyGroup touches player, calls function
+            b,
+            this.player,
+            this.gameOver,
+            null,
+            this
+          );
+        }
+      }.bind(this) //binds to each children
+    );
 
 
     // animations
@@ -196,18 +295,160 @@ export default class Boss1 extends Phaser.Scene {
     }
 
     //Player fires weapon
-    var bang = this.input.keyboard.addKeys('O');
-    if (bang.O.isDown && time > this.lastFired)
-    {
-        var bullet = this.bullets.get();
-        if (bullet)
-        {
-            bullet.fire(this.player.x, this.player.y, this.player.flipX);
-            this.lastFired = time + 300;
-        }
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
+    if (Phaser.Input.Keyboard.JustDown(bang)){
+      if(this.player.flipX == false){
+        var velocity = {x: 1000, y: 0};
+      }
+      else{
+        var velocity = {x: -1000, y: 0};
+      }
+      var bullet = this.bullets.get();
+      bullet.enableBody(true, this.player.x, this.player.y, true, true)
+      .setVelocity(velocity.x, velocity.y);
+      // Play gun noise
+      this.gunSound.play();
     }
 
+    //player's bullet kills enemies
+        this.bullets.children.each(
+              function (b) {
+                if (b.active) {
+                  this.physics.add.overlap( //if bullet touches enemyGroup, calls function
+                    b,
+                    this.enemyGroup,
+                    this.hitEnemy,
+                    null,
+                    this
+                  );
+                  //refresh bullet group
+                  if (b.y < 0) { //if bullet off top of screen
+                    b.setActive(false);
+                  }
+                  else if (b.y > 600) { //if bullet off bottom of screen
+                    b.setActive(false);
+                  }
+                  else if (b.x < 0){
+                    b.setActive(false);
+                  }
+                  else if (b.x > 800){
+                    b.setActive(false);
+                  }
+                }
+              }.bind(this) //binds to each children
+            );
+
+        //enemys's bullet kills player
+        this.enemyBullets.children.each(
+                      function (b) {
+                        if (b.active) {
+                          this.physics.add.overlap( //if bullet touches player, calls function
+                            b,
+                            this.player,
+                            this.hitPlayer,
+                            null,
+                            this
+                          );
+                          //refresh bullet group
+                          if (b.y < 0) { //if bullet off top of screen
+                            b.setActive(false);
+                          }
+                          else if (b.y > 600) { //if bullet off bottom of screen
+                            b.setActive(false);
+                          }
+                          else if (b.x < 0){
+                            b.setActive(false);
+                          }
+                          else if (b.x > 800){
+                            b.setActive(false);
+                          }
+                        }
+                      }.bind(this) //binds to each children
+                    );
 
 
   }
+
+
+//player shoots
+shoot() {
+  if(this.player.flipX == false){
+    var velocity = {x: 1000, y: 0};
+  }
+  else{
+    var velocity = {x: -1000, y: 0};
+  }
+  var bullet = this.bullets.get();
+  bullet.enableBody(true, this.player.x, this.player.y, true, true)
+  .setVelocity(velocity.x, velocity.y);
+  // Play gun noise
+  this.gunSound.play();
+}
+
+//function for enemy to shoot in a straight line, no aim
+enemyShoot (enemy, bullets) {
+  console.log('enemy shoots!');
+  if(enemy.active){
+  if(enemy.flipX == true){
+    var velocity = {x: 700, y: 0};
+  }
+  else{
+    var velocity = {x: -700, y: 0};
+  }
+  var bullet = bullets.get();
+  bullet.enableBody(true, enemy.x, enemy.y, true, true)
+  .setVelocity(velocity.x, velocity.y);
+}
+}
+
+
+//targeted version of above function
+enemyShootTargeted (enemy, bullets) {
+  console.log('enemy shoots, targeted!');
+  if(enemy.active){
+    var betweenPoints = Phaser.Math.Angle.BetweenPoints;
+var angle = betweenPoints(enemy, this.player);
+var velocityFromRotation = this.physics.velocityFromRotation;
+//create variable called velocity from a vector2
+var velocity = new Phaser.Math.Vector2();
+velocityFromRotation(angle, 500, velocity);
+//get bullet group
+  var bullet = bullets.get();
+  bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
+  bullet.enableBody(true, enemy.x, enemy.y, true, true)
+  .setVelocity(velocity.x, velocity.y);
+}
+}
+
+//triggers when enemy is hit
+hitEnemy(bullet, enemy){
+  console.log('hit');
+  enemy.disableBody(true, true);
+  bullet.disableBody(true, true);
+  if (this.boss.body.enable == false){
+    this.success()
+  }
+}
+
+//triggers when player is hit
+    hitPlayer(bullet, player){
+      console.log('hit');
+      player.disableBody(true, true);
+      bullet.disableBody(true, true);
+      this.scene.start('GameOver');
+    }
+
+
+//end game, goes to game over scene
+gameOver(){
+console.log('game over!');
+this.scene.start('GameOver');
+}
+//successfully completed game, changes to success scene
+success(){
+    console.log('success!');
+    this.scene.start('successScene');
+}
+
 }

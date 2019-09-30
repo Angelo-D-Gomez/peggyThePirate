@@ -126,7 +126,6 @@ export default class Level1 extends Phaser.Scene {
     frameRate: 10,
     repeat: -1 //repeat forever
   });
-
   this.anims.create({
     key: "idle",
     frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
@@ -263,10 +262,6 @@ this.enemyGroup.children.each(
     var bang = this.input.keyboard.addKeys('O');
 
 
-    this.input.on(
-  "pointermove",
-  function(pointer){}, this
-);
     this.input.on("pointerdown", this.shoot, this);
 
 //player's bullet kills enemies

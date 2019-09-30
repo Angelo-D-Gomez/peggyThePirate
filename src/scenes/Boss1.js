@@ -76,6 +76,7 @@ export default class Boss1 extends Phaser.Scene {
     this.boss = this.physics.add.sprite(400, 96, 'boss');
     this.boss.setScale(2);
     this.physics.add.collider(this.boss, platforms);
+    this.physics.add.collider(this.player, this.boss);
 
     this.bullets;
     //Lets add bullets

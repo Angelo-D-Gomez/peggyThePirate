@@ -87,6 +87,52 @@ export default class Boss1 extends Phaser.Scene {
     this.physics.add.collider(this.cannon1, platforms);
     this.physics.add.collider(this.cannon2, platforms);
 
+    this.bullets;
+    //Lets add bullets
+    var Bullet = new Phaser.Class({
+
+    Extends: Phaser.GameObjects.Image,
+
+    initialize:
+      function Bullet (scene){
+        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+        this.speed = Phaser.Math.GetSpeed(250, 1);
+},
+
+      fire: function (x, y, flipX){
+        if (flipX == true){
+          this.flipX = flipX
+          this.setPosition(x-16, y);
+        }
+        else{
+          this.flipX = flipX
+          this.setPosition(x+16, y);
+        }
+        this.setActive(true);
+        this.setVisible(true);
+},
+
+      update: function (time, delta){
+        if (this.flipX === true){
+          this.x -= this.speed * delta;
+        }
+        else{
+          this.x += this.speed * delta;
+        }
+        if (this.x < 0 || this.x > 800){
+          this.setActive(false);
+          this.setVisible(false);
+        }
+
+}
+
+});
+    this.bullets = this.add.group({
+      classType: Bullet,
+      maxSize: 10,
+      runChildUpdate: true
+    });
+    this.lastFired = 0;
 
 
 
@@ -162,7 +208,19 @@ export default class Boss1 extends Phaser.Scene {
 
     //Player fires weapon
     var bang = this.input.keyboard.addKeys('O');
-
+    if (bang.O.isDown && time > this.lastFired)
+    {
+        var bullet = this.bullets.get();
+        bullet.enableBody;
+        if (bullet)
+        {
+            bullet.fire(this.player.x, this.player.y, this.player.flipX);
+            this.lastFired = time + 300;
+        }
+    }
+    if (this.boss.body.touching.bullet){
+      this.boss.setVisible(false);
+    }
 
 
   }

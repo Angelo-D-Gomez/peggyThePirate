@@ -13,6 +13,7 @@ export default class GameOver extends Phaser.Scene {
     // Preload assets
     this.load.image('peggyIcon', './assets/sprites/peggyIcon.png');
     this.load.image('parrot', './assets/sprites/parrot_large.png');
+    this.load.audio('losingAudio', './assets/audio/minorInstrumental(JonECope).mp3');
     this.load.spritesheet("gameOverSheet", "./assets/spriteSheets/GameOver.png", {
       frameWidth: 32,
       frameHeight: 32
@@ -27,6 +28,8 @@ export default class GameOver extends Phaser.Scene {
     // add event addSceneEventListeners
 
     this.cameras.main.setBackgroundColor('#150033');
+    this.losingMusic = this.sound.add('losingAudio');
+    this.losingMusic.play();
 
     // create all the text and icons on the screen.
     /*

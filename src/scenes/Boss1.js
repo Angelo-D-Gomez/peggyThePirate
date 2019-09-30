@@ -37,6 +37,7 @@ export default class Boss1 extends Phaser.Scene {
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;
+    var bullets;
   }
 
   create (data) {
@@ -76,9 +77,53 @@ export default class Boss1 extends Phaser.Scene {
     this.boss.setScale(2);
     this.physics.add.collider(this.boss, platforms);
 
+    this.bullets;
     //Lets add bullets
-    var bullets;
-    
+    var Bullet = new Phaser.Class({
+
+    Extends: Phaser.GameObjects.Image,
+
+    initialize:
+      function Bullet (scene){
+        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+        this.speed = Phaser.Math.GetSpeed(250, 1);
+},
+
+      fire: function (x, y, flipX){
+        if (flipX == true){
+          this.flipX = flipX
+          this.setPosition(x-16, y);
+        }
+        else{
+          this.flipX = flipX
+          this.setPosition(x+16, y);
+        }
+
+
+        this.setActive(true);
+        this.setVisible(true);
+},
+
+      update: function (time, delta){
+        if (this.flipX === true){
+          this.x -= this.speed * delta;
+        }
+        else{
+          this.x += this.speed * delta;
+        }
+        if (this.x < 0 || this.x > 800){
+          this.setActive(false);
+          this.setVisible(false);
+    }
+}
+
+});
+    this.bullets = this.add.group({
+      classType: Bullet,
+      maxSize: 10,
+      runChildUpdate: true
+    });
+    this.lastFired = 0;
 
 
 
@@ -91,7 +136,6 @@ export default class Boss1 extends Phaser.Scene {
     frameRate: 10,
     repeat: -1 //repeat forever
   });
-
   this.anims.create({
     key: "idle",
     frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
@@ -152,7 +196,15 @@ export default class Boss1 extends Phaser.Scene {
 
     //Player fires weapon
     var bang = this.input.keyboard.addKeys('O');
-
+    if (bang.O.isDown && time > this.lastFired)
+    {
+        var bullet = this.bullets.get();
+        if (bullet)
+        {
+            bullet.fire(this.player.x, this.player.y, this.player.flipX);
+            this.lastFired = time + 300;
+        }
+    }
 
 
 

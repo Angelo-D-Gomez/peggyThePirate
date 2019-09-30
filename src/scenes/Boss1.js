@@ -35,6 +35,8 @@ export default class Boss1 extends Phaser.Scene {
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+    this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
+    this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -47,9 +49,18 @@ export default class Boss1 extends Phaser.Scene {
     var background = this.add.image(800/2, 600/2, "background");
 
     // initialize audio effects
+    this.gameMusic = this.sound.add('gameAudio');
+    this.gameMusic.volume = 0.1;
     this.gunSound = this.sound.add('gunAudio');
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
+    this.screamSound = this.sound.add('screamAudio');
+
+    //speed up the music
+    this.gameMusic.setRate(1.5);
+    this.gameMusic.setLoop(true);
+    this.gameMusic.play();
+
 
     //Create player character
     this.player = this.physics.add.sprite(400, 550, 'peggy');
@@ -285,7 +296,7 @@ this.enemyGroup.children.each(
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-225);
+      this.player.setVelocityY(-325);
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility
@@ -426,6 +437,8 @@ hitEnemy(bullet, enemy){
   console.log('hit');
   enemy.disableBody(true, true);
   bullet.disableBody(true, true);
+  //play hurt sound
+  this.screamSound.play();
   if (this.boss.body.enable == false){
     this.success()
   }
@@ -436,17 +449,23 @@ hitEnemy(bullet, enemy){
       console.log('hit');
       player.disableBody(true, true);
       bullet.disableBody(true, true);
+      // Play hurt Sound
+      this.screamSound.play();
       this.scene.start('GameOver');
     }
 
 
 //end game, goes to game over scene
 gameOver(){
+  // Stop music if playing
+  this.gameMusic.stop();
 console.log('game over!');
 this.scene.start('GameOver');
 }
 //successfully completed game, changes to success scene
 success(){
+  //Stop the music
+  this.gameMusic.stop();
     console.log('success!');
     this.scene.start('successScene');
 }

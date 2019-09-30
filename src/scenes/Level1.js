@@ -28,10 +28,11 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('tiles', './assets/Level_1/temp_tile.png');
     this.load.tilemapTiledJSON('map', './assets/Level_1/LVL1.json');
 
-    // Load the gun/jump sound effect
+    // Load the gun/jump sound effect / music
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
-
+    this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -40,7 +41,7 @@ export default class Level1 extends Phaser.Scene {
 
   create (data) {
     //Create the scene
-    ChangeScene.addSceneEventListeners(this);
+    //ChangeScene.addSceneEventListeners(this);
 
     var bullets;
     var bullet;
@@ -48,9 +49,16 @@ export default class Level1 extends Phaser.Scene {
     var enemyGroup;
 
     // Initialize audio effects
+    this.gameMusic = this.sound.add('gameAudio');
     this.gunSound = this.sound.add('gunAudio');
     this.jumpSound = this.sound.add('jumpAudio');
+    this.screamSound = this.sound.add('screamAudio');
     this.jumpSound.volume = 0.1;
+    this.gameMusic.volume = 0.1;
+    this.gameMusic.setLoop(true);
+    this.gameMusic.play();
+
+
 
     var score;
     this.score = 0;
@@ -264,7 +272,8 @@ this.enemyGroup.children.each(
       this.sword.angle += 1;
     }
 
-    if(this.enemy2.active = false){
+    if(this.enemy2.active == false){
+      // enemy is active
       this.sword.visible = false;
     }
 
@@ -299,7 +308,7 @@ this.enemyGroup.children.each(
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-225);
+      this.player.setVelocityY(-325);
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility
@@ -428,6 +437,7 @@ velocityFromRotation(angle, 500, velocity);
     bullet.disableBody(true, true);
     this.score += 1;
     console.log(this.score);
+    this.screamSound.play();
     if(this.score >= 5){
       this.success();
     }
@@ -436,13 +446,18 @@ velocityFromRotation(angle, 500, velocity);
 //what happens if player is hit by enemy's bullet
     hitPlayer(bullet, player){
       console.log('hit');
+      this.screamSound.play();
       player.disableBody(true, true);
       bullet.disableBody(true, true);
-      this.scene.start('GameOver');
+      this.gameOver();
     }
 
     //end game, goes to game over scene
   gameOver(){
+    this.gameMusic.stop();
+    if(!this.screamSound.isPlaying){
+      this.screamSound.play();
+    }
     console.log('game over!');
     this.scene.start('GameOver');
   }
@@ -450,6 +465,7 @@ velocityFromRotation(angle, 500, velocity);
   //successfully completed game, changes to success scene
   success(){
       console.log('success!');
+      this.gameMusic.stop();
       this.scene.start('successScene');
   }
 }

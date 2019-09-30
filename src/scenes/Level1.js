@@ -19,7 +19,9 @@ export default class Level1 extends Phaser.Scene {
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
-    this.load.image('L1', './assets/Level_1/LVL1.0.png')
+    this.load.image("swordenemy", "./assets/possibleAssets/pirates.v1 copy.png");
+    this.load.image("sword", "./assets/possibleAssets/sword.png");
+    this.load.image('L1', './assets/Level_1/LVL1.0.png');
 
 
     //attemping to load tile map
@@ -40,8 +42,6 @@ export default class Level1 extends Phaser.Scene {
     //Create the scene
     ChangeScene.addSceneEventListeners(this);
 
-    this.player;
-    var background;
     var bullets;
     var bullet;
     var enemy;
@@ -90,7 +90,7 @@ export default class Level1 extends Phaser.Scene {
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
       defaultKey: "bullet",
-      maxSize: 10
+      maxSize: 100
     });
 
     //how to get gravity of bullets to be zero??
@@ -102,8 +102,8 @@ export default class Level1 extends Phaser.Scene {
     //automate adding multiple enemies to an enemy
     this.enemyGroup = this.physics.add.group({});
 
-    this.enemy1 = this.physics.add.sprite(400, 100, 'enemy');
-    this.enemy2 = this.physics.add.sprite(600, 350, 'enemy');
+    this.enemy1 = this.physics.add.sprite(900, 350, 'enemy');
+    this.enemy2 = this.physics.add.sprite(400, 350, 'swordenemy');
     this.enemy3 = this.physics.add.sprite(900, 500, 'enemy');
     this.enemy4 = this.physics.add.sprite(1100, 700, 'enemy');
     this.enemy5 = this.physics.add.sprite(1400, 900, 'enemy');
@@ -120,6 +120,11 @@ export default class Level1 extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platforms);
 
+    this.sword = this.add.sprite(this.enemy2.x+25, this.enemy2.y+50, 'sword');
+    this.sword.setScale(2);
+    //this.sword.visible = false;
+    this.switch = true;
+    this.physics.add.collider(this.sword, this.player);
 
     //create animation from spritesheet
   this.anims.create({
@@ -128,7 +133,6 @@ export default class Level1 extends Phaser.Scene {
     frameRate: 10,
     repeat: -1 //repeat forever
   });
-
   this.anims.create({
     key: "idle",
     frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
@@ -147,19 +151,31 @@ this.enemy1tween = this.add.tween({
   yoyo: true,
   repeat: -1,
   flipX: true,
-  onLoop: this.enemyShoot(this.enemy1, this.enemyBullets)
+  onRepeat: function(){this.enemyShoot(this.enemy1, this.enemyBullets)},
+ onRepeatScope: this
 });
 
-//enemy2
+//enemy2- has sword bc swords are COOL
 this.tweens.add({
   targets: this.enemy2,
-  x: '-=300',
+  x: '-=200',
   ease: "Linear",
   delay: 1000,
-  duration: 3000,
+  duration: 2000,
+  repeatDelay: 3000,
   yoyo: true,
   repeat: -1,
   flipX: true
+});
+this.tweens.add({
+  targets: this.sword,
+  x: '-=200',
+  ease: "Linear",
+  delay: 1000,
+  duration: 2000,
+  repeatDelay: 3000,
+  yoyo: true,
+  repeat: -1
 });
 //enemy3
 this.tweens.add({
@@ -173,16 +189,18 @@ this.tweens.add({
   flipX: true,
   repeatDelay: 1000
 });
-//enemy4...doesn't move for now...but maybe could shoot bullets?
+//enemy4- doesn't move but shoots targeted bullets for player to dodge
 this.tweens.add({
   targets: this.enemy4,
-//  x: '-=100',
   ease: "Linear",
+  x: '-=0',
   delay: 1000,
-  duration: 1000,
+  duration: 3000,
   yoyo: true,
   repeat: -1,
-  flipX: true
+  flipX: true,
+  onRepeat: function(){this.enemyShootTargeted(this.enemy4, this.enemyBullets)},
+ onRepeatScope: this
 });
 //enemy5
 this.tweens.add({
@@ -193,8 +211,22 @@ this.tweens.add({
   duration: 5000,
   yoyo: true,
   repeat: -1,
-  flipX: true
+  flipX: true,
+  onRepeat: function(){this.enemyShoot(this.enemy5, this.enemyBullets)},
+ onRepeatScope: this
 });
+
+//if sword touches player
+if (this.enemy2.active) {
+  this.physics.add.overlap( //if sword touches player, calls function
+    this.sword,
+    this.player,
+    this.gameOver,
+    null,
+    this
+  );
+}
+
 
 //if player touches enemy
 this.enemyGroup.children.each(
@@ -218,6 +250,23 @@ this.enemyGroup.children.each(
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed;
+
+    if(this.sword.angle<=0){
+      this.switch = false;
+    }
+    else if(this.sword.angle>=150){
+      this.switch = true;
+    }
+    if(this.switch){
+      this.sword.angle -= 1;
+    }
+    else{
+      this.sword.angle += 1;
+    }
+
+    if(this.enemy2.active = false){
+      this.sword.visible = false;
+    }
 
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
@@ -262,10 +311,6 @@ this.enemyGroup.children.each(
     var bang = this.input.keyboard.addKeys('O');
 
 
-    this.input.on(
-  "pointermove",
-  function(pointer){}, this
-);
     this.input.on("pointerdown", this.shoot, this);
 
 //player's bullet kills enemies
@@ -341,9 +386,11 @@ shoot(pointer) {
   this.gunSound.play();
 }
 
+//function for enemy to shoot in a straight line, no aim
 enemyShoot (enemy, bullets) {
   console.log('enemy shoots!');
-  if(enemy.flipX == true){
+  if(enemy.active){
+  if(enemy.flipX == false){
     var velocity = {x: 700, y: 0};
   }
   else{
@@ -353,9 +400,28 @@ enemyShoot (enemy, bullets) {
   bullet.enableBody(true, enemy.x, enemy.y, true, true)
   .setVelocity(velocity.x, velocity.y);
 }
+}
+
+//targeted version of above function
+enemyShootTargeted (enemy, bullets) {
+  console.log('enemy shoots, targeted!');
+  if(enemy.active){
+    var betweenPoints = Phaser.Math.Angle.BetweenPoints;
+var angle = betweenPoints(enemy, this.player);
+var velocityFromRotation = this.physics.velocityFromRotation;
+//create variable called velocity from a vector2
+var velocity = new Phaser.Math.Vector2();
+velocityFromRotation(angle, 500, velocity);
+//get bullet group
+  var bullet = bullets.get();
+  bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
+  bullet.enableBody(true, enemy.x, enemy.y, true, true)
+  .setVelocity(velocity.x, velocity.y);
+}
+}
 
 
-
+//what happens if an enemy is hit by player's bullet
   hitEnemy(bullet, enemy){
     console.log('hit');
     enemy.disableBody(true, true);
@@ -367,6 +433,7 @@ enemyShoot (enemy, bullets) {
     }
   }
 
+//what happens if player is hit by enemy's bullet
     hitPlayer(bullet, player){
       console.log('hit');
       player.disableBody(true, true);
@@ -374,15 +441,15 @@ enemyShoot (enemy, bullets) {
       this.scene.start('GameOver');
     }
 
-  gameOver(){
     //end game, goes to game over scene
+  gameOver(){
     console.log('game over!');
     this.scene.start('GameOver');
   }
 
+  //successfully completed game, changes to success scene
   success(){
       console.log('success!');
       this.scene.start('successScene');
-      //successfully completed game, changes to success scene
   }
 }

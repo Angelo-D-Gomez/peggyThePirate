@@ -451,7 +451,7 @@ hitEnemy(bullet, enemy){
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();
-      this.scene.start('GameOver');
+      this.gameOver();
     }
 
 

@@ -63,7 +63,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(400, 550, 'peggy');
+    this.player = this.physics.add.sprite(32, 32, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 

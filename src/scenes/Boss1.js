@@ -63,7 +63,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(32, 32, 'peggy');
+    this.player = this.physics.add.sprite(400, 550, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -318,6 +318,7 @@ this.enemyGroup.children.each(
       var bullet = this.bullets.get();
       bullet.enableBody(true, this.player.x, this.player.y, true, true)
       .setVelocity(velocity.x, velocity.y);
+      bullet.body.setAllowGravity(false);
       // Play gun noise
       this.gunSound.play();
     }
@@ -393,6 +394,7 @@ shoot() {
   var bullet = this.bullets.get();
   bullet.enableBody(true, this.player.x, this.player.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
   // Play gun noise
   this.gunSound.play();
 }
@@ -410,6 +412,7 @@ enemyShoot (enemy, bullets) {
   var bullet = bullets.get();
   bullet.enableBody(true, enemy.x, enemy.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
 }
 }
 
@@ -429,6 +432,7 @@ velocityFromRotation(angle, 500, velocity);
   bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
   bullet.enableBody(true, enemy.x, enemy.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
 }
 }
 

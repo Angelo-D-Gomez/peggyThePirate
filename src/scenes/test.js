@@ -89,7 +89,7 @@ export default class test extends Phaser.Scene {
     // Update the scene
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
+    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT');
     var speed;
 
     // Hold down shift to make Peggy sprint

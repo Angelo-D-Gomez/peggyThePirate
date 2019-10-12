@@ -6,6 +6,7 @@ import successScene from './scenes/successScene.js';
 import GameOver from './scenes/GameOverScene.js'
 import Config from './config/config.js';
 import Level1v2 from './scenes/Level1.1.js';
+import test from './scenes/test.js';
 
 
 class Game extends Phaser.Game {
@@ -17,7 +18,8 @@ class Game extends Phaser.Game {
     this.scene.add('GameOver', GameOver);
     this.scene.add('successScene', successScene);
     this.scene.add('Boss1', Boss1);
-    this.scene.start('Boot');
+    this.scene.add('test', test);
+    this.scene.start('Level1v2');
   }
   }
 

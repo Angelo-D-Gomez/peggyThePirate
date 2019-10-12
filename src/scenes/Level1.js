@@ -308,7 +308,7 @@ this.enemyGroup.children.each(
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-325);
+      this.player.setVelocityY(-225);
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility
@@ -317,10 +317,23 @@ this.enemyGroup.children.each(
       this.player.setVelocityY(300);
     }
 
-    var bang = this.input.keyboard.addKeys('O');
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
+    if (Phaser.Input.Keyboard.JustDown(bang)){
+      if(this.player.flipX == false){
+        var velocity = {x: 1000, y: 0};
+      }
+      else{
+        var velocity = {x: -1000, y: 0};
+      }
+      var bullet = this.bullets.get();
+      bullet.enableBody(true, this.player.x, this.player.y, true, true)
+      .setVelocity(velocity.x, velocity.y);
+      // Play gun noise
+      this.gunSound.play();
+    }
 
 
-    this.input.on("pointerdown", this.shoot, this);
 
 //player's bullet kills enemies
     this.bullets.children.each(

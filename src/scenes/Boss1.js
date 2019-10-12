@@ -296,7 +296,7 @@ this.enemyGroup.children.each(
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-325);
+      this.player.setVelocityY(-225);
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility
@@ -318,6 +318,7 @@ this.enemyGroup.children.each(
       var bullet = this.bullets.get();
       bullet.enableBody(true, this.player.x, this.player.y, true, true)
       .setVelocity(velocity.x, velocity.y);
+      bullet.body.setAllowGravity(false);
       // Play gun noise
       this.gunSound.play();
     }
@@ -393,6 +394,7 @@ shoot() {
   var bullet = this.bullets.get();
   bullet.enableBody(true, this.player.x, this.player.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
   // Play gun noise
   this.gunSound.play();
 }
@@ -410,6 +412,7 @@ enemyShoot (enemy, bullets) {
   var bullet = bullets.get();
   bullet.enableBody(true, enemy.x, enemy.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
 }
 }
 
@@ -429,6 +432,7 @@ velocityFromRotation(angle, 500, velocity);
   bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
   bullet.enableBody(true, enemy.x, enemy.y, true, true)
   .setVelocity(velocity.x, velocity.y);
+  bullet.body.setAllowGravity(false);
 }
 }
 
@@ -451,7 +455,7 @@ hitEnemy(bullet, enemy){
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();
-      this.scene.start('GameOver');
+      this.gameOver();
     }
 
 

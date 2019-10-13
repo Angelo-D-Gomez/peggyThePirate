@@ -10,6 +10,8 @@ export default class Level1 extends Phaser.Scene {
 
     // Load the health score
     this.gameHealth = 0;
+    this.waitASecond = false;
+    this.startTime = Date.now();
   }
 
   preload () {
@@ -160,8 +162,10 @@ export default class Level1 extends Phaser.Scene {
 
   // Display the health bar based on health score
   this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
-  this.healthbar.setScale(2);
+  this.healthbar.setScale(1);
   this.healthbar.body.setAllowGravity(false);
+  // Move as the camera moves
+  this.healthbar.setScrollFactor(0,0);
 
 
 
@@ -253,7 +257,7 @@ if (this.enemy2.active) {
   this.physics.add.overlap( //if sword touches player, calls function
     this.sword,
     this.player,
-    this.gameOver,
+    this.healthHurt,
     null,
     this
   );
@@ -267,7 +271,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -278,10 +282,14 @@ this.enemyGroup.children.each(
   }
 
   update (time, delta) {
+    console.log(this.gameHealth);
     // Update the scene
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed;
+
+    //this.healthbar.x = this.cameras.main.x+20;
+    //this.healthbar.y = this.cameras.main.y+48;
 
     if(this.sword.angle<=0){
       this.switch = false;
@@ -485,10 +493,56 @@ velocityFromRotation(angle, 500, velocity);
     hitPlayer(bullet, player){
       console.log('hit');
       this.screamSound.play();
-      player.disableBody(true, true);
+      //player.disableBody(true, true);
       bullet.disableBody(true, true);
-      this.gameOver();
+      this.healthHurt;
     }
+
+//If player loses health --------------------------------------------------------
+  healthHurt(){
+    console.log("Health hurt function called")
+    // Add one to health hurt score
+
+    if (this.waitASecond){
+      // Wait a second before taking another damage
+      if (Date.now() >= this.startTime + 1000) {
+        this.waitASecond = false;
+      }
+    }
+    // If the user has waited a second since last hit
+    else if (!this.waitASecond){
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 14){
+
+        // Create a temporary path for the animation
+        var tempStringPath = "healthActive";
+        tempStringPath += this.gameHealth;
+
+        // Create the animation for the Health bar to switch to
+        this.anims.create({
+          key: tempStringPath,
+          frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+          frameRate: 1,
+          repeat: -1
+        });
+        this.healthbar.anims.play(tempStringPath, true);
+
+
+      }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+
+      //Wait a second
+    }
+  }
 
     //end game, goes to game over scene
   gameOver(){

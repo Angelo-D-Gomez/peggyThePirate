@@ -11,7 +11,6 @@ import test from './scenes/test.js';
 
 
 class Game extends Phaser.Game {
-  //var gameHealth = 0;
   constructor () {
     super(Config);
     this.scene.add('Boot', BootScene);
@@ -21,7 +20,7 @@ class Game extends Phaser.Game {
     this.scene.add('successScene', successScene);
     this.scene.add('Boss1', Boss1);
     this.scene.add('test', test);
-    this.scene.start('Level1'); /////
+    this.scene.start('Level1');
     /////this.scene.start('Level1v2');
   }
 }

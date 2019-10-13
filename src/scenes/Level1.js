@@ -7,6 +7,9 @@ export default class Level1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+
+    // Load the health score
+    this.gameHealth = 0;
   }
 
   preload () {
@@ -15,7 +18,14 @@ export default class Level1 extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.image('bullet', './assets/sprites/bomb.png');
+
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
@@ -145,6 +155,20 @@ export default class Level1 extends Phaser.Scene {
     key: "idle",
     frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
     frameRate: 10,
+    repeat: -1
+  });
+
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+  this.healthbar.setScale(2);
+  this.healthbar.body.setAllowGravity(false);
+
+
+
+  this.anims.create({
+    key: "healthActive",
+    frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+    frameRate: 0,
     repeat: -1
   });
 
@@ -328,7 +352,8 @@ this.enemyGroup.children.each(
       }
       var bullet = this.bullets.get();
       bullet.enableBody(true, this.player.x, this.player.y, true, true)
-      .setVelocity(velocity.x, velocity.y);
+      .setVelocity(velocity.x, velocity.y)
+      .setScale(0.5);
       // Play gun noise
       this.gunSound.play();
     }

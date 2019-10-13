@@ -16,6 +16,8 @@ export default class Level1v2 extends Phaser.Scene {
       frameWidth: 32
     });
 
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
+
     // load background
     this.load.image('beachBackground', './assets/Level1.1/beachArtwork.png')
 
@@ -66,6 +68,15 @@ export default class Level1v2 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.player, platforms2);
+
+    //add player's bullet group
+    this.bullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 10
+    });
+    this.bullets.children.iterate(function(child){
+    }
+  );
 
 
 
@@ -135,5 +146,50 @@ export default class Level1v2 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+
+        var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
+        if (Phaser.Input.Keyboard.JustDown(bang)){
+          if(this.player.flipX == false){
+            var velocity = {x: 1000, y: 0};
+          }
+          else{
+            var velocity = {x: -1000, y: 0};
+          }
+          var bullet = this.bullets.get();
+          bullet.enableBody(true, this.player.x, this.player.y, true, true)
+          .setVelocity(velocity.x, velocity.y);
+          bullet.body.setAllowGravity(false);
+          // Play gun noise
+          this.gunSound.play();
+        }
+
+        //player's bullet kills enemies
+            this.bullets.children.each(
+                  function (b) {
+                    if (b.active) {
+                      this.physics.add.overlap( //if bullet touches enemyGroup, calls function
+                        b,
+                        this.enemyGroup,
+                        this.hitEnemy,
+                        null,
+                        this
+                      );
+                      //refresh bullet group
+                      if (b.y < 0) { //if bullet off top of screen
+                        b.setActive(false);
+                      }
+                      else if (b.y > 600) { //if bullet off bottom of screen
+                        b.setActive(false);
+                      }
+                      else if (b.x < 0){
+                        b.setActive(false);
+                      }
+                      else if (b.x > 800){
+                        b.setActive(false);
+                      }
+                    }
+                  }.bind(this) //binds to each children
+                );
   }
 }

@@ -7,6 +7,11 @@ export default class Level1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+
+    // Load the health score
+    this.gameHealth = 0;
+    this.waitASecond = false;
+    this.startTime = Date.now();
   }
 
   preload () {
@@ -15,7 +20,14 @@ export default class Level1 extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.image('bullet', './assets/sprites/bomb.png');
+
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
@@ -148,6 +160,22 @@ export default class Level1 extends Phaser.Scene {
     repeat: -1
   });
 
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+  this.healthbar.setScale(1);
+  this.healthbar.body.setAllowGravity(false);
+  // Move as the camera moves
+  this.healthbar.setScrollFactor(0,0);
+
+
+
+  this.anims.create({
+    key: "healthActive",
+    frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+    frameRate: 0,
+    repeat: -1
+  });
+
 //enemy has movement, varies per enemy
 //enemy1
 this.enemy1tween = this.add.tween({
@@ -229,7 +257,7 @@ if (this.enemy2.active) {
   this.physics.add.overlap( //if sword touches player, calls function
     this.sword,
     this.player,
-    this.gameOver,
+    this.healthHurt,
     null,
     this
   );
@@ -243,7 +271,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -254,10 +282,14 @@ this.enemyGroup.children.each(
   }
 
   update (time, delta) {
+    console.log(this.gameHealth);
     // Update the scene
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed;
+
+    //this.healthbar.x = this.cameras.main.x+20;
+    //this.healthbar.y = this.cameras.main.y+48;
 
     if(this.sword.angle<=0){
       this.switch = false;
@@ -328,7 +360,8 @@ this.enemyGroup.children.each(
       }
       var bullet = this.bullets.get();
       bullet.enableBody(true, this.player.x, this.player.y, true, true)
-      .setVelocity(velocity.x, velocity.y);
+      .setVelocity(velocity.x, velocity.y)
+      .setScale(0.5);
       // Play gun noise
       this.gunSound.play();
     }
@@ -458,12 +491,59 @@ velocityFromRotation(angle, 500, velocity);
 
 //what happens if player is hit by enemy's bullet
     hitPlayer(bullet, player){
-      console.log('hit');
+      console.log('hitt');
+      this.healthHurt();
       this.screamSound.play();
-      player.disableBody(true, true);
+      //player.disableBody(true, true);
       bullet.disableBody(true, true);
-      this.gameOver();
+
     }
+
+//If player loses health --------------------------------------------------------
+  healthHurt(){
+    //console.log("Health hurt function called")
+    // Add one to health hurt score
+
+    if (this.waitASecond){
+      // Wait a second before taking another damage
+      if (Date.now() >= this.startTime + 900) {
+        this.waitASecond = false;
+      }
+    }
+    // If the user has waited a second since last hit
+    else if (!this.waitASecond){
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 14){
+
+        // Create a temporary path for the animation
+        var tempStringPath = "healthActive";
+        tempStringPath += this.gameHealth;
+
+        // Create the animation for the Health bar to switch to
+        this.anims.create({
+          key: tempStringPath,
+          frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+          frameRate: 1,
+          repeat: -1
+        });
+        this.healthbar.anims.play(tempStringPath, true);
+
+
+      }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+
+      //Wait a second
+    }
+  }
 
     //end game, goes to game over scene
   gameOver(){

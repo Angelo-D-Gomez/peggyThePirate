@@ -491,21 +491,22 @@ velocityFromRotation(angle, 500, velocity);
 
 //what happens if player is hit by enemy's bullet
     hitPlayer(bullet, player){
-      console.log('hit');
+      console.log('hitt');
+      this.healthHurt();
       this.screamSound.play();
       //player.disableBody(true, true);
       bullet.disableBody(true, true);
-      this.healthHurt;
+
     }
 
 //If player loses health --------------------------------------------------------
   healthHurt(){
-    console.log("Health hurt function called")
+    //console.log("Health hurt function called")
     // Add one to health hurt score
 
     if (this.waitASecond){
       // Wait a second before taking another damage
-      if (Date.now() >= this.startTime + 1000) {
+      if (Date.now() >= this.startTime + 900) {
         this.waitASecond = false;
       }
     }

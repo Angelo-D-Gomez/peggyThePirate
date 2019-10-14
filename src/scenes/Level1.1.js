@@ -16,11 +16,6 @@ export default class Level1v2 extends Phaser.Scene {
       frameWidth: 32
     });
 
-    //good objects
-    this.load.image('heart', './assets/sprites/heart.png');
-    this.load.image('chest', './assets/sprites/treasure.png');
-    this.load.image('boots', './assets/sprites/goldShoes.png');
-
     //projectiles
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('coconut', './assets/sprites/coconut_small.png');
@@ -84,7 +79,6 @@ export default class Level1v2 extends Phaser.Scene {
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.player, platforms2);
 
-
     //add player's bullet group
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -110,11 +104,6 @@ export default class Level1v2 extends Phaser.Scene {
       //how to get gravity of bullets to be zero??
       this.enemyCoconuts.children.iterate(function(child){
   });
-
-    //create health packs
-    this.heart1 = this.physics.add.sprite(832, 544, 'heart');
-    this.heart1.setScale(2);
-    this.physics.add.collider(this.heart1, platforms);
 
     //create enemy group
     this.enemyGroup = this.physics.add.group({});
@@ -152,19 +141,8 @@ export default class Level1v2 extends Phaser.Scene {
           }.bind(this) //binds to each children
         );
 
-    //this.chest = this.physics.add.sprite(2432, 1856,'chest');
-    //this.physics.add.collider(this.chest, platforms2);
 
-    this.boots = this.physics.add.sprite(2432, 1856,'boots');
-    this.physics.add.collider(this.boots, platforms2);
-    //for double jumping
-    this.bootsObtained = false;
-    this.midairGood = true;
 
-    this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
-
-    //if player touches chest
-    //this.physics.add.collider(this.player, this.chest, function(){});
 
 
     // animations
@@ -187,12 +165,12 @@ export default class Level1v2 extends Phaser.Scene {
       targets: this.monkey1,
       ease: "Linear",
       x: '-=0',
-      delay: 1000,
+      delay: 1000, //add delay so monkey takes time to throw coconut
       duration: 3000,
       yoyo: true,
       repeat: -1,
       flipX: true,
-      //onRepeat: function(){this.enemyShootTargeted(this.monkey1, this.enemyCoconuts)},
+      onRepeat: function(){this.enemyShootTargeted(this.monkey1, this.enemyCoconuts, this.player)},
      onRepeatScope: this
     });
     this.tweens.add({
@@ -204,7 +182,7 @@ export default class Level1v2 extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
       flipX: true,
-      //onRepeat: function(){this.enemyShootTargeted(this.monkey2, this.enemyCoconuts)},
+      onRepeat: function(){this.enemyShootTargeted(this.monkey2, this.enemyCoconuts, this.player)},
      onRepeatScope: this
     });
     this.tweens.add({
@@ -216,7 +194,7 @@ export default class Level1v2 extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
       flipX: true,
-      //onRepeat: function(){this.enemyShootTargeted(this.monkey3, this.enemyCoconuts)},
+      onRepeat: function(){this.enemyShootTargeted(this.monkey3, this.enemyCoconuts, this.player)},
      onRepeatScope: this
     });
 
@@ -250,7 +228,7 @@ export default class Level1v2 extends Phaser.Scene {
     // Update the scene
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT');
     var speed;
 
     // Hold down shift to make Peggy sprint
@@ -287,7 +265,6 @@ export default class Level1v2 extends Phaser.Scene {
     // intial jump because the bounce puts them in air
     if (movement.W.isDown && this.player.body.onFloor()){
       this.player.setVelocityY(-225);
-      this.midairGood = true;
       this.jumpSound.play();
     }
     //allows fast falling for more player mobility
@@ -295,13 +272,6 @@ export default class Level1v2 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
-
-    // add midair jump boost if pegasus boots collected
-    if(this.bootsObtained == true){
-      if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
-          this.player.setVelocityY(-250);
-          this.midairGood = false;
-      }}
 
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 
@@ -405,10 +375,6 @@ export default class Level1v2 extends Phaser.Scene {
 
       }
 
-      getBoots(){
-        this.bootsObtained = true;
-        this.boots.disableBody(true, true);
-      }
 
       //function for enemy to shoot in a straight line, no aim
       enemyShoot (enemy, bullets) {
@@ -429,9 +395,12 @@ export default class Level1v2 extends Phaser.Scene {
 
 
       //targeted version of above function
-      enemyShootTargeted (enemy, bullets) {
+      enemyShootTargeted (enemy, bullets, player) {
         console.log('enemy shoots, targeted!');
+        var distance = enemy.x - player.x
+        console.log(distance)
         if(enemy.active){
+          if(distance < 500){ //only fire is enemy active and certain distance
           var betweenPoints = Phaser.Math.Angle.BetweenPoints;
       var angle = betweenPoints(enemy, this.player);
       var velocityFromRotation = this.physics.velocityFromRotation;
@@ -444,6 +413,7 @@ export default class Level1v2 extends Phaser.Scene {
         bullet.enableBody(true, enemy.x, enemy.y, true, true)
         .setVelocity(velocity.x, velocity.y);
         bullet.body.setAllowGravity(false);
+      }
       }
       }
 
@@ -468,7 +438,12 @@ hitPlayer(bullet, player){
       }
 
 
-
+//find distance between enemy and player
+findDistance(player, enemy){
+  distance = enemy.x - player.x
+  console.log(distance)
+  return(distance)
+}
 
 
   //end game, goes to game over scene

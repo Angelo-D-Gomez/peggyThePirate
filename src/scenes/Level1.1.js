@@ -6,6 +6,11 @@ export default class Level1v2 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+
+    // Load the health score
+    this.gameHealth = 0;
+    this.waitASecond = false;
+    this.startTime = Date.now();
   }
 
   preload () {
@@ -16,10 +21,18 @@ export default class Level1v2 extends Phaser.Scene {
       frameWidth: 32
     });
 
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
     //projectiles
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('coconut', './assets/sprites/coconut_small.png');
 
+    //other items
+    this.load.image('heart', './assets/sprites/heart.png');
 
     // load background
     this.load.image('beachBackground', './assets/Level1.1/beachArtwork.png');
@@ -37,9 +50,11 @@ export default class Level1v2 extends Phaser.Scene {
     this.load.image('beachTiles', './assets/Level1.1/shipAndBeachTiles.png');
     this.load.tilemapTiledJSON('map', './assets/Level1.1/Level 1 V2.json');
 
-    // Load the gun/jump sound effect
+    // Load the sound effects
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+    this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
 
     // Declare variables for center of the scene
@@ -53,8 +68,14 @@ export default class Level1v2 extends Phaser.Scene {
     beachBackground.setScale(3);
 
     this.gunSound = this.sound.add('gunAudio');
+    this.gunSound.volume = 0.3;
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
+    this.screamSound = this.sound.add('screamAudio');
+    this.gameMusic = this.sound.add('gameAudio');
+    this.gameMusic.volume = 0.3;
+    this.gameMusic.setLoop(true);
+    this.gameMusic.play();
 
     this.player = this.physics.add.sprite(32, 546, 'peggy');
     this.player.setCollideWorldBounds(true);
@@ -78,6 +99,9 @@ export default class Level1v2 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.player, platforms2);
+    this.heart = this.physics.add.sprite(840, 546, 'heart');
+    this.physics.add.collider(this.heart, platforms);
+    this.heart.setScale(2);
 
     //add player's bullet group
     this.bullets = this.physics.add.group({
@@ -133,7 +157,7 @@ export default class Level1v2 extends Phaser.Scene {
               this.physics.add.overlap( //if enemyGroup touches player, calls function
                 b,
                 this.player,
-                this.gameOver,
+                this.healthHurt,
                 null,
                 this
               );
@@ -222,10 +246,27 @@ export default class Level1v2 extends Phaser.Scene {
     repeat: -1
   });
 
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+  this.healthbar.setScale(1);
+  this.healthbar.body.setAllowGravity(false);
+  // Move as the camera moves
+  this.healthbar.setScrollFactor(0,0);
+
+
+
+  this.anims.create({
+    key: "healthActive",
+    frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+    frameRate: 0,
+    repeat: -1
+  });
+
   }
 
   update (time, delta) {
     // Update the scene
+    console.log(this.gameHealth);
 
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT');
@@ -352,7 +393,7 @@ export default class Level1v2 extends Phaser.Scene {
               this.physics.add.overlap( //if bullet touches player, calls function
                 b,
                 this.player,
-                this.hitPlayer,
+                this.healthHurt,
                 null,
                 this
               );
@@ -372,6 +413,16 @@ export default class Level1v2 extends Phaser.Scene {
             }
           }.bind(this) //binds to each children
         );
+
+        //heart gives back health
+        this.physics.add.overlap(
+          this.heart,
+          this.player,
+          this.healthGain,
+          null,
+          this
+        )
+
 
       }
 
@@ -396,7 +447,6 @@ export default class Level1v2 extends Phaser.Scene {
 
       //targeted version of above function
       enemyShootTargeted (enemy, bullets, player) {
-        console.log('enemy shoots, targeted!');
         var distance = enemy.x - player.x
         console.log(distance)
         if(enemy.active){
@@ -434,17 +484,86 @@ hitPlayer(bullet, player){
         bullet.disableBody(true, true);
         // Play hurt Sound
         //this.screamSound.play();
-        this.gameOver();
+        this.healthHurt();
       }
 
 
 //find distance between enemy and player
 findDistance(player, enemy){
-  distance = enemy.x - player.x
-  console.log(distance)
-  return(distance)
+  if(enemy.active){
+    distance = enemy.x - player.x
+    console.log(distance)
+    return(distance)
+  }
 }
 
+//If player loses health --------------------------------------------------------
+  healthHurt(){
+    //console.log("Health hurt function called")
+    // Add one to health hurt score
+    this.screamSound.play();
+    if (this.waitASecond){
+      // Wait a second before taking another damage
+      if (Date.now() >= this.startTime + 900) {
+        this.waitASecond = false;
+      }
+    }
+    // If the user has waited a second since last hit
+    else if (!this.waitASecond){
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 14){
+
+        // Create a temporary path for the animation
+        var tempStringPath = "healthActive";
+        tempStringPath += this.gameHealth;
+
+        // Create the animation for the Health bar to switch to
+        this.anims.create({
+          key: tempStringPath,
+          frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+          frameRate: 1,
+          repeat: -1
+        });
+        this.healthbar.anims.play(tempStringPath, true);
+
+
+      }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+
+      //Wait a second
+    }
+  }
+
+healthGain(heart, player){
+  heart.disableBody(true, true);
+
+  this.gameHealth -= 1;
+  // Update the health bar
+  if (this.gameHealth <= 14){
+
+    // Create a temporary path for the animation
+    var tempStringPath = "healthActive";
+    tempStringPath += this.gameHealth;
+
+    // Create the animation for the Health bar to switch to
+    this.anims.create({
+      key: tempStringPath,
+      frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+      frameRate: 1,
+      repeat: -1
+    });
+    this.healthbar.anims.play(tempStringPath, true);
+  }
+}
 
   //end game, goes to game over scene
   gameOver(){

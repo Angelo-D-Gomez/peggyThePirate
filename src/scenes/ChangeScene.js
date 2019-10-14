@@ -7,7 +7,7 @@ function addSceneEventListeners(that){
         if(that.bootMusic){
           that.bootMusic.stop();
         }
-        that.scene.start('Level1')
+        that.scene.start('Level1v2') //changes from start screen to cutscene
       }
     );
 }

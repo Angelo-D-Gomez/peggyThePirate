@@ -629,7 +629,7 @@ if(this.bootsObtained == true){
               this.physics.add.overlap( //if bullet touches player, calls function
                 b,
                 this.player,
-                this.healthHurt,
+                this.hitPlayer,
                 null,
                 this
               );
@@ -725,10 +725,10 @@ hitEnemy(bullet, enemy){
 //triggers when player is hit
 hitPlayer(bullet, player){
         console.log('hit');
-        player.disableBody(true, true);
+        //player.disableBody(true, true);
         bullet.disableBody(true, true);
         // Play hurt Sound
-        //this.screamSound.play();
+        this.screamSound.play();
         this.healthHurt();
       }
 

@@ -113,10 +113,14 @@ export default class Level1v2 extends Phaser.Scene {
     this.enemyGroup.add(this.crab1);
 
     //adding pirate enemies
-    this.pirate1 = this.physics.add.sprite(1060, 544, 'swordenemy');
+    this.pirate1 = this.physics.add.sprite(1060, 544, 'enemy');
     this.pirate1.setScale(3)
     .flipX = true;
-
+    this.enemyGroup.add(this.pirate1);
+    this.pirate2 = this.physics.add.sprite(1408, 480, 'enemy');
+    this.pirate2.setScale(3)
+    .flipX = true;
+    this.enemyGroup.add(this.pirate2);
 
 
     //adding monkey enemies
@@ -206,7 +210,29 @@ export default class Level1v2 extends Phaser.Scene {
     });
 
     //pirate tweens
-
+    this.add.tween({
+      targets: this.pirate1,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShoot(this.pirate1, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.tweens.add({
+      targets: this.pirate2,
+      x: '+=232',
+      ease: "Linear",
+      delay: 1000,
+      duration: 2000,
+      repeatDelay: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
 
 
 
@@ -385,9 +411,12 @@ export default class Level1v2 extends Phaser.Scene {
 
 
       //function for enemy to shoot in a straight line, no aim
-      enemyShoot (enemy, bullets) {
-        console.log('enemy shoots!');
+      enemyShoot (enemy, bullets, player) {
+
+        var distance = enemy.x - player.x
         if(enemy.active){
+        if(distance < 500){ //only fire is enemy active and certain distance
+          console.log('enemy shoots!');
         if(enemy.flipX == true){
           var velocity = {x: 700, y: 0};
         }
@@ -400,15 +429,16 @@ export default class Level1v2 extends Phaser.Scene {
         bullet.body.setAllowGravity(false);
       }
       }
+    }
 
 
       //targeted version of above function
       enemyShootTargeted (enemy, bullets, player) {
-        console.log('enemy shoots, targeted!');
         var distance = enemy.x - player.x
         console.log(distance)
         if(enemy.active){
           if(distance < 500){ //only fire is enemy active and certain distance
+          console.log('enemy shoots, targeted!');
           var betweenPoints = Phaser.Math.Angle.BetweenPoints;
       var angle = betweenPoints(enemy, this.player);
       var velocityFromRotation = this.physics.velocityFromRotation;

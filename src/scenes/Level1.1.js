@@ -112,6 +112,13 @@ export default class Level1v2 extends Phaser.Scene {
     this.crab1 = this.physics.add.sprite(736, 544, 'crab');
     this.enemyGroup.add(this.crab1);
 
+    //adding pirate enemies
+    this.pirate1 = this.physics.add.sprite(1060, 544, 'swordenemy');
+    this.pirate1.setScale(3)
+    .flipX = true;
+
+
+
     //adding monkey enemies
     this.monkey1 = this.physics.add.sprite(2288, 448, 'monkey');
     this.enemyGroup.add(this.monkey1);
@@ -198,6 +205,7 @@ export default class Level1v2 extends Phaser.Scene {
      onRepeatScope: this
     });
 
+    //pirate tweens
 
 
 

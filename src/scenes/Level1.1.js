@@ -27,7 +27,9 @@ export default class Level1v2 extends Phaser.Scene {
     //load enemies
     this.load.image('monkey', './assets/Level1.1/monkey.png');
     this.load.image('crab', './assets/Level1.1/crab_small.png');
-
+    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
+    this.load.image("swordenemy", "./assets/possibleAssets/pirates.v1 copy.png");
+    this.load.image("sword", "./assets/possibleAssets/sword.png");
 
 
     //load tile map

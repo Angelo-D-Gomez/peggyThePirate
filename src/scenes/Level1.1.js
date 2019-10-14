@@ -763,7 +763,7 @@ findDistance(player, enemy){
       // Add one hit to the player's health
       this.gameHealth += 1;
       // Update the health bar
-      if (this.gameHealth <= 14){
+      if (this.gameHealth <= 13){
 
         // Create a temporary path for the animation
         var tempStringPath = "healthActive";
@@ -791,10 +791,11 @@ findDistance(player, enemy){
 
 healthGain(heart, player){
   heart.disableBody(true, true);
-
-  this.gameHealth -= 1;
+  if(this.gameHealth > 0){
+    this.gameHealth -= 1;
+  }
   // Update the health bar
-  if (this.gameHealth <= 14){
+  if (this.gameHealth <= 13){
 
     // Create a temporary path for the animation
     var tempStringPath = "healthActive";

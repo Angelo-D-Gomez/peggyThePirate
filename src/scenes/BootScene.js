@@ -18,12 +18,17 @@ export default class BootScene extends Phaser.Scene {
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;
+
+    this.load.audio('bootAudio', './assets/audio/game(JonECope).mp3');
   }
 
   create (data) {
     // add event addSceneEventListeners
     ChangeScene.addSceneEventListeners(this);
     this.cameras.main.setBackgroundColor('#150033');
+    this.bootMusic = this.sound.add('bootAudio');
+    this.bootMusic.setLoop(true);
+    this.bootMusic.play();
 
     // create all the text and icons on the screen.
     /*

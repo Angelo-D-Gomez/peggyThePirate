@@ -1,7 +1,9 @@
 /*global Phaser*/
-export default class Level1v2 extends Phaser.Scene {
+// this scene exists for experimenting with different
+// additions of mechanics and physics in the game
+export default class test extends Phaser.Scene {
   constructor () {
-    super('Level1v2');
+    super('test');
   }
 
   init (data) {
@@ -10,25 +12,19 @@ export default class Level1v2 extends Phaser.Scene {
 
   preload () {
     // Preload assets
-    // Peggy spritesheet
     this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
       frameHeight: 32,
       frameWidth: 32
     });
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
 
-    // load background
-    this.load.image('beachBackground', './assets/Level1.1/beachArtwork.png')
-
-
-    //load tile map
-    this.load.image('jungleTiles', './assets/Level1.1/placeholderTiles.png');
-    this.load.image('beachTiles', './assets/Level1.1/shipAndBeachTiles.png');
-    this.load.tilemapTiledJSON('map', './assets/Level1.1/Level1.json');
+    //Load tilemap and tileset
+    this.load.image('tiles', './assets/testing/basicTiles.png');
+    this.load.tilemapTiledJSON('map', './assets/testing/testWorld.json');
 
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
-
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -36,37 +32,39 @@ export default class Level1v2 extends Phaser.Scene {
   }
 
   create (data) {
-    //Create the scene
-    var beachBackground = this.add.image(1200, 600, "beachBackground");
-    beachBackground.setScale(3);
+
 
     this.gunSound = this.sound.add('gunAudio');
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
 
-    this.player = this.physics.add.sprite(32, 546, 'peggy');
+    this.player = this.physics.add.sprite(32, 576, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
-    this.physics.world.setBounds(0, 0, 8000, 1920);
+    this.physics.world.setBounds(0, 0, 1536, 640);
 
-    this.cameras.main.setBounds(0, 0, 8000, 1920);
+    this.cameras.main.setBounds(0, 0, 1536, 640);
     this.cameras.main.startFollow(this.player);
 
 
 
-    // tile map
     const map = this.make.tilemap({ key: 'map' });
-    var tileset1 = map.addTilesetImage('placeholderTiles', 'jungleTiles');
-    var tileset2 = map.addTilesetImage('shipAndBeachTiles', 'beachTiles');
-    const platforms = map.createStaticLayer('beach', tileset2, 0, 0);
-    const platforms2 = map.createStaticLayer('jungle', tileset1, 0, 0);
+    var tileset = map.addTilesetImage('basicTiles', 'tiles');
+    const platforms = map.createStaticLayer('ground', tileset, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
-    platforms2.setCollisionByExclusion(-1, true);
 
+    //player can stand on the platforms
     this.physics.add.collider(this.player, platforms);
-    this.physics.add.collider(this.player, platforms2);
 
+    //add player's bullet group
+    this.bullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 10
+    });
+    this.bullets.children.iterate(function(child){
+    }
+  );
 
 
     // animations
@@ -135,5 +133,52 @@ export default class Level1v2 extends Phaser.Scene {
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
+    if (Phaser.Input.Keyboard.JustDown(bang)){
+      if(this.player.flipX == false){
+        var velocity = {x: 1000, y: 0};
+      }
+      else{
+        var velocity = {x: -1000, y: 0};
+      }
+      var bullet = this.bullets.get();
+      bullet.enableBody(true, this.player.x, this.player.y, true, true)
+      .setVelocity(velocity.x, velocity.y);
+      bullet.body.setAllowGravity(false);
+      // Play gun noise
+      this.gunSound.play();
+    }
+
+    //player's bullet kills enemies
+        this.bullets.children.each(
+              function (b) {
+                if (b.active) {
+                  this.physics.add.overlap( //if bullet touches enemyGroup, calls function
+                    b,
+                    this.enemyGroup,
+                    this.hitEnemy,
+                    null,
+                    this
+                  );
+                  //refresh bullet group
+                  if (b.y < 0) { //if bullet off top of screen
+                    b.setActive(false);
+                  }
+                  else if (b.y > 600) { //if bullet off bottom of screen
+                    b.setActive(false);
+                  }
+                  else if (b.x < 0){
+                    b.setActive(false);
+                  }
+                  else if (b.x > 800){
+                    b.setActive(false);
+                  }
+                }
+              }.bind(this) //binds to each children
+            );
+
+
   }
 }

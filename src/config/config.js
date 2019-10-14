@@ -13,7 +13,7 @@ export default {
     default: 'arcade',
     arcade: {
         gravity: { y: 360 },
-        debug: true
+        debug: false
     }
   },
 pixelArt: true

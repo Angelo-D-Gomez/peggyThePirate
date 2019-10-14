@@ -7,6 +7,11 @@ export default class Level1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+
+    // Load the health score
+    this.gameHealth = 0;
+    this.waitASecond = false;
+    this.startTime = Date.now();
   }
 
   preload () {
@@ -15,7 +20,14 @@ export default class Level1 extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.image('bullet', './assets/sprites/bomb.png');
+
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
+    this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image("desert", "./assets/sprites/background.png");
     this.load.image("ground", "./assets/sprites/platform.png");
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
@@ -28,10 +40,11 @@ export default class Level1 extends Phaser.Scene {
     this.load.image('tiles', './assets/Level_1/temp_tile.png');
     this.load.tilemapTiledJSON('map', './assets/Level_1/LVL1.json');
 
-    // Load the gun/jump sound effect
+    // Load the gun/jump sound effect / music
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
-
+    this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -40,7 +53,7 @@ export default class Level1 extends Phaser.Scene {
 
   create (data) {
     //Create the scene
-    ChangeScene.addSceneEventListeners(this);
+    //ChangeScene.addSceneEventListeners(this);
 
     var bullets;
     var bullet;
@@ -48,9 +61,16 @@ export default class Level1 extends Phaser.Scene {
     var enemyGroup;
 
     // Initialize audio effects
+    this.gameMusic = this.sound.add('gameAudio');
     this.gunSound = this.sound.add('gunAudio');
     this.jumpSound = this.sound.add('jumpAudio');
+    this.screamSound = this.sound.add('screamAudio');
     this.jumpSound.volume = 0.1;
+    this.gameMusic.volume = 0.1;
+    this.gameMusic.setLoop(true);
+    this.gameMusic.play();
+
+
 
     var score;
     this.score = 0;
@@ -133,11 +153,26 @@ export default class Level1 extends Phaser.Scene {
     frameRate: 10,
     repeat: -1 //repeat forever
   });
-
   this.anims.create({
     key: "idle",
     frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
     frameRate: 10,
+    repeat: -1
+  });
+
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+  this.healthbar.setScale(1);
+  this.healthbar.body.setAllowGravity(false);
+  // Move as the camera moves
+  this.healthbar.setScrollFactor(0,0);
+
+
+
+  this.anims.create({
+    key: "healthActive",
+    frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+    frameRate: 0,
     repeat: -1
   });
 
@@ -222,7 +257,7 @@ if (this.enemy2.active) {
   this.physics.add.overlap( //if sword touches player, calls function
     this.sword,
     this.player,
-    this.gameOver,
+    this.healthHurt,
     null,
     this
   );
@@ -236,7 +271,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -247,10 +282,14 @@ this.enemyGroup.children.each(
   }
 
   update (time, delta) {
+    console.log(this.gameHealth);
     // Update the scene
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
     var speed;
+
+    //this.healthbar.x = this.cameras.main.x+20;
+    //this.healthbar.y = this.cameras.main.y+48;
 
     if(this.sword.angle<=0){
       this.switch = false;
@@ -265,7 +304,8 @@ this.enemyGroup.children.each(
       this.sword.angle += 1;
     }
 
-    if(this.enemy2.active = false){
+    if(this.enemy2.active == false){
+      // enemy is active
       this.sword.visible = false;
     }
 
@@ -309,14 +349,24 @@ this.enemyGroup.children.each(
       this.player.setVelocityY(300);
     }
 
-    var bang = this.input.keyboard.addKeys('O');
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
+    if (Phaser.Input.Keyboard.JustDown(bang)){
+      if(this.player.flipX == false){
+        var velocity = {x: 1000, y: 0};
+      }
+      else{
+        var velocity = {x: -1000, y: 0};
+      }
+      var bullet = this.bullets.get();
+      bullet.enableBody(true, this.player.x, this.player.y, true, true)
+      .setVelocity(velocity.x, velocity.y)
+      .setScale(0.5);
+      // Play gun noise
+      this.gunSound.play();
+    }
 
 
-    this.input.on(
-  "pointermove",
-  function(pointer){}, this
-);
-    this.input.on("pointerdown", this.shoot, this);
 
 //player's bullet kills enemies
     this.bullets.children.each(
@@ -433,6 +483,7 @@ velocityFromRotation(angle, 500, velocity);
     bullet.disableBody(true, true);
     this.score += 1;
     console.log(this.score);
+    this.screamSound.play();
     if(this.score >= 5){
       this.success();
     }
@@ -440,14 +491,66 @@ velocityFromRotation(angle, 500, velocity);
 
 //what happens if player is hit by enemy's bullet
     hitPlayer(bullet, player){
-      console.log('hit');
-      player.disableBody(true, true);
+      console.log('hitt');
+      this.healthHurt();
+      this.screamSound.play();
+      //player.disableBody(true, true);
       bullet.disableBody(true, true);
-      this.scene.start('GameOver');
+
     }
+
+//If player loses health --------------------------------------------------------
+  healthHurt(){
+    //console.log("Health hurt function called")
+    // Add one to health hurt score
+
+    if (this.waitASecond){
+      // Wait a second before taking another damage
+      if (Date.now() >= this.startTime + 900) {
+        this.waitASecond = false;
+      }
+    }
+    // If the user has waited a second since last hit
+    else if (!this.waitASecond){
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 14){
+
+        // Create a temporary path for the animation
+        var tempStringPath = "healthActive";
+        tempStringPath += this.gameHealth;
+
+        // Create the animation for the Health bar to switch to
+        this.anims.create({
+          key: tempStringPath,
+          frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+          frameRate: 1,
+          repeat: -1
+        });
+        this.healthbar.anims.play(tempStringPath, true);
+
+
+      }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+
+      //Wait a second
+    }
+  }
 
     //end game, goes to game over scene
   gameOver(){
+    this.gameMusic.stop();
+    if(!this.screamSound.isPlaying){
+      this.screamSound.play();
+    }
     console.log('game over!');
     this.scene.start('GameOver');
   }
@@ -455,6 +558,7 @@ velocityFromRotation(angle, 500, velocity);
   //successfully completed game, changes to success scene
   success(){
       console.log('success!');
+      this.gameMusic.stop();
       this.scene.start('successScene');
   }
 }

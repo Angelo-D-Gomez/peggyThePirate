@@ -21,18 +21,18 @@ export default class Level1v2 extends Phaser.Scene {
       frameWidth: 32
     });
 
-<<<<<<< HEAD
+
     // Load the health spriteSheet
     this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
       frameHeight: 48,
       frameWidth: 16
     });
-=======
+
     //boots
     this.load.image('boots', './assets/sprites/goldShoes.png' );
     //ship
     this.load.image('ship', './assets/sprites/pirateShip.png' );
->>>>>>> DEV-Angelo
+
 
     //projectiles
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
@@ -84,7 +84,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.gameMusic.setLoop(true);
     this.gameMusic.play();
 
-    this.player = this.physics.add.sprite(6900, 546, 'peggy');
+    this.player = this.physics.add.sprite(32, 546, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 

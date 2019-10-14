@@ -16,6 +16,9 @@ export default class Level1v2 extends Phaser.Scene {
       frameWidth: 32
     });
 
+    //boots
+    this.load.image('boots', './assets/sprites/goldshoes.png' );
+
     //projectiles
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('coconut', './assets/sprites/coconut_small.png');
@@ -136,6 +139,20 @@ export default class Level1v2 extends Phaser.Scene {
     this.physics.add.collider(this.enemyGroup, platforms2);
 
 
+
+    //this.chest = this.physics.add.sprite(2432, 1856,'chest');
+//this.physics.add.collider(this.chest, platforms2);
+
+this.boots = this.physics.add.sprite(2432, 1856,'boots');
+this.physics.add.collider(this.boots, platforms2);
+//for double jumping
+this.bootsObtained = false;
+this.midairGood = true;
+
+this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
+
+//if player touches chest
+//this.physics.add.collider(this.player, this.chest, function(){});
 
     //if player touches enemy
     this.enemyGroup.children.each(
@@ -262,7 +279,7 @@ export default class Level1v2 extends Phaser.Scene {
     // Update the scene
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT');
+    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT, SPACE');
     var speed;
 
     // Hold down shift to make Peggy sprint
@@ -300,12 +317,20 @@ export default class Level1v2 extends Phaser.Scene {
     if (movement.W.isDown && this.player.body.onFloor()){
       this.player.setVelocityY(-225);
       this.jumpSound.play();
+      this.midairGood = true;
     }
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+
+    // add midair jump boost if pegasus boots collected
+if(this.bootsObtained == true){
+  if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
+      this.player.setVelocityY(-250);
+      this.midairGood = false;
+  }}
 
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 
@@ -415,7 +440,7 @@ export default class Level1v2 extends Phaser.Scene {
 
         var distance = enemy.x - player.x
         if(enemy.active){
-        if(distance < 500){ //only fire is enemy active and certain distance
+        if(distance < 450){ //only fire is enemy active and certain distance
           console.log('enemy shoots!');
         if(enemy.flipX == true){
           var velocity = {x: 700, y: 0};
@@ -437,7 +462,7 @@ export default class Level1v2 extends Phaser.Scene {
         var distance = enemy.x - player.x
         console.log(distance)
         if(enemy.active){
-          if(distance < 500){ //only fire is enemy active and certain distance
+          if(distance < 450){ //only fire is enemy active and certain distance
           console.log('enemy shoots, targeted!');
           var betweenPoints = Phaser.Math.Angle.BetweenPoints;
       var angle = betweenPoints(enemy, this.player);
@@ -455,6 +480,10 @@ export default class Level1v2 extends Phaser.Scene {
       }
       }
 
+      getBoots(){
+        this.bootsObtained = true;
+        this.boots.disableBody(true, true);
+      }
 
 //triggers when enemy is hit
 hitEnemy(bullet, enemy){

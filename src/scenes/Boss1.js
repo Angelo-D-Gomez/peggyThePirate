@@ -121,7 +121,7 @@ export default class Boss1 extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platforms);
 
-      this.enemyGroup.add(this.boss);
+    this.enemyGroup.add(this.boss);
 
     this.nextFire = 0;
     this.fireRate = 200;

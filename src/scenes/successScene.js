@@ -16,7 +16,9 @@ export default class successScene extends Phaser.Scene {
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;
     this.load.audio('winnerAudio', './assets/audio/winner(JonECope).mp3');
-    this.load.image('heart', './assets/sprites/heart.png')
+    this.load.image('heart', './assets/sprites/heart.png');
+    this.load.image('peggyIcon', './assets/sprites/peggyIcon.png');
+    this.load.image('parrot', './assets/sprites/parrot_large.png');
   }
 
   create (data) {
@@ -25,6 +27,8 @@ export default class successScene extends Phaser.Scene {
     //Create the scene
     var text = this.add.text(this.centerX-150, this.centerY, 'you have won!!!!')
     var text = this.add.text(this.centerX-185, this.centerY + 50, 'congratz')
+    var peggyAvatar = this.add.image(0.5*this.centerX, 1.8*this.centerY, 'peggyIcon');
+    var parrot = this.add.image(1.5*this.centerX, 1.8*this.centerY, 'parrot');
     this.winnerMusic = this.sound.add('winnerAudio');
     this.heartIcon = this.add.sprite(1.5*this.centerX,0.75*this.centerY, 'heart');
     this.heartIcon.setScale(10);

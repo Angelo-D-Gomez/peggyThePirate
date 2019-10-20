@@ -63,6 +63,8 @@ export default class Level1v2 extends Phaser.Scene {
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
+    this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
+
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -84,7 +86,10 @@ export default class Level1v2 extends Phaser.Scene {
     this.gameMusic.setLoop(true);
     this.gameMusic.play();
 
-    this.player = this.physics.add.sprite(7900, 546, 'peggy');
+    this.powerupSound = this.sound.add('powerupAudio');
+    this.powerupSound.setRate(1.5);
+
+    this.player = this.physics.add.sprite(32, 546, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -630,7 +635,7 @@ if(this.bootsObtained == true){
               this.physics.add.overlap( //if bullet touches player, calls function
                 b,
                 this.player,
-                this.healthHurt,
+                this.hitPlayer,
                 null,
                 this
               );
@@ -711,6 +716,7 @@ if(this.bootsObtained == true){
 
       getBoots(){
         this.bootsObtained = true;
+        this.powerupSound.play();
         this.boots.disableBody(true, true);
       }
 
@@ -720,13 +726,13 @@ hitEnemy(bullet, enemy){
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
     //play hurt sound
-    //this.screamSound.play();
+    this.screamSound.play();
 
   }
 //triggers when player is hit
 hitPlayer(bullet, player){
         console.log('hit');
-        player.disableBody(true, true);
+        //player.disableBody(true, true);
         bullet.disableBody(true, true);
         // Play hurt Sound
         //this.screamSound.play();
@@ -747,7 +753,7 @@ findDistance(player, enemy){
   healthHurt(){
     //console.log("Health hurt function called")
     // Add one to health hurt score
-    this.screamSound.play();
+
     if (this.waitASecond){
       // Wait a second before taking another damage
       if (Date.now() >= this.startTime + 900) {
@@ -756,6 +762,7 @@ findDistance(player, enemy){
     }
     // If the user has waited a second since last hit
     else if (!this.waitASecond){
+      this.screamSound.play();
       // Enable hit and wait another second after this completes
       this.waitASecond = true;
       // Set the timer to now
@@ -798,7 +805,7 @@ healthGain(heart, player){
   if (this.gameHealth <= 13){
 
     // Create a temporary path for the animation
-    var tempStringPath = "healthActive";
+    var tempStringPath = "healthActive0";
     tempStringPath += this.gameHealth;
 
     // Create the animation for the Health bar to switch to
@@ -809,6 +816,7 @@ healthGain(heart, player){
       repeat: -1
     });
     this.healthbar.anims.play(tempStringPath, true);
+    this.powerupSound.play();
   }
 }
 /*

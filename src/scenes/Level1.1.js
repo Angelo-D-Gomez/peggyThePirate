@@ -11,12 +11,19 @@ export default class Level1v2 extends Phaser.Scene {
     this.gameHealth = 0;
     this.waitASecond = false;
     this.startTime = Date.now();
+    this.PeggyHurt = false;
   }
 
   preload () {
     // Preload assets
     // Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyHurt.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+
+    //peggy with boots
+    this.load.spritesheet('peggyGold', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -61,6 +68,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
@@ -81,6 +89,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
     this.screamSound = this.sound.add('screamAudio');
+    this.peggyScream = this.sound.add('peggyScream');
     this.gameMusic = this.sound.add('gameAudio');
     this.gameMusic.volume = 0.3;
     this.gameMusic.setLoop(true);
@@ -118,11 +127,11 @@ export default class Level1v2 extends Phaser.Scene {
     //add player's bullet group
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
-      maxSize: 10
+      maxSize: 20,
+      runChildUpdate: true
     });
-    this.bullets.children.iterate(function(child){
-    }
-  );
+    this.physics.add.collider(this.bullets, platforms, this.callbackFunc, null, this);
+    this.physics.add.collider(this.bullets, platforms2, this.callbackFunc, null, this);
 
   //add enemy's bullet group
   this.enemyBullets = this.physics.add.group({
@@ -206,7 +215,6 @@ export default class Level1v2 extends Phaser.Scene {
     this.physics.add.collider(this.enemyGroup, platforms2);
 
 
-
     //this.chest = this.physics.add.sprite(2432, 1856,'chest');
 //this.physics.add.collider(this.chest, platforms2);
 
@@ -221,33 +229,14 @@ this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 this.ship = this.physics.add.sprite(7970, 544, 'ship');
 this.ship.setScale(2.5);
 this.physics.add.collider(this.ship, platforms);
+this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
 
 //if player touches chest
 //this.physics.add.collider(this.player, this.chest, function(){});
 
-    //if player touches enemy
-    this.enemyGroup.children.each(
-          function (b) {
-            if (b.active) {
-              this.physics.add.overlap( //if enemyGroup touches player, calls function
-                b,
-                this.player,
-                this.healthHurt,
-                null,
-                this
-              );
-            }
-          }.bind(this) //binds to each children
-        );
-
-
-
-
-
     // animations
 
     //tweens
-
     //crab walking movement
     this.tweens.add({
       targets: this.crab1,
@@ -376,7 +365,6 @@ this.physics.add.collider(this.ship, platforms);
      onRepeatScope: this
     });
 
-
     //pirate tweens
     this.add.tween({
       targets: this.pirate1,
@@ -459,11 +447,6 @@ this.physics.add.collider(this.ship, platforms);
      onRepeatScope: this
     });
 
-
-
-
-
-
     // Peggy animations
     //create animation from spritesheet
   this.anims.create({
@@ -478,26 +461,50 @@ this.physics.add.collider(this.ship, platforms);
     frameRate: 10,
     repeat: -1
   });
+  this.anims.create({
+    key: "hurt",
+    frames: this.anims.generateFrameNumbers('peggy', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
+
+  //peggy with boots
+  this.anims.create({
+    key: "goldwalk",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:1, end:5}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "goldidle",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:0, end:0}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "goldHurt",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
 
   // Display the health bar based on health score
   this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
-  this.healthbar.setScale(1);
+  this.healthbar.setScale(2);
   this.healthbar.body.setAllowGravity(false);
   // Move as the camera moves
   this.healthbar.setScrollFactor(0,0);
-
-
 
   this.anims.create({
     key: "healthActive",
     frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
     frameRate: 0,
-    repeat: -1
+    repeat: 1
   });
 
-  }
+}
 
-  update (time, delta) {
+update (time, delta) {
     // Update the scene
     console.log(this.gameHealth);
 
@@ -515,8 +522,40 @@ this.physics.add.collider(this.ship, platforms);
     else{
       speed = 135;
     }
+    if(this.bootsObtained == true){
+      //change animations if peggy has boots
+      if (this.peggyScream.isPlaying){
+        this.player.anims.play('goldHurt', true);
+      }
+
+      // Move Left
+      else if (movement.A.isDown){
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('goldwalk', true);
+      }
+      // Move Right
+      else if (movement.D.isDown){
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('goldwalk', true);
+      }
+      // Idle
+      else {
+        if (this.player.body.onFloor()){
+        this.player.anims.play('goldidle', true);
+        this.player.setVelocityX(0);
+        }
+      }
+    }
+    else{
+    //if Peggy is hurt
+    if (this.peggyScream.isPlaying){
+      this.player.anims.play('hurt', true);
+    }
+
     // Move Left
-    if (movement.A.isDown){
+    else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
       this.player.anims.play('walk', true);
@@ -534,6 +573,7 @@ this.physics.add.collider(this.ship, platforms);
       this.player.setVelocityX(0);
       }
     }
+  }
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
@@ -571,6 +611,8 @@ if(this.bootsObtained == true){
           // Play gun noise
           this.gunSound.play();
         }
+
+
 
         //player's bullet kills enemies
         this.bullets.children.each(
@@ -663,13 +705,11 @@ if(this.bootsObtained == true){
           null,
           this
         )
-
-
-      }
+  }
 
 
       //function for enemy to shoot in a straight line, no aim
-      enemyShoot (enemy, bullets, player) {
+enemyShoot (enemy, bullets, player) {
 
         var distance = enemy.x - player.x
         if(enemy.active){
@@ -691,7 +731,7 @@ if(this.bootsObtained == true){
 
 
       //targeted version of above function
-      enemyShootTargeted (enemy, bullets, player) {
+enemyShootTargeted (enemy, bullets, player) {
         var distance = enemy.x - player.x
         console.log(distance)
         if(enemy.active){
@@ -737,7 +777,16 @@ hitPlayer(bullet, player){
         //this.screamSound.play();
         this.healthHurt();
       }
+//bullet collisions
+callbackFunc(bullet, target)
+{
+    if ( bullet.active === true ) {
+        console.log("Hit!");
 
+        bullet.setActive(false);
+        bullet.setVisible(false);
+    }
+}
 
 //find distance between enemy and player
 findDistance(player, enemy){
@@ -752,7 +801,6 @@ findDistance(player, enemy){
   healthHurt(){
     //console.log("Health hurt function called")
     // Add one to health hurt score
-
     if (this.waitASecond){
       // Wait a second before taking another damage
       if (Date.now() >= this.startTime + 900) {
@@ -761,7 +809,7 @@ findDistance(player, enemy){
     }
     // If the user has waited a second since last hit
     else if (!this.waitASecond){
-      this.screamSound.play();
+      this.peggyScream.play();
       // Enable hit and wait another second after this completes
       this.waitASecond = true;
       // Set the timer to now
@@ -783,7 +831,6 @@ findDistance(player, enemy){
           repeat: -1
         });
         this.healthbar.anims.play(tempStringPath, true);
-
 
       }
       // Check if it's past empty, and if so, game over
@@ -819,10 +866,16 @@ healthGain(heart, player){
   }
 }
 
+  //move onto the bossfight
+  bossFight(){
+    this.gameMusic.stop();
+    this.scene.start('Boss1');
+  }
+
   //end game, goes to game over scene
   gameOver(){
     // Stop music if playing
-  //this.gameMusic.stop();
+  this.gameMusic.stop();
   console.log('game over!');
   this.scene.start('GameOver');
   }

@@ -153,8 +153,6 @@ export default class Boss1 extends Phaser.Scene {
 });
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
 
 
@@ -272,8 +270,9 @@ this.enemyGroup.children.each(
   });
 
   // Display the health bar based on health score
-  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
-  this.healthbar.setScale(1);
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health", [this.gameHealth])
+  //this.healthbar.frame = this.gameHealth
+  this.healthbar.setScale(2);
   this.healthbar.body.setAllowGravity(false);
 
 

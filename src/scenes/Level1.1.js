@@ -98,7 +98,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
 
-    this.player = this.physics.add.sprite(7532, 546, 'peggy');
+    this.player = this.physics.add.sprite(32, 546, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -213,6 +213,22 @@ export default class Level1v2 extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platforms);
     this.physics.add.collider(this.enemyGroup, platforms2);
+
+    //if player touches enemy
+    this.enemyGroup.children.each(
+          function (b) {
+            if (b.active) {
+              this.physics.add.overlap( //if enemyGroup touches player, calls function
+                b,
+                this.player,
+                this.healthHurt,
+                null,
+                this
+              );
+            }
+          }.bind(this) //binds to each children
+        );
+
 
 
     //this.chest = this.physics.add.sprite(2432, 1856,'chest');

@@ -13,7 +13,7 @@ export default class Boss1 extends Phaser.Scene {
   preload () {
     // Preload assets
     //Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyGold.png", {
+    this.load.spritesheet('peggyGold', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -74,7 +74,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(400, 550, 'peggy');
+    this.player = this.physics.add.sprite(400, 550, 'peggyGold');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -103,12 +103,10 @@ export default class Boss1 extends Phaser.Scene {
 
     this.physics.add.collider(this.boss, platformz);
 
-
-
-
     //add his cannons
     this.cannon1 = this.physics.add.sprite(64, 64, 'cannon');
     this.cannon1.setScale(2);
+    this.cannon1.flipX = true;
     this.cannon2 = this.physics.add.sprite(736, 64, 'cannon');
     this.cannon2.setScale(2);
     this.physics.add.collider(this.cannon1, platformz);
@@ -116,7 +114,6 @@ export default class Boss1 extends Phaser.Scene {
 
     //adding smaller enemies
     this.enemyGroup = this.physics.add.group({});
-
 
     this.enemy1 = this.physics.add.sprite(300, 550, 'enemy');
     this.enemyGroup.add(this.enemy1);
@@ -145,6 +142,7 @@ export default class Boss1 extends Phaser.Scene {
     this.bullets.children.iterate(function(child){
 });
 
+
     this.physics.add.collider(this.bullets, platformz, this.callbackFunc, null, this);
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
@@ -154,6 +152,7 @@ export default class Boss1 extends Phaser.Scene {
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
 });
+this.physics.add.collider(this.enemyBullets, platformz, this.callbackFunc, null, this);
 
 
 //cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge
@@ -165,7 +164,6 @@ this.tweens.add({
   duration: 3000,
   yoyo: true,
   repeat: -1,
-  flipX: true,
   onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets)},
  onRepeatScope: this
 });
@@ -177,7 +175,6 @@ this.tweens.add({
   duration: 3000,
   yoyo: true,
   repeat: -1,
-  flipX: true,
   onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets)},
  onRepeatScope: this
 });
@@ -251,20 +248,20 @@ this.enemyGroup.children.each(
     // Peggy animations
     //create animation from spritesheet
   this.anims.create({
-    key: "walk",
-    frames: this.anims.generateFrameNumbers('peggy', {start: 1, end: 5}),
+    key: "goldwalk",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start: 1, end: 5}),
     frameRate: 10,
     repeat: -1 //repeat forever
   });
   this.anims.create({
-    key: "idle",
-    frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
+    key: "goldidle",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:0, end:0}),
     frameRate: 10,
     repeat: -1
   });
   this.anims.create({
-    key: "hurt",
-    frames: this.anims.generateFrameNumbers('peggy', {start:6, end:6}),
+    key: "goldhurt",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
     frameRate: 10,
     repeat: 1 //repeat just for a small amount of time
   });
@@ -288,7 +285,7 @@ this.enemyGroup.children.each(
 
   update (time, delta) {
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
+    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT, SPACE');
     var speed;
 
     // Hold down shift to make Peggy sprint
@@ -303,24 +300,24 @@ this.enemyGroup.children.each(
     }
     //hurt animation when scream is played
     if (this.peggyScream.isPlaying){
-      this.player.anims.play('hurt', true);
+      this.player.anims.play('goldhurt', true);
     }
     // Move Left
     else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Move Right
     else if (movement.D.isDown){
       this.player.setVelocityX(speed);
       this.player.flipX = false;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('idle', true);
+      this.player.anims.play('goldidle', true);
       this.player.setVelocityX(0);
       }
     }
@@ -330,12 +327,18 @@ this.enemyGroup.children.each(
     if (movement.W.isDown && this.player.body.onFloor()){
       this.player.setVelocityY(-225);
       this.jumpSound.play();
+      this.midairGood = true;
     }
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+    //double jump
+      if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
+          this.player.setVelocityY(-250);
+          this.midairGood = false;
+      }
 
     //Player fires weapon
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
@@ -495,8 +498,7 @@ hitEnemy(bullet, enemy){
         if ( bullet.active === true ) {
             console.log("Hit!");
 
-            bullet.setActive(false);
-            bullet.setVisible(false);
+            bullet.disableBody(true, true);
         }
     }
     //If player loses health --------------------------------------------------------

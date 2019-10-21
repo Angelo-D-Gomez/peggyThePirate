@@ -15,6 +15,13 @@ export default class Boss1 extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
+
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
     //Boss sprite (maybe create sprite sheet for him to give him a
     // some life with animations)
     this.load.image('boss', './assets/Boss1/bossPirate3.png');
@@ -254,6 +261,10 @@ this.enemyGroup.children.each(
     repeat: -1
   });
 
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+  this.healthbar.setScale(1);
+  this.healthbar.body.setAllowGravity(false);
 
 
   }
@@ -455,8 +466,56 @@ hitEnemy(bullet, enemy){
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();
-      this.gameOver();
+      this.healthHurt();
     }
+
+    //If player loses health --------------------------------------------------------
+      healthHurt(){
+        //console.log("Health hurt function called")
+        // Add one to health hurt score
+
+        if (this.waitASecond){
+          // Wait a second before taking another damage
+          if (Date.now() >= this.startTime + 900) {
+            this.waitASecond = false;
+          }
+        }
+        // If the user has waited a second since last hit
+        else if (!this.waitASecond){
+          this.screamSound.play();
+          // Enable hit and wait another second after this completes
+          this.waitASecond = true;
+          // Set the timer to now
+          this.startTime = Date.now();
+          // Add one hit to the player's health
+          this.gameHealth += 1;
+          // Update the health bar
+          if (this.gameHealth <= 13){
+
+            // Create a temporary path for the animation
+            var tempStringPath = "healthActive";
+            tempStringPath += this.gameHealth;
+
+            // Create the animation for the Health bar to switch to
+            this.anims.create({
+              key: tempStringPath,
+              frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+              frameRate: 1,
+              repeat: -1
+            });
+            this.healthbar.anims.play(tempStringPath, true);
+
+
+          }
+          // Check if it's past empty, and if so, game over
+          else{
+            this.gameOver();
+          }
+
+          //Wait a second
+        }
+      }
+
 
 
 //end game, goes to game over scene

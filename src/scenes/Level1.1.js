@@ -221,6 +221,7 @@ this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 this.ship = this.physics.add.sprite(7970, 544, 'ship');
 this.ship.setScale(2.5);
 this.physics.add.collider(this.ship, platforms);
+this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
 
 //if player touches chest
 //this.physics.add.collider(this.player, this.chest, function(){});
@@ -819,10 +820,16 @@ healthGain(heart, player){
   }
 }
 
+  //move onto the bossfight
+  bossFight(){
+    this.gameMusic.stop();
+    this.scene.start('Boss1');
+  }
+
   //end game, goes to game over scene
   gameOver(){
     // Stop music if playing
-  //this.gameMusic.stop();
+  this.gameMusic.stop();
   console.log('game over!');
   this.scene.start('GameOver');
   }

@@ -13,7 +13,7 @@ export default class Boss1 extends Phaser.Scene {
   preload () {
     // Preload assets
     //Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyGold.png", {
+    this.load.spritesheet('peggyGold', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -74,7 +74,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(400, 550, 'peggy');
+    this.player = this.physics.add.sprite(400, 550, 'peggyGold');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -248,20 +248,20 @@ this.enemyGroup.children.each(
     // Peggy animations
     //create animation from spritesheet
   this.anims.create({
-    key: "walk",
-    frames: this.anims.generateFrameNumbers('peggy', {start: 1, end: 5}),
+    key: "goldwalk",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start: 1, end: 5}),
     frameRate: 10,
     repeat: -1 //repeat forever
   });
   this.anims.create({
-    key: "idle",
-    frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
+    key: "goldidle",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:0, end:0}),
     frameRate: 10,
     repeat: -1
   });
   this.anims.create({
-    key: "hurt",
-    frames: this.anims.generateFrameNumbers('peggy', {start:6, end:6}),
+    key: "goldhurt",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
     frameRate: 10,
     repeat: 1 //repeat just for a small amount of time
   });
@@ -300,24 +300,24 @@ this.enemyGroup.children.each(
     }
     //hurt animation when scream is played
     if (this.peggyScream.isPlaying){
-      this.player.anims.play('hurt', true);
+      this.player.anims.play('goldhurt', true);
     }
     // Move Left
     else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Move Right
     else if (movement.D.isDown){
       this.player.setVelocityX(speed);
       this.player.flipX = false;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('idle', true);
+      this.player.anims.play('goldidle', true);
       this.player.setVelocityX(0);
       }
     }

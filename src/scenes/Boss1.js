@@ -6,6 +6,7 @@ export default class Boss1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+    this.gameHealth = data.gameHealth;
   }
 
   preload () {
@@ -37,7 +38,7 @@ export default class Boss1 extends Phaser.Scene {
 
     //Load tilemap and tileset
     this.load.image('tiles', './assets/Boss1/shipAndBeachTiles.png');
-    this.load.tilemapTiledJSON('map', './assets/Boss1/bossRoom1.json');
+    this.load.tilemapTiledJSON('Boss Room Platforms', './assets/Boss1/bossRoom1.json');
 
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
@@ -83,21 +84,21 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //create level layout
-    const map = this.make.tilemap({ key: 'map' });
-    var tileset = map.addTilesetImage('shipAndBeachTiles', 'tiles');
-    const platforms = map.createStaticLayer('Boss Room Platforms', tileset, 0, 0);
-    platforms.setCollisionByExclusion(-1, true);
+    const map = this.make.tilemap({ key: 'Boss Room Platforms' });
+    var tilesetz = map.addTilesetImage('shipAndBeachTiles', 'tiles');
+    const platformz = map.createStaticLayer('Boss Room Platforms', tilesetz, 0, 0);
+    platformz.setCollisionByExclusion(-1, true);
 
 
     //player can stand on the platforms
-    this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.player, platformz);
 
     //add Boss character to level
     this.boss = this.physics.add.sprite(512, 96, 'boss');
     this.boss.setScale(2)
               .flipX = true;
 
-    this.physics.add.collider(this.boss, platforms);
+    this.physics.add.collider(this.boss, platformz);
 
 
 
@@ -107,8 +108,8 @@ export default class Boss1 extends Phaser.Scene {
     this.cannon1.setScale(2);
     this.cannon2 = this.physics.add.sprite(736, 64, 'cannon');
     this.cannon2.setScale(2);
-    this.physics.add.collider(this.cannon1, platforms);
-    this.physics.add.collider(this.cannon2, platforms);
+    this.physics.add.collider(this.cannon1, platformz);
+    this.physics.add.collider(this.cannon2, platformz);
 
     //adding smaller enemies
     this.enemyGroup = this.physics.add.group({});
@@ -126,7 +127,7 @@ export default class Boss1 extends Phaser.Scene {
       child.setCollideWorldBounds(true);
     });
 
-    this.physics.add.collider(this.enemyGroup, platforms);
+    this.physics.add.collider(this.enemyGroup, platformz);
 
     this.enemyGroup.add(this.boss);
 

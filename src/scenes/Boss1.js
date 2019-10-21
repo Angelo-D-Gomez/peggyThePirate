@@ -6,15 +6,24 @@ export default class Boss1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+
+    this.gameHealth = data.health;
   }
 
   preload () {
     // Preload assets
     //Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
+
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
     //Boss sprite (maybe create sprite sheet for him to give him a
     // some life with animations)
     this.load.image('boss', './assets/Boss1/bossPirate3.png');
@@ -30,13 +39,14 @@ export default class Boss1 extends Phaser.Scene {
 
     //Load tilemap and tileset
     this.load.image('tiles', './assets/Boss1/shipAndBeachTiles.png');
-    this.load.tilemapTiledJSON('map', './assets/Boss1/bossRoom1.json');
+    this.load.tilemapTiledJSON('Boss Room Platforms', './assets/Boss1/bossRoom1.json');
 
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -55,6 +65,7 @@ export default class Boss1 extends Phaser.Scene {
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
     this.screamSound = this.sound.add('screamAudio');
+    this.peggyScream = this.sound.add('peggyScream');
 
     //speed up the music
     this.gameMusic.setRate(1.5);
@@ -76,21 +87,21 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //create level layout
-    const map = this.make.tilemap({ key: 'map' });
-    var tileset = map.addTilesetImage('shipAndBeachTiles', 'tiles');
-    const platforms = map.createStaticLayer('Boss Room Platforms', tileset, 0, 0);
-    platforms.setCollisionByExclusion(-1, true);
+    const map = this.make.tilemap({ key: 'Boss Room Platforms' });
+    var tilesetz = map.addTilesetImage('shipAndBeachTiles', 'tiles');
+    const platformz = map.createStaticLayer('Boss Room Platforms', tilesetz, 0, 0);
+    platformz.setCollisionByExclusion(-1, true);
 
 
     //player can stand on the platforms
-    this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.player, platformz);
 
     //add Boss character to level
     this.boss = this.physics.add.sprite(512, 96, 'boss');
     this.boss.setScale(2)
               .flipX = true;
 
-    this.physics.add.collider(this.boss, platforms);
+    this.physics.add.collider(this.boss, platformz);
 
 
 
@@ -100,8 +111,8 @@ export default class Boss1 extends Phaser.Scene {
     this.cannon1.setScale(2);
     this.cannon2 = this.physics.add.sprite(736, 64, 'cannon');
     this.cannon2.setScale(2);
-    this.physics.add.collider(this.cannon1, platforms);
-    this.physics.add.collider(this.cannon2, platforms);
+    this.physics.add.collider(this.cannon1, platformz);
+    this.physics.add.collider(this.cannon2, platformz);
 
     //adding smaller enemies
     this.enemyGroup = this.physics.add.group({});
@@ -119,7 +130,7 @@ export default class Boss1 extends Phaser.Scene {
       child.setCollideWorldBounds(true);
     });
 
-    this.physics.add.collider(this.enemyGroup, platforms);
+    this.physics.add.collider(this.enemyGroup, platformz);
 
     this.enemyGroup.add(this.boss);
 
@@ -132,9 +143,9 @@ export default class Boss1 extends Phaser.Scene {
       maxSize: 10
     });
     this.bullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
+
+    this.physics.add.collider(this.bullets, platformz, this.callbackFunc, null, this);
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -142,8 +153,6 @@ export default class Boss1 extends Phaser.Scene {
 });
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
 
 
@@ -229,7 +238,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -253,7 +262,26 @@ this.enemyGroup.children.each(
     frameRate: 10,
     repeat: -1
   });
+  this.anims.create({
+    key: "hurt",
+    frames: this.anims.generateFrameNumbers('peggy', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
 
+  // Display the health bar based on health score
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health", [this.gameHealth])
+  //this.healthbar.frame = this.gameHealth
+  this.healthbar.setScale(2);
+  this.healthbar.body.setAllowGravity(false);
+
+
+    this.anims.create({
+      key: "healthActive",
+      frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+      frameRate: 0,
+      repeat: 1
+    });
 
 
   }
@@ -273,8 +301,12 @@ this.enemyGroup.children.each(
     else{
       speed = 135;
     }
+    //hurt animation when scream is played
+    if (this.peggyScream.isPlaying){
+      this.player.anims.play('hurt', true);
+    }
     // Move Left
-    if (movement.A.isDown){
+    else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
       this.player.anims.play('walk', true);
@@ -451,12 +483,69 @@ hitEnemy(bullet, enemy){
 //triggers when player is hit
     hitPlayer(bullet, player){
       console.log('hit');
-      player.disableBody(true, true);
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();
-      this.gameOver();
+      this.healthHurt();
     }
+
+    //bullet collisions
+    callbackFunc(bullet, target)
+    {
+        if ( bullet.active === true ) {
+            console.log("Hit!");
+
+            bullet.setActive(false);
+            bullet.setVisible(false);
+        }
+    }
+    //If player loses health --------------------------------------------------------
+      healthHurt(){
+        //console.log("Health hurt function called")
+        // Add one to health hurt score
+
+        if (this.waitASecond){
+          // Wait a second before taking another damage
+          if (Date.now() >= this.startTime + 900) {
+            this.waitASecond = false;
+          }
+        }
+        // If the user has waited a second since last hit
+        else if (!this.waitASecond){
+          this.peggyScream.play();
+          // Enable hit and wait another second after this completes
+          this.waitASecond = true;
+          // Set the timer to now
+          this.startTime = Date.now();
+          // Add one hit to the player's health
+          this.gameHealth += 1;
+          // Update the health bar
+          if (this.gameHealth <= 13){
+
+            // Create a temporary path for the animation
+            var tempStringPath = "healthActive";
+            tempStringPath += this.gameHealth;
+
+            // Create the animation for the Health bar to switch to
+            this.anims.create({
+              key: tempStringPath,
+              frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+              frameRate: 1,
+              repeat: -1
+            });
+            this.healthbar.anims.play(tempStringPath, true);
+
+
+          }
+          // Check if it's past empty, and if so, game over
+          else{
+            this.gameOver();
+          }
+
+          //Wait a second
+        }
+      }
+
 
 
 //end game, goes to game over scene

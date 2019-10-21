@@ -221,6 +221,22 @@ this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null
     this.physics.add.collider(this.enemyGroup, platforms);
     this.physics.add.collider(this.enemyGroup, platforms2);
 
+    //if player touches enemy
+    this.enemyGroup.children.each(
+          function (b) {
+            if (b.active) {
+              this.physics.add.overlap( //if enemyGroup touches player, calls function
+                b,
+                this.player,
+                this.healthHurt,
+                null,
+                this
+              );
+            }
+          }.bind(this) //binds to each children
+        );
+
+
 
     //this.chest = this.physics.add.sprite(2432, 1856,'chest');
 //this.physics.add.collider(this.chest, platforms2);
@@ -236,6 +252,7 @@ this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 this.ship = this.physics.add.sprite(7970, 544, 'ship');
 this.ship.setScale(2.5);
 this.physics.add.collider(this.ship, platforms);
+this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
 
 //if player touches chest
 //this.physics.add.collider(this.player, this.chest, function(){});
@@ -872,10 +889,16 @@ healthGain(heart, player){
   }
 }
 
+  //move onto the bossfight
+  bossFight(){
+    this.gameMusic.stop();
+    this.scene.start('Boss1', {health: this.gameHealth});
+  }
+
   //end game, goes to game over scene
   gameOver(){
     // Stop music if playing
-  //this.gameMusic.stop();
+  this.gameMusic.stop();
   console.log('game over!');
   this.scene.start('GameOver');
   }

@@ -127,8 +127,7 @@ export default class Level1v2 extends Phaser.Scene {
     //add player's bullet group
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
-      maxSize: 20,
-      runChildUpdate: true
+      maxSize: 20
     });
     this.physics.add.collider(this.bullets, platforms, this.callbackFunc, null, this);
     this.physics.add.collider(this.bullets, platforms2, this.callbackFunc, null, this);
@@ -136,17 +135,13 @@ export default class Level1v2 extends Phaser.Scene {
   //add enemy's bullet group
   this.enemyBullets = this.physics.add.group({
     defaultKey: "bullet",
-    maxSize: 100,
-    runChildUpdate: true
+    maxSize: 100
 });
 
 this.physics.add.collider(this.enemyBullets, platforms, this.callbackFunc, null, this);
 this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null, this);
 
-  //how to get gravity of bullets to be zero??
-  this.enemyBullets.children.iterate(function(child){
-});
-  //add enemy's coconut enemyGroup    //add enemy's bullet group
+  //add enemy's coconut enemyGroup
       this.enemyCoconuts = this.physics.add.group({
         defaultKey: "coconut",
         maxSize: 100
@@ -155,7 +150,8 @@ this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null
       this.enemyCoconuts.children.iterate(function(child){
   });
 
-  
+  this.physics.add.collider(this.enemyCoconuts, platforms, this.callbackFunc, null, this);
+
 
     //create enemy group
     this.enemyGroup = this.physics.add.group({});
@@ -652,13 +648,13 @@ if(this.bootsObtained == true){
                       if (b.y < 0) { //if bullet off top of screen
                         b.setActive(false);
                       }
-                      else if (b.y > 600) { //if bullet off bottom of screen
+                      else if (b.y > 1920) { //if bullet off bottom of screen
                         b.setActive(false);
                       }
-                      else if (b.x < this.player.x - 400){
+                      else if (b.x < 0){
                         b.setActive(false);
                       }
-                      else if (b.x > this.player.x + 400){
+                      else if (b.x > 8000){
                         b.setActive(false);
                       }
                     }
@@ -680,13 +676,13 @@ if(this.bootsObtained == true){
                                   if (b.y < 0) { //if bullet off top of screen
                                     b.setActive(false);
                                   }
-                                  else if (b.y > 600) { //if bullet off bottom of screen
+                                  else if (b.y > 1920) { //if bullet off bottom of screen
                                     b.setActive(false);
                                   }
                                   else if (b.x < 0){
                                     b.setActive(false);
                                   }
-                                  else if (b.x > 800){
+                                  else if (b.x > 8000){
                                     b.setActive(false);
                                   }
                                 }
@@ -803,11 +799,11 @@ hitPlayer(bullet, player){
 //bullet collisions
 callbackFunc(bullet, target)
 {
+  console.log('calling function');
     if (bullet.active) {
         console.log("bullet hit platform!");
+        bullet.disableBody(true, true);
 
-        bullet.setActive(false);
-        bullet.setVisible(false);
     }
 }
 

@@ -237,7 +237,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -266,6 +266,14 @@ this.enemyGroup.children.each(
   this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
   this.healthbar.setScale(1);
   this.healthbar.body.setAllowGravity(false);
+
+
+    this.anims.create({
+      key: "healthActive",
+      frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+      frameRate: 0,
+      repeat: 1
+    });
 
 
   }
@@ -463,7 +471,6 @@ hitEnemy(bullet, enemy){
 //triggers when player is hit
     hitPlayer(bullet, player){
       console.log('hit');
-      player.disableBody(true, true);
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();

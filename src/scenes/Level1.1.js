@@ -869,7 +869,7 @@ healthGain(heart, player){
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
-    this.scene.start('Boss1', {score: this.gameHealth});
+    this.scene.start('Boss1', {health: this.gameHealth});
   }
 
   //end game, goes to game over scene

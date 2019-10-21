@@ -6,7 +6,8 @@ export default class Boss1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
-    this.gameHealth = 0;//data.gameHealth;
+
+    this.gameHealth = data.health;
   }
 
   preload () {

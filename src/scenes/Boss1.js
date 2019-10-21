@@ -6,13 +6,13 @@ export default class Boss1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
-    this.gameHealth = data.gameHealth;
+    this.gameHealth = 0;//data.gameHealth;
   }
 
   preload () {
     // Preload assets
     //Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -45,6 +45,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -63,6 +64,7 @@ export default class Boss1 extends Phaser.Scene {
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
     this.screamSound = this.sound.add('screamAudio');
+    this.peggyScream = this.sound.add('peggyScream');
 
     //speed up the music
     this.gameMusic.setRate(1.5);
@@ -140,9 +142,9 @@ export default class Boss1 extends Phaser.Scene {
       maxSize: 10
     });
     this.bullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
+
+    this.physics.add.collider(this.bullets, platformz, this.callbackFunc, null, this);
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -261,6 +263,12 @@ this.enemyGroup.children.each(
     frameRate: 10,
     repeat: -1
   });
+  this.anims.create({
+    key: "hurt",
+    frames: this.anims.generateFrameNumbers('peggy', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
 
   // Display the health bar based on health score
   this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
@@ -293,8 +301,12 @@ this.enemyGroup.children.each(
     else{
       speed = 135;
     }
+    //hurt animation when scream is played
+    if (this.peggyScream.isPlaying){
+      this.player.anims.play('hurt', true);
+    }
     // Move Left
-    if (movement.A.isDown){
+    else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
       this.player.anims.play('walk', true);
@@ -477,6 +489,16 @@ hitEnemy(bullet, enemy){
       this.healthHurt();
     }
 
+    //bullet collisions
+    callbackFunc(bullet, target)
+    {
+        if ( bullet.active === true ) {
+            console.log("Hit!");
+
+            bullet.setActive(false);
+            bullet.setVisible(false);
+        }
+    }
     //If player loses health --------------------------------------------------------
       healthHurt(){
         //console.log("Health hurt function called")
@@ -490,7 +512,7 @@ hitEnemy(bullet, enemy){
         }
         // If the user has waited a second since last hit
         else if (!this.waitASecond){
-          this.screamSound.play();
+          this.peggyScream.play();
           // Enable hit and wait another second after this completes
           this.waitASecond = true;
           // Set the timer to now

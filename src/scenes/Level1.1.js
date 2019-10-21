@@ -98,7 +98,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
 
-    this.player = this.physics.add.sprite(32, 546, 'peggy');
+    this.player = this.physics.add.sprite(7532, 546, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 

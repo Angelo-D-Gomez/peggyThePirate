@@ -819,13 +819,13 @@ healthGain(heart, player){
     this.powerupSound.play();
   }
 }
-/*
+
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
     this.scene.start('Boss1');
   }
-*/
+
   //end game, goes to game over scene
   gameOver(){
     // Stop music if playing

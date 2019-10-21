@@ -136,8 +136,13 @@ export default class Level1v2 extends Phaser.Scene {
   //add enemy's bullet group
   this.enemyBullets = this.physics.add.group({
     defaultKey: "bullet",
-    maxSize: 100
+    maxSize: 100,
+    runChildUpdate: true
 });
+
+this.physics.add.collider(this.enemyBullets, platforms, this.callbackFunc, null, this);
+this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null, this);
+
   //how to get gravity of bullets to be zero??
   this.enemyBullets.children.iterate(function(child){
 });
@@ -149,6 +154,8 @@ export default class Level1v2 extends Phaser.Scene {
       //how to get gravity of bullets to be zero??
       this.enemyCoconuts.children.iterate(function(child){
   });
+
+  
 
     //create enemy group
     this.enemyGroup = this.physics.add.group({});
@@ -779,8 +786,8 @@ hitPlayer(bullet, player){
 //bullet collisions
 callbackFunc(bullet, target)
 {
-    if ( bullet.active === true ) {
-        console.log("Hit!");
+    if (bullet.active) {
+        console.log("bullet hit platform!");
 
         bullet.setActive(false);
         bullet.setVisible(false);

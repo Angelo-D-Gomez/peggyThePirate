@@ -6,13 +6,14 @@ export default class Boss1 extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
-    this.gameHealth = data.gameHealth;
+
+    this.gameHealth = data.health;
   }
 
   preload () {
     // Preload assets
     //Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggyGold', "./assets/spritesheets/PeggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -45,6 +46,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -63,6 +65,7 @@ export default class Boss1 extends Phaser.Scene {
     this.jumpSound = this.sound.add('jumpAudio');
     this.jumpSound.volume = 0.1;
     this.screamSound = this.sound.add('screamAudio');
+    this.peggyScream = this.sound.add('peggyScream');
 
     //speed up the music
     this.gameMusic.setRate(1.5);
@@ -71,7 +74,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(400, 550, 'peggy');
+    this.player = this.physics.add.sprite(400, 550, 'peggyGold');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -100,12 +103,10 @@ export default class Boss1 extends Phaser.Scene {
 
     this.physics.add.collider(this.boss, platformz);
 
-
-
-
     //add his cannons
     this.cannon1 = this.physics.add.sprite(64, 64, 'cannon');
     this.cannon1.setScale(2);
+    this.cannon1.flipX = true;
     this.cannon2 = this.physics.add.sprite(736, 64, 'cannon');
     this.cannon2.setScale(2);
     this.physics.add.collider(this.cannon1, platformz);
@@ -113,7 +114,6 @@ export default class Boss1 extends Phaser.Scene {
 
     //adding smaller enemies
     this.enemyGroup = this.physics.add.group({});
-
 
     this.enemy1 = this.physics.add.sprite(300, 550, 'enemy');
     this.enemyGroup.add(this.enemy1);
@@ -140,9 +140,10 @@ export default class Boss1 extends Phaser.Scene {
       maxSize: 10
     });
     this.bullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
+
+
+    this.physics.add.collider(this.bullets, platformz, this.callbackFunc, null, this);
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -150,9 +151,8 @@ export default class Boss1 extends Phaser.Scene {
 });
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
-      child.body.gravity.y = 0;
-      child.body.gravity.x = 0;
 });
+this.physics.add.collider(this.enemyBullets, platformz, this.callbackFunc, null, this);
 
 
 //cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge
@@ -164,7 +164,6 @@ this.tweens.add({
   duration: 3000,
   yoyo: true,
   repeat: -1,
-  flipX: true,
   onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets)},
  onRepeatScope: this
 });
@@ -176,7 +175,6 @@ this.tweens.add({
   duration: 3000,
   yoyo: true,
   repeat: -1,
-  flipX: true,
   onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets)},
  onRepeatScope: this
 });
@@ -237,7 +235,7 @@ this.enemyGroup.children.each(
           this.physics.add.overlap( //if enemyGroup touches player, calls function
             b,
             this.player,
-            this.gameOver,
+            this.healthHurt,
             null,
             this
           );
@@ -250,29 +248,44 @@ this.enemyGroup.children.each(
     // Peggy animations
     //create animation from spritesheet
   this.anims.create({
-    key: "walk",
-    frames: this.anims.generateFrameNumbers('peggy', {start: 1, end: 5}),
+    key: "goldwalk",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start: 1, end: 5}),
     frameRate: 10,
     repeat: -1 //repeat forever
   });
   this.anims.create({
-    key: "idle",
-    frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
+    key: "goldidle",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:0, end:0}),
     frameRate: 10,
     repeat: -1
   });
+  this.anims.create({
+    key: "goldhurt",
+    frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
 
   // Display the health bar based on health score
-  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
-  this.healthbar.setScale(1);
+  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health", [this.gameHealth])
+  //this.healthbar.frame = this.gameHealth
+  this.healthbar.setScale(2);
   this.healthbar.body.setAllowGravity(false);
+
+
+    this.anims.create({
+      key: "healthActive",
+      frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+      frameRate: 0,
+      repeat: 1
+    });
 
 
   }
 
   update (time, delta) {
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT');
+    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT, SPACE');
     var speed;
 
     // Hold down shift to make Peggy sprint
@@ -285,22 +298,26 @@ this.enemyGroup.children.each(
     else{
       speed = 135;
     }
+    //hurt animation when scream is played
+    if (this.peggyScream.isPlaying){
+      this.player.anims.play('goldhurt', true);
+    }
     // Move Left
-    if (movement.A.isDown){
+    else if (movement.A.isDown){
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Move Right
     else if (movement.D.isDown){
       this.player.setVelocityX(speed);
       this.player.flipX = false;
-      this.player.anims.play('walk', true);
+      this.player.anims.play('goldwalk', true);
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('idle', true);
+      this.player.anims.play('goldidle', true);
       this.player.setVelocityX(0);
       }
     }
@@ -310,12 +327,18 @@ this.enemyGroup.children.each(
     if (movement.W.isDown && this.player.body.onFloor()){
       this.player.setVelocityY(-225);
       this.jumpSound.play();
+      this.midairGood = true;
     }
     //allows fast falling for more player mobility
     // jump and fall speed need to be experimented with
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
     }
+    //double jump
+      if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
+          this.player.setVelocityY(-250);
+          this.midairGood = false;
+      }
 
     //Player fires weapon
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
@@ -463,13 +486,21 @@ hitEnemy(bullet, enemy){
 //triggers when player is hit
     hitPlayer(bullet, player){
       console.log('hit');
-      player.disableBody(true, true);
       bullet.disableBody(true, true);
       // Play hurt Sound
       this.screamSound.play();
       this.healthHurt();
     }
 
+    //bullet collisions
+    callbackFunc(bullet, target)
+    {
+        if ( bullet.active === true ) {
+            console.log("Hit!");
+
+            bullet.disableBody(true, true);
+        }
+    }
     //If player loses health --------------------------------------------------------
       healthHurt(){
         //console.log("Health hurt function called")
@@ -483,7 +514,7 @@ hitEnemy(bullet, enemy){
         }
         // If the user has waited a second since last hit
         else if (!this.waitASecond){
-          this.screamSound.play();
+          this.peggyScream.play();
           // Enable hit and wait another second after this completes
           this.waitASecond = true;
           // Set the timer to now

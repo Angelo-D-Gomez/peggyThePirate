@@ -861,6 +861,8 @@ hitEnemy(bullet, enemy){
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
     //play hurt sound
+    var randomSpeed = (Math.random()*0.4)+0.5;
+    this.screamSound.setRate(randomSpeed);
     this.screamSound.play();
 
   }

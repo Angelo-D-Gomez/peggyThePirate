@@ -108,7 +108,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.text4 = this.add.text(700, 300, 'Collect hearts to boost health!', { font: "20px Arial", fill: "#000000" });
 
     this.text5 = this.add.text(2432, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
-    this.text6 = this.add.text(2432, 1750, "Use W + SPACE to double jump.", { font: "15px Arial", fill: "#ffffff" });
+    this.text6 = this.add.text(2432, 1750, "Press SPACE in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
 
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });

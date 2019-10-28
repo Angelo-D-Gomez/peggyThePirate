@@ -152,7 +152,7 @@ export default class Boss1 extends Phaser.Scene {
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
 });
-this.physics.add.collider(this.enemyBullets, platformz, this.callbackFunc, null, this);
+
 
 
 //cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge

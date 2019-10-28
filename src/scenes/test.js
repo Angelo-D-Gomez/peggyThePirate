@@ -8,6 +8,9 @@ export default class test extends Phaser.Scene {
 
   init (data) {
     // Initialization code goes here
+    this.bootsObtained = false;
+    this.midairGood = true;
+    this.jumpCount = 2;
   }
 
   preload () {
@@ -89,7 +92,8 @@ export default class test extends Phaser.Scene {
     // Update the scene
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT');
+    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
 
     // Hold down shift to make Peggy sprint
@@ -101,6 +105,9 @@ export default class test extends Phaser.Scene {
     }
     else{
       speed = 135;
+    }
+    if (this.player.body.onFloor()){
+        this.jumpCount = 2;
     }
     // Move Left
     if (movement.A.isDown){
@@ -124,16 +131,17 @@ export default class test extends Phaser.Scene {
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
-    if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-225);
-      this.jumpSound.play();
+
+    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+      if(this.jumpCount > 0){
+        this.jumpCount --;
+        this.player.setVelocityY(-225);
+        this.jumpSound.play();
     }
-    //allows fast falling for more player mobility
-    // jump and fall speed need to be experimented with
+  }
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
-    }
-
+}
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 
     if (Phaser.Input.Keyboard.JustDown(bang)){

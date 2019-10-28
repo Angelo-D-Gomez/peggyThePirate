@@ -18,6 +18,13 @@ export default class Boss1 extends Phaser.Scene {
       frameWidth: 32
     });
 
+    // Peggy (Hurt) spritesheet
+    this.load.spritesheet('peggyHurt', "./assets/spritesheets/peggyHurt2.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+
+
     // Load the health spriteSheet
     this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
       frameHeight: 48,
@@ -246,6 +253,26 @@ this.enemyGroup.children.each(
 
     // animations
     // Peggy animations
+    //peggy hurt
+    this.anims.create({
+      key: "hurtwalk",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:1, end:5}),
+      frameRate: 10,
+      repeat: -1 //repeat just for a small amount of time
+    });
+    this.anims.create({
+      key: "hurtidle",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:0, end:0}),
+      frameRate: 10,
+      repeat: -1 //repeat just for a small amount of time
+    });
+    this.anims.create({
+      key: "hurthurt",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:6, end:6}),
+      frameRate: 10,
+      repeat: 1 //repeat just for a small amount of time
+    });
+
     //create animation from spritesheet
   this.anims.create({
     key: "goldwalk",
@@ -298,27 +325,45 @@ this.enemyGroup.children.each(
     else{
       speed = 135;
     }
-    //hurt animation when scream is played
-    if (this.peggyScream.isPlaying){
-      this.player.anims.play('goldhurt', true);
-    }
     // Move Left
-    else if (movement.A.isDown){
-      this.player.setVelocityX(-speed);
-      this.player.flipX = true;
-      this.player.anims.play('goldwalk', true);
+    if (movement.A.isDown){
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else {
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('goldwalk', true);
+      }
+
     }
     // Move Right
     else if (movement.D.isDown){
-      this.player.setVelocityX(speed);
-      this.player.flipX = false;
-      this.player.anims.play('goldwalk', true);
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else {
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('goldwalk', true);
+      }
+
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('goldidle', true);
-      this.player.setVelocityX(0);
+        if (this.peggyScream.isPlaying){
+          this.player.anims.play('hurtidle', true);
+          this.player.setVelocityX(0);
+        }
+        else{
+          this.player.anims.play('goldidle', true);
+          this.player.setVelocityX(0);
+        }
       }
     }
     // player can jump if they are touching the ground
@@ -477,6 +522,8 @@ hitEnemy(bullet, enemy){
   enemy.disableBody(true, true);
   bullet.disableBody(true, true);
   //play hurt sound
+  var randomSpeed = (Math.random()*0.4)+0.5;
+  this.screamSound.setRate(randomSpeed);
   this.screamSound.play();
   if (this.boss.body.enable == false){
     this.success()
@@ -488,6 +535,7 @@ hitEnemy(bullet, enemy){
       console.log('hit');
       bullet.disableBody(true, true);
       // Play hurt Sound
+      this.screamSound.setRate(1);
       this.screamSound.play();
       this.healthHurt();
     }

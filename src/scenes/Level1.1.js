@@ -540,7 +540,8 @@ update (time, delta) {
     console.log(this.gameHealth);
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
 
     // Hold down shift to make Peggy sprint

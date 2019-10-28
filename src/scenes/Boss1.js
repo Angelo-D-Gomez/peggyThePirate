@@ -8,6 +8,7 @@ export default class Boss1 extends Phaser.Scene {
     // Initialization code goes here
 
     this.gameHealth = data.health;
+    this.jumpCount = 2;
   }
 
   preload () {
@@ -312,9 +313,13 @@ this.enemyGroup.children.each(
 
   update (time, delta) {
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
 
+    if (this.player.body.onFloor()){
+        this.jumpCount = 2;
+    }
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
     // otherwise it wont change the speed variable before she
@@ -369,21 +374,18 @@ this.enemyGroup.children.each(
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
-    if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-225);
-      this.jumpSound.play();
-      this.midairGood = true;
+
+    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+      if(this.jumpCount > 0){
+        this.jumpCount --;
+        this.player.setVelocityY(-225);
+        this.jumpSound.play();
     }
-    //allows fast falling for more player mobility
-    // jump and fall speed need to be experimented with
+  }
+  //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
-    }
-    //double jump
-      if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
-          this.player.setVelocityY(-250);
-          this.midairGood = false;
-      }
+}
 
     //Player fires weapon
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);

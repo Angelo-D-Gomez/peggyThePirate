@@ -9,7 +9,6 @@ export default class test extends Phaser.Scene {
   init (data) {
     // Initialization code goes here
     this.bootsObtained = false;
-    this.midairGood = true;
     this.jumpCount = 2;
   }
 
@@ -139,9 +138,12 @@ export default class test extends Phaser.Scene {
         this.jumpSound.play();
     }
   }
+  //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
 }
+
+
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 
     if (Phaser.Input.Keyboard.JustDown(bang)){

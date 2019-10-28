@@ -11,13 +11,19 @@ export default class Level1v2 extends Phaser.Scene {
     this.gameHealth = 0;
     this.waitASecond = false;
     this.startTime = Date.now();
-    this.PeggyHurt = false;
+    this.peggyHurt1 = false;
   }
 
   preload () {
     // Preload assets
     // Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyHurt.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/peggyHurt1.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+
+    // Peggy (Hurt) spritesheet
+    this.load.spritesheet('peggyHurt', "./assets/spritesheets/peggyHurt2.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -499,6 +505,26 @@ this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
     repeat: 1 //repeat just for a small amount of time
   });
 
+  //peggy hurt
+  this.anims.create({
+    key: "hurtwalk",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:1, end:5}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "hurtidle",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:0, end:0}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "hurthurt",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
+
   //peggy with boots
   this.anims.create({
     key: "goldwalk",
@@ -513,7 +539,7 @@ this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
     repeat: -1 //repeat just for a small amount of time
   });
   this.anims.create({
-    key: "goldHurt",
+    key: "goldhurt",
     frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
     frameRate: 10,
     repeat: 1 //repeat just for a small amount of time
@@ -556,53 +582,92 @@ update (time, delta) {
     }
     if(this.bootsObtained == true){
       //change animations if peggy has boots
-      if (this.peggyScream.isPlaying){
-        this.player.anims.play('goldHurt', true);
-      }
+
 
       // Move Left
-      else if (movement.A.isDown){
-        this.player.setVelocityX(-speed);
-        this.player.flipX = true;
-        this.player.anims.play('goldwalk', true);
+      if (movement.A.isDown){
+        if (this.peggyScream.isPlaying){
+          this.player.setVelocityX(-speed);
+          this.player.flipX = true;
+          this.player.anims.play('hurtwalk', true);
+        }
+        else {
+          this.player.setVelocityX(-speed);
+          this.player.flipX = true;
+          this.player.anims.play('goldwalk', true);
+        }
+
       }
       // Move Right
       else if (movement.D.isDown){
-        this.player.setVelocityX(speed);
-        this.player.flipX = false;
-        this.player.anims.play('goldwalk', true);
+        if (this.peggyScream.isPlaying){
+          this.player.setVelocityX(speed);
+          this.player.flipX = false;
+          this.player.anims.play('hurtwalk', true);
+        }
+        else {
+          this.player.setVelocityX(speed);
+          this.player.flipX = false;
+          this.player.anims.play('goldwalk', true);
+        }
+
       }
       // Idle
       else {
         if (this.player.body.onFloor()){
-        this.player.anims.play('goldidle', true);
-        this.player.setVelocityX(0);
+          if (this.peggyScream.isPlaying){
+            this.player.anims.play('hurtidle', true);
+            this.player.setVelocityX(0);
+          }
+          else{
+            this.player.anims.play('goldidle', true);
+            this.player.setVelocityX(0);
+          }
         }
       }
     }
     else{
-    //if Peggy is hurt
-    if (this.peggyScream.isPlaying){
-      this.player.anims.play('hurt', true);
-    }
+
 
     // Move Left
-    else if (movement.A.isDown){
-      this.player.setVelocityX(-speed);
-      this.player.flipX = true;
-      this.player.anims.play('walk', true);
+    if (movement.A.isDown){
+      //if Peggy is hurt
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else{
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('walk', true);
+      }
     }
     // Move Right
     else if (movement.D.isDown){
-      this.player.setVelocityX(speed);
-      this.player.flipX = false;
-      this.player.anims.play('walk', true);
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else{
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('walk', true);
+      }
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('idle', true);
-      this.player.setVelocityX(0);
+        if (this.peggyScream.isPlaying){
+          this.player.anims.play('hurtidle', true);
+          this.player.setVelocityX(0);
+        }
+        else{
+          this.player.anims.play('idle', true);
+          this.player.setVelocityX(0);
+        }
+
       }
     }
   }
@@ -797,6 +862,8 @@ hitEnemy(bullet, enemy){
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
     //play hurt sound
+    var randomSpeed = (Math.random()*0.4)+0.5;
+    this.screamSound.setRate(randomSpeed);
     this.screamSound.play();
 
   }

@@ -12,6 +12,9 @@ export default class Level1v2 extends Phaser.Scene {
     this.waitASecond = false;
     this.startTime = Date.now();
     this.peggyHurt1 = false;
+    //for double jumping
+    this.bootsObtained = false;
+    this.jumpCount = 2;
   }
 
   preload () {
@@ -257,9 +260,7 @@ this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null
 
 this.boots = this.physics.add.sprite(2500, 1856,'boots');
 this.physics.add.collider(this.boots, platforms2);
-//for double jumping
-this.bootsObtained = false;
-this.midairGood = true;
+
 
 this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 
@@ -566,8 +567,16 @@ update (time, delta) {
     console.log(this.gameHealth);
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
+
+
+    //resets your ability to jump once you land on the ground
+    if (this.player.body.onFloor()){
+        this.jumpCount = 2;
+    }
+
 
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
@@ -670,26 +679,29 @@ update (time, delta) {
       }
     }
   }
+
+
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
-    if (movement.W.isDown && this.player.body.onFloor()){
+
+    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+      if (this.bootsObtained == true){
+      if(this.jumpCount > 0){
+        this.jumpCount --;
+        this.player.setVelocityY(-225);
+        this.jumpSound.play();
+    }}
+    else if(this.jumpCount > 1){
+      this.jumpCount --;
       this.player.setVelocityY(-225);
       this.jumpSound.play();
-      this.midairGood = true;
-    }
-    //allows fast falling for more player mobility
-    // jump and fall speed need to be experimented with
+  }
+  }
+  //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
-    }
-
-    // add midair jump boost if pegasus boots collected
-if(this.bootsObtained == true){
-  if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
-      this.player.setVelocityY(-250);
-      this.midairGood = false;
-  }}
+}
 
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 

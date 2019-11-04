@@ -96,7 +96,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.gunSound = this.sound.add('gunAudio');
     this.gunSound.volume = 0.3;
     this.jumpSound = this.sound.add('jumpAudio');
-    this.jumpSound.volume = 0.1;
+    this.jumpSound.volume = 0.05;
     this.screamSound = this.sound.add('screamAudio');
     this.peggyScream = this.sound.add('peggyScream');
     this.gameMusic = this.sound.add('gameAudio');
@@ -111,13 +111,13 @@ export default class Level1v2 extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
-    this.text1 = this.add.text(50, 400, 'Use W, A, S, D to walk around.', { font: "20px Arial", fill: "#000000" });
-    this.text2 = this.add.text(50, 430, 'Use SHIFT to run.', { font: "20px Arial", fill: "#000000" });
-    this.text3 = this.add.text(50, 460, 'Use O to shoot enemies.', { font: "20px Arial", fill: "#000000" });
+    this.text1 = this.add.text(50, 400, 'Use [W], [A], [S], [D] to walk around.', { font: "20px Arial", fill: "#000000" });
+    this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
+    this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
     this.text4 = this.add.text(700, 300, 'Collect hearts to boost health!', { font: "20px Arial", fill: "#000000" });
 
     this.text5 = this.add.text(2432, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
-    this.text6 = this.add.text(2432, 1750, "Press SPACE in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
+    this.text6 = this.add.text(2432, 1750, "Press [UP] while in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
 
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });

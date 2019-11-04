@@ -10,6 +10,7 @@ export default class test extends Phaser.Scene {
     // Initialization code goes here
     this.bootsObtained = false;
     this.jumpCount = 2;
+    this.mobile = true;
   }
 
   preload () {
@@ -84,6 +85,12 @@ export default class test extends Phaser.Scene {
     frameRate: 10,
     repeat: -1
   });
+  this.anims.create({
+    key: "dash",
+    frames: this.anims.generateFrameNumbers('peggy', {start:4, end:4}),
+    framerate: 60,
+    repeat: -1
+  });
 
   }
 
@@ -100,8 +107,10 @@ export default class test extends Phaser.Scene {
 
 
 
+
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
+        this.mobile = true;
     }
 /*
     if(Phaser.Input.Keyboard.JustDown(dashButton)){
@@ -117,9 +126,15 @@ export default class test extends Phaser.Scene {
     }
 */
         // Move Left
-    if (movement.A.isDown){
+    if (movement.A.isDown && this.mobile == true){
       if (Phaser.Input.Keyboard.JustDown(dashButton)){
         console.log('ldash');
+        this.player.body.setAllowGravity(false);
+        this.player.setVelocityX(0);
+        this.player.anims.play('dash', true);
+        this.player.x -= 160;
+        this.player.body.setAllowGravity(true);
+        this.mobile = false;
       }
       else{
       this.player.setVelocityX(-speed);
@@ -128,9 +143,21 @@ export default class test extends Phaser.Scene {
     }
     }
     // Move Right
-    else if (movement.D.isDown){
+    else if (movement.D.isDown && this.mobile == true){
       if(Phaser.Input.Keyboard.JustDown(dashButton)){
           console.log('rdash');
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityX(0);
+          this.player.anims.play('dash', true);
+          this.add.tween({
+            targets: this.player,
+            x: '+=160',
+            ease: "Linear",
+            repeat:0
+          });
+          //this.player.x += 160;
+          this.player.body.setAllowGravity(true);
+          this.mobile = false;
       }
       else{
       this.player.setVelocityX(speed);
@@ -209,4 +236,5 @@ export default class test extends Phaser.Scene {
 
 
   }
+
 }

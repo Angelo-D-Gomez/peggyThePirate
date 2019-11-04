@@ -91,22 +91,28 @@ export default class test extends Phaser.Scene {
     // Update the scene
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    var speed = 210;
 
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
-    }
+
+
+
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
+    }
+
+    if(Phaser.Input.Keyboard.JustDown(dashButton)){
+      if (movement.A.isDown){
+        console.log('ldash');
+        this.player.body.setAllowGravity(false);
+        this.player.setVelocityX(0);
+      }
+      else if(movement.D.isDown){
+        console.log('rdash');
+        this.player.body.setAllowGravity(true);
+      }
     }
     // Move Left
     if (movement.A.isDown){

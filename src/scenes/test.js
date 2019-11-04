@@ -89,7 +89,8 @@ export default class test extends Phaser.Scene {
 
   update (time, delta) {
     // Update the scene
-
+    //1000 ms = 60 frames
+    //16.7 ms = 1 frame
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -102,7 +103,7 @@ export default class test extends Phaser.Scene {
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
     }
-
+/*
     if(Phaser.Input.Keyboard.JustDown(dashButton)){
       if (movement.A.isDown){
         console.log('ldash');
@@ -114,17 +115,28 @@ export default class test extends Phaser.Scene {
         this.player.body.setAllowGravity(true);
       }
     }
-    // Move Left
+*/
+        // Move Left
     if (movement.A.isDown){
+      if (Phaser.Input.Keyboard.JustDown(dashButton)){
+        console.log('ldash');
+      }
+      else{
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
       this.player.anims.play('walk', true);
     }
+    }
     // Move Right
     else if (movement.D.isDown){
+      if(Phaser.Input.Keyboard.JustDown(dashButton)){
+          console.log('rdash');
+      }
+      else{
       this.player.setVelocityX(speed);
       this.player.flipX = false;
       this.player.anims.play('walk', true);
+    }
     }
     // Idle
     else {

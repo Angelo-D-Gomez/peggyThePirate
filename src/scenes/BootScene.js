@@ -24,7 +24,7 @@ export default class BootScene extends Phaser.Scene {
 
   create (data) {
     // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this);
+    ChangeScene.addSceneEventListeners(this, 0);
     this.cameras.main.setBackgroundColor('#150033');
     this.bootMusic = this.sound.add('bootAudio');
     this.bootMusic.setLoop(true);
@@ -58,7 +58,7 @@ export default class BootScene extends Phaser.Scene {
     // Required to center align the text
     title2.setOrigin(0.5);
 
-    var instructions = this.add.text(this.centerX, (1.6*this.centerY), 'press [enter] to ', {
+    var instructions = this.add.text(this.centerX, (1.6*this.centerY), 'Press [ENTER] to ', {
       fill: '#00ffff',
       fontSize: '30px',
       align: 'center',

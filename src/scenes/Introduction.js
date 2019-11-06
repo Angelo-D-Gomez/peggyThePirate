@@ -52,7 +52,7 @@ export default class IntroScene extends Phaser.Scene {
     //this.cameras.main.setBackgroundColor('#150033');
 
     //Create the scene
-    this.introContent = ["This is Peggy, an ordinary girl in an ordinary world.\n[Right Button]", "Peggy's Grampa just passed away.\n[Right Button]", "She's heart-broken.\n[Right Button]", "Upon rumaging through Gramps's memorables,\nshe saw he was a pirate.\n[Right Button]", "It is now up to her to follow in his footsteps.\n[Escape Button to begin]"];
+    this.introContent = ["This is Peggy, an ordinary girl in an ordinary world.\n[ENTER Button]", "Peggy's Grampa just passed away.\n[ENTER Button]", "She's heart-broken.\n[ENTER Button]", "Upon rumaging through Gramps's memorables,\nshe saw he was a pirate.\n[ENTER Button]", "It is now up to her to follow in his footsteps.\n[Escape Button to begin]"];
 
 
     this.helpTextDisplay = this.add.text(this.centerX, 32, this.helpText, { font: "32px Arial", fill: "#FFF" });
@@ -90,7 +90,7 @@ export default class IntroScene extends Phaser.Scene {
 
       //console.log("Current Phrase: " + this.currentPhrase);
 
-      if (Date.now() >= this.previousTime + 80){
+      if (Date.now() >= this.previousTime + 40){
 
         if (this.currentLetter == 0) {
         	this.tempText = this.textToDisplay.charAt(this.currentLetter);
@@ -133,11 +133,20 @@ export default class IntroScene extends Phaser.Scene {
       if (this.currentPhrase == 0){
         this.sadPeggy = this.physics.add.sprite(this.centerX, (0.9*this.centerY), "peggyCry");
         this.sadPeggy.setScale(6);
+        this.sadPeggy.alpha = 0;
         this.sadPeggy.setBounce(0.15);
         //this.sadPeggy.setCollideWorldBounds(true);
         this.sadPeggy.body.setAllowGravity(false);
         this.sadPeggy.anims.play('PeggyOrdinary', true);
         this.animationStarted = true;
+
+        this.add.tween({
+          targets: this.sadPeggy,
+          alpha: { start: 0, to: 1},
+          ease: "Linear",
+          duration: 4000,
+          repeat: 0
+        });
       }
       else if (this.currentPhrase == 1) {
         this.tombStone = this.add.sprite(2.2*this.centerX, this.centerY+40, "RIP");
@@ -147,13 +156,15 @@ export default class IntroScene extends Phaser.Scene {
           targets: this.tombStone,
           x: '-=400',
           ease: "Linear",
+          duration: 2500,
           repeat:0
         });
 
         this.add.tween({
           targets: this.sadPeggy,
           x: '-=180',
-          ease: "Linear",
+          ease: "Cubic",
+          duration: 3000,
           repeat:0
         });
 
@@ -184,6 +195,7 @@ export default class IntroScene extends Phaser.Scene {
           x: '-=400',
           ease: "Cubic",
           alpha: { start: 0, to: 1},
+          duration: 4000,
           repeat:0
         });
 
@@ -191,6 +203,7 @@ export default class IntroScene extends Phaser.Scene {
           targets: this.memPic1,
           x: '-=400',
           ease: "Cubic",
+          duration: 4000,
           alpha: { start: 0, to: 1},
           repeat:0
         });

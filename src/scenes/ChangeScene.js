@@ -35,7 +35,7 @@ function addSceneEventListeners(that, intScene){
 
       // Check if Escape is keyPressed
       that.input.keyboard.on(
-        "keydown_RIGHT",
+        "keydown_ENTER",
           function(){
             if (that.typingIsDone){
               that.currentLetter = 0;

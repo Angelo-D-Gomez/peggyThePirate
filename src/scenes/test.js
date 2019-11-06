@@ -11,11 +11,16 @@ export default class test extends Phaser.Scene {
     this.bootsObtained = false;
     this.jumpCount = 2;
     this.mobile = true;
+    this.bootsObtained = false
   }
 
   preload () {
     // Preload assets
     this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+    this.load.spritesheet('peggyBoots', "./assets/spritesheets/peggyGold.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -28,6 +33,9 @@ export default class test extends Phaser.Scene {
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+
+    //boots
+    this.load.image('boots', './assets/sprites/goldShoes.png' );
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -59,6 +67,12 @@ export default class test extends Phaser.Scene {
 
     //player can stand on the platforms
     this.physics.add.collider(this.player, platforms);
+
+    this.boots = this.physics.add.sprite(320, 576,'boots');
+    this.physics.add.collider(this.boots, platforms);
+
+
+    this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 
     //add player's bullet group
     this.bullets = this.physics.add.group({
@@ -106,25 +120,10 @@ export default class test extends Phaser.Scene {
 
 
 
-
-
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
         this.mobile = true;
     }
-/*
-    if(Phaser.Input.Keyboard.JustDown(dashButton)){
-      if (movement.A.isDown){
-        console.log('ldash');
-        this.player.body.setAllowGravity(false);
-        this.player.setVelocityX(0);
-      }
-      else if(movement.D.isDown){
-        console.log('rdash');
-        this.player.body.setAllowGravity(true);
-      }
-    }
-*/
         // Move Left
     if (movement.A.isDown && this.mobile == true){
       if (Phaser.Input.Keyboard.JustDown(dashButton)){
@@ -149,13 +148,7 @@ export default class test extends Phaser.Scene {
           this.player.body.setAllowGravity(false);
           this.player.setVelocityX(0);
           this.player.anims.play('dash', true);
-          this.add.tween({
-            targets: this.player,
-            x: '+=160',
-            ease: "Linear",
-            repeat:0
-          });
-          //this.player.x += 160;
+          this.player.x += 160;
           this.player.body.setAllowGravity(true);
           this.mobile = false;
       }
@@ -176,7 +169,7 @@ export default class test extends Phaser.Scene {
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
 
-    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+    if(Phaser.Input.Keyboard.JustDown(jumpButton) && this.mobile == true){
       if(this.jumpCount > 0){
         this.jumpCount --;
         this.player.setVelocityY(-225);
@@ -235,6 +228,21 @@ export default class test extends Phaser.Scene {
             );
 
 
+  }
+
+  getBoots(){
+    this.bootsObtained = true;
+
+
+
+
+
+    //this.player.setTexture('peggyBoots');
+  //  this.player = this.physics.add.sprite(this.player.x, this.player.y, 'peggyBoots')
+    //this.player.setCollideWorldBounds(true);
+  //  this.player.setScale(1.5);
+
+    this.boots.disableBody(true, true);
   }
 
 }

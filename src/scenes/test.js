@@ -26,6 +26,8 @@ export default class test extends Phaser.Scene {
     });
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
 
+    this.load.image('shine', './assets/sprites/shine.png');
+
     //Load tilemap and tileset
     this.load.image('tiles', './assets/testing/basicTiles.png');
     this.load.tilemapTiledJSON('map', './assets/testing/testWorld.json');
@@ -60,6 +62,9 @@ export default class test extends Phaser.Scene {
 
 
 
+
+
+
     const map = this.make.tilemap({ key: 'map' });
     var tileset = map.addTilesetImage('basicTiles', 'tiles');
     const platforms = map.createStaticLayer('ground', tileset, 0, 0);
@@ -73,6 +78,11 @@ export default class test extends Phaser.Scene {
 
 
     this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
+
+    this.shine = this.physics.add.group({
+      defaultKey: "shine",
+      maxSize: 1
+    });
 
     //add player's bullet group
     this.bullets = this.physics.add.group({
@@ -116,6 +126,8 @@ export default class test extends Phaser.Scene {
     var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
     var speed = 210;
 
 
@@ -182,7 +194,7 @@ export default class test extends Phaser.Scene {
 }
 
 
-    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
 
     if (Phaser.Input.Keyboard.JustDown(bang)){
       if(this.player.flipX == false){
@@ -197,6 +209,10 @@ export default class test extends Phaser.Scene {
       bullet.body.setAllowGravity(false);
       // Play gun noise
       this.gunSound.play();
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(specialButton)){
+
     }
 
     //player's bullet kills enemies
@@ -228,21 +244,6 @@ export default class test extends Phaser.Scene {
             );
 
 
-  }
-
-  getBoots(){
-    this.bootsObtained = true;
-
-
-
-
-
-    //this.player.setTexture('peggyBoots');
-  //  this.player = this.physics.add.sprite(this.player.x, this.player.y, 'peggyBoots')
-    //this.player.setCollideWorldBounds(true);
-  //  this.player.setScale(1.5);
-
-    this.boots.disableBody(true, true);
   }
 
 }

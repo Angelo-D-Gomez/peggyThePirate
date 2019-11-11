@@ -116,8 +116,8 @@ export default class Level1v2 extends Phaser.Scene {
     this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
     this.text4 = this.add.text(700, 300, 'Collect hearts to boost health!', { font: "20px Arial", fill: "#000000" });
 
-    this.text5 = this.add.text(2432, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
-    this.text6 = this.add.text(2432, 1750, "Press [UP] while in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
+    this.text5 = this.add.text(3032, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
+    this.text6 = this.add.text(3032, 1750, "Press [W] while in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
 
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });
@@ -258,7 +258,7 @@ this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null
     //this.chest = this.physics.add.sprite(2432, 1856,'chest');
 //this.physics.add.collider(this.chest, platforms2);
 
-this.boots = this.physics.add.sprite(2500, 1856,'boots');
+this.boots = this.physics.add.sprite(3100, 1856,'boots');
 this.physics.add.collider(this.boots, platforms2);
 
 

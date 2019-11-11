@@ -12,7 +12,7 @@ export default class test extends Phaser.Scene {
     this.jumpCount = 2;
     this.mobile = true;
     this.bootsObtained = false;
-    this.spriteValue = 7;
+    this.spriteValue = 0;
   }
 
   preload () {
@@ -252,7 +252,7 @@ export default class test extends Phaser.Scene {
   getBoots(){
             this.bootsObtained = true;
             this.boots.disableBody(true, true);
-            this.spriteValue -= 7;
+            this.spriteValue += 7;
             this.anims.remove('walk');
             this.anims.create({
               key: "walk",

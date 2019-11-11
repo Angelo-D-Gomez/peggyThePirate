@@ -8,6 +8,7 @@ export default class Boss1 extends Phaser.Scene {
     // Initialization code goes here
 
     this.gameHealth = data.health;
+    this.jumpCount = 2;
   }
 
   preload () {
@@ -17,6 +18,13 @@ export default class Boss1 extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
+
+    // Peggy (Hurt) spritesheet
+    this.load.spritesheet('peggyHurt', "./assets/spritesheets/peggyHurt2.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+
 
     // Load the health spriteSheet
     this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
@@ -152,7 +160,7 @@ export default class Boss1 extends Phaser.Scene {
     //how to get gravity of bullets to be zero??
     this.enemyBullets.children.iterate(function(child){
 });
-this.physics.add.collider(this.enemyBullets, platformz, this.callbackFunc, null, this);
+
 
 
 //cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge
@@ -246,6 +254,26 @@ this.enemyGroup.children.each(
 
     // animations
     // Peggy animations
+    //peggy hurt
+    this.anims.create({
+      key: "hurtwalk",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:1, end:5}),
+      frameRate: 10,
+      repeat: -1 //repeat just for a small amount of time
+    });
+    this.anims.create({
+      key: "hurtidle",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:0, end:0}),
+      frameRate: 10,
+      repeat: -1 //repeat just for a small amount of time
+    });
+    this.anims.create({
+      key: "hurthurt",
+      frames: this.anims.generateFrameNumbers('peggyHurt', {start:6, end:6}),
+      frameRate: 10,
+      repeat: 1 //repeat just for a small amount of time
+    });
+
     //create animation from spritesheet
   this.anims.create({
     key: "goldwalk",
@@ -285,9 +313,13 @@ this.enemyGroup.children.each(
 
   update (time, delta) {
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
 
+    if (this.player.body.onFloor()){
+        this.jumpCount = 2;
+    }
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
     // otherwise it wont change the speed variable before she
@@ -298,47 +330,62 @@ this.enemyGroup.children.each(
     else{
       speed = 135;
     }
-    //hurt animation when scream is played
-    if (this.peggyScream.isPlaying){
-      this.player.anims.play('goldhurt', true);
-    }
     // Move Left
-    else if (movement.A.isDown){
-      this.player.setVelocityX(-speed);
-      this.player.flipX = true;
-      this.player.anims.play('goldwalk', true);
+    if (movement.A.isDown){
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else {
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('goldwalk', true);
+      }
+
     }
     // Move Right
     else if (movement.D.isDown){
-      this.player.setVelocityX(speed);
-      this.player.flipX = false;
-      this.player.anims.play('goldwalk', true);
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else {
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('goldwalk', true);
+      }
+
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('goldidle', true);
-      this.player.setVelocityX(0);
+        if (this.peggyScream.isPlaying){
+          this.player.anims.play('hurtidle', true);
+          this.player.setVelocityX(0);
+        }
+        else{
+          this.player.anims.play('goldidle', true);
+          this.player.setVelocityX(0);
+        }
       }
     }
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
-    if (movement.W.isDown && this.player.body.onFloor()){
-      this.player.setVelocityY(-225);
-      this.jumpSound.play();
-      this.midairGood = true;
+
+    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+      if(this.jumpCount > 0){
+        this.jumpCount --;
+        this.player.setVelocityY(-225);
+        this.jumpSound.play();
     }
-    //allows fast falling for more player mobility
-    // jump and fall speed need to be experimented with
+  }
+  //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
-    }
-    //double jump
-      if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
-          this.player.setVelocityY(-250);
-          this.midairGood = false;
-      }
+}
 
     //Player fires weapon
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
@@ -477,6 +524,8 @@ hitEnemy(bullet, enemy){
   enemy.disableBody(true, true);
   bullet.disableBody(true, true);
   //play hurt sound
+  var randomSpeed = (Math.random()*0.4)+0.5;
+  this.screamSound.setRate(randomSpeed);
   this.screamSound.play();
   if (this.boss.body.enable == false){
     this.success()
@@ -488,6 +537,7 @@ hitEnemy(bullet, enemy){
       console.log('hit');
       bullet.disableBody(true, true);
       // Play hurt Sound
+      this.screamSound.setRate(1);
       this.screamSound.play();
       this.healthHurt();
     }

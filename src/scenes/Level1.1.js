@@ -11,13 +11,22 @@ export default class Level1v2 extends Phaser.Scene {
     this.gameHealth = 0;
     this.waitASecond = false;
     this.startTime = Date.now();
-    this.PeggyHurt = false;
+    this.peggyHurt1 = false;
+    //for double jumping
+    this.bootsObtained = false;
+    this.jumpCount = 2;
   }
 
   preload () {
     // Preload assets
     // Peggy spritesheet
-    this.load.spritesheet('peggy', "./assets/spritesheets/PeggyHurt.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/peggyHurt1.png", {
+      frameHeight: 32,
+      frameWidth: 32
+    });
+
+    // Peggy (Hurt) spritesheet
+    this.load.spritesheet('peggyHurt', "./assets/spritesheets/peggyHurt2.png", {
       frameHeight: 32,
       frameWidth: 32
     });
@@ -87,7 +96,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.gunSound = this.sound.add('gunAudio');
     this.gunSound.volume = 0.3;
     this.jumpSound = this.sound.add('jumpAudio');
-    this.jumpSound.volume = 0.1;
+    this.jumpSound.volume = 0.05;
     this.screamSound = this.sound.add('screamAudio');
     this.peggyScream = this.sound.add('peggyScream');
     this.gameMusic = this.sound.add('gameAudio');
@@ -102,13 +111,13 @@ export default class Level1v2 extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
-    this.text1 = this.add.text(50, 400, 'Use W, A, S, D to walk around.', { font: "20px Arial", fill: "#000000" });
-    this.text2 = this.add.text(50, 430, 'Use SHIFT to run.', { font: "20px Arial", fill: "#000000" });
-    this.text3 = this.add.text(50, 460, 'Use O to shoot enemies.', { font: "20px Arial", fill: "#000000" });
+    this.text1 = this.add.text(50, 400, 'Use [W], [A], [S], [D] to walk around.', { font: "20px Arial", fill: "#000000" });
+    this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
+    this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
     this.text4 = this.add.text(700, 300, 'Collect hearts to boost health!', { font: "20px Arial", fill: "#000000" });
 
-    this.text5 = this.add.text(2432, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
-    this.text6 = this.add.text(2432, 1750, "Use W + SPACE to double jump.", { font: "15px Arial", fill: "#ffffff" });
+    this.text5 = this.add.text(3032, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
+    this.text6 = this.add.text(3032, 1750, "Press [W] while in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
 
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });
@@ -249,11 +258,9 @@ this.physics.add.collider(this.enemyBullets, platforms2, this.callbackFunc, null
     //this.chest = this.physics.add.sprite(2432, 1856,'chest');
 //this.physics.add.collider(this.chest, platforms2);
 
-this.boots = this.physics.add.sprite(2500, 1856,'boots');
+this.boots = this.physics.add.sprite(3100, 1856,'boots');
 this.physics.add.collider(this.boots, platforms2);
-//for double jumping
-this.bootsObtained = false;
-this.midairGood = true;
+
 
 this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 
@@ -499,6 +506,26 @@ this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
     repeat: 1 //repeat just for a small amount of time
   });
 
+  //peggy hurt
+  this.anims.create({
+    key: "hurtwalk",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:1, end:5}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "hurtidle",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:0, end:0}),
+    frameRate: 10,
+    repeat: -1 //repeat just for a small amount of time
+  });
+  this.anims.create({
+    key: "hurthurt",
+    frames: this.anims.generateFrameNumbers('peggyHurt', {start:6, end:6}),
+    frameRate: 10,
+    repeat: 1 //repeat just for a small amount of time
+  });
+
   //peggy with boots
   this.anims.create({
     key: "goldwalk",
@@ -513,7 +540,7 @@ this.physics.add.overlap(this.player, this.ship, this.bossFight, null, this);
     repeat: -1 //repeat just for a small amount of time
   });
   this.anims.create({
-    key: "goldHurt",
+    key: "goldhurt",
     frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
     frameRate: 10,
     repeat: 1 //repeat just for a small amount of time
@@ -540,8 +567,16 @@ update (time, delta) {
     console.log(this.gameHealth);
 
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard  .addKeys('W, A, S, D, SHIFT, SPACE');
+    var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
+    var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     var speed;
+
+
+    //resets your ability to jump once you land on the ground
+    if (this.player.body.onFloor()){
+        this.jumpCount = 2;
+    }
+
 
     // Hold down shift to make Peggy sprint
     // this must come before input detection of WASD because
@@ -555,76 +590,118 @@ update (time, delta) {
     }
     if(this.bootsObtained == true){
       //change animations if peggy has boots
-      if (this.peggyScream.isPlaying){
-        this.player.anims.play('goldHurt', true);
-      }
+
 
       // Move Left
-      else if (movement.A.isDown){
-        this.player.setVelocityX(-speed);
-        this.player.flipX = true;
-        this.player.anims.play('goldwalk', true);
+      if (movement.A.isDown){
+        if (this.peggyScream.isPlaying){
+          this.player.setVelocityX(-speed);
+          this.player.flipX = true;
+          this.player.anims.play('hurtwalk', true);
+        }
+        else {
+          this.player.setVelocityX(-speed);
+          this.player.flipX = true;
+          this.player.anims.play('goldwalk', true);
+        }
+
       }
       // Move Right
       else if (movement.D.isDown){
-        this.player.setVelocityX(speed);
-        this.player.flipX = false;
-        this.player.anims.play('goldwalk', true);
+        if (this.peggyScream.isPlaying){
+          this.player.setVelocityX(speed);
+          this.player.flipX = false;
+          this.player.anims.play('hurtwalk', true);
+        }
+        else {
+          this.player.setVelocityX(speed);
+          this.player.flipX = false;
+          this.player.anims.play('goldwalk', true);
+        }
+
       }
       // Idle
       else {
         if (this.player.body.onFloor()){
-        this.player.anims.play('goldidle', true);
-        this.player.setVelocityX(0);
+          if (this.peggyScream.isPlaying){
+            this.player.anims.play('hurtidle', true);
+            this.player.setVelocityX(0);
+          }
+          else{
+            this.player.anims.play('goldidle', true);
+            this.player.setVelocityX(0);
+          }
         }
       }
     }
     else{
-    //if Peggy is hurt
-    if (this.peggyScream.isPlaying){
-      this.player.anims.play('hurt', true);
-    }
+
 
     // Move Left
-    else if (movement.A.isDown){
-      this.player.setVelocityX(-speed);
-      this.player.flipX = true;
-      this.player.anims.play('walk', true);
+    if (movement.A.isDown){
+      //if Peggy is hurt
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else{
+        this.player.setVelocityX(-speed);
+        this.player.flipX = true;
+        this.player.anims.play('walk', true);
+      }
     }
     // Move Right
     else if (movement.D.isDown){
-      this.player.setVelocityX(speed);
-      this.player.flipX = false;
-      this.player.anims.play('walk', true);
+      if (this.peggyScream.isPlaying){
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('hurtwalk', true);
+      }
+      else{
+        this.player.setVelocityX(speed);
+        this.player.flipX = false;
+        this.player.anims.play('walk', true);
+      }
     }
     // Idle
     else {
       if (this.player.body.onFloor()){
-      this.player.anims.play('idle', true);
-      this.player.setVelocityX(0);
+        if (this.peggyScream.isPlaying){
+          this.player.anims.play('hurtidle', true);
+          this.player.setVelocityX(0);
+        }
+        else{
+          this.player.anims.play('idle', true);
+          this.player.setVelocityX(0);
+        }
+
       }
     }
   }
+
+
     // player can jump if they are touching the ground
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
-    if (movement.W.isDown && this.player.body.onFloor()){
+
+    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+      if (this.bootsObtained == true){
+      if(this.jumpCount > 0){
+        this.jumpCount --;
+        this.player.setVelocityY(-225);
+        this.jumpSound.play();
+    }}
+    else if(this.jumpCount > 1){
+      this.jumpCount --;
       this.player.setVelocityY(-225);
       this.jumpSound.play();
-      this.midairGood = true;
-    }
-    //allows fast falling for more player mobility
-    // jump and fall speed need to be experimented with
+  }
+  }
+  //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
       this.player.setVelocityY(300);
-    }
-
-    // add midair jump boost if pegasus boots collected
-if(this.bootsObtained == true){
-  if (movement.SPACE.isDown && !this.player.body.onFloor() && this.midairGood){
-      this.player.setVelocityY(-250);
-      this.midairGood = false;
-  }}
+}
 
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 
@@ -796,6 +873,8 @@ hitEnemy(bullet, enemy){
     enemy.disableBody(true, true);
     bullet.disableBody(true, true);
     //play hurt sound
+    var randomSpeed = (Math.random()*0.4)+0.5;
+    this.screamSound.setRate(randomSpeed);
     this.screamSound.play();
 
   }

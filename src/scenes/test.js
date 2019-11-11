@@ -60,11 +60,6 @@ export default class test extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 1536, 640);
     this.cameras.main.startFollow(this.player);
 
-
-
-
-
-
     const map = this.make.tilemap({ key: 'map' });
     var tileset = map.addTilesetImage('basicTiles', 'tiles');
     const platforms = map.createStaticLayer('ground', tileset, 0, 0);
@@ -79,10 +74,7 @@ export default class test extends Phaser.Scene {
 
     this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
 
-    this.shine = this.physics.add.group({
-      defaultKey: "shine",
-      maxSize: 1
-    });
+    this.shine;
 
     //add player's bullet group
     this.bullets = this.physics.add.group({
@@ -211,8 +203,15 @@ export default class test extends Phaser.Scene {
       this.gunSound.play();
     }
 
-    if (Phaser.Input.Keyboard.JustDown(specialButton)){
 
+    if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
+      this.shine = this.physics.add.sprite(this.player.x, this.player.y + 4, 'shine');
+      this.shine.body.setAllowGravity(false);
+    }
+    if (Phaser.Input.Keyboard.JustUp(specialButton)){
+      if (typeof this.shine !== undefined ){
+        this.shine.destroy();
+      }
     }
 
     //player's bullet kills enemies

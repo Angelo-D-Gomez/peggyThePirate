@@ -8,7 +8,10 @@ export default class Boss1 extends Phaser.Scene {
     // Initialization code goes here
 
     this.gameHealth = data.health;
+    //this.gameHealth = 0;
     this.jumpCount = 2;
+
+    this.bossHealth = 0;
   }
 
   preload () {
@@ -137,7 +140,7 @@ export default class Boss1 extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platformz);
 
-    this.enemyGroup.add(this.boss);
+    //this.enemyGroup.add(this.boss);
 
     this.nextFire = 0;
     this.fireRate = 200;
@@ -308,6 +311,21 @@ this.enemyGroup.children.each(
       repeat: 1
     });
 
+    //boss health bar
+    // Display the health bar based on health score
+    this.bossbar = this.physics.add.sprite(this.cameras.main.x+400, this.cameras.main.y+58, "health", [this.bossHealth])
+    //this.healthbar.frame = this.gameHealth
+    this.bossbar.setScale(2);
+    this.bossbar.body.setAllowGravity(false);
+
+
+      this.anims.create({
+        key: "bossHealthActive",
+        frames: this.anims.generateFrameNumbers("health", {start: this.bossHealth, end: this.bossHealth}),
+        frameRate: 0,
+        repeat: 1
+      });
+
 
   }
 
@@ -433,6 +451,34 @@ this.enemyGroup.children.each(
               }.bind(this) //binds to each children
             );
 
+            //player's bullet hurts boss
+                this.bullets.children.each(
+                      function (b) {
+                        if (b.active) {
+                          this.physics.add.overlap( //if bullet touches boss, calls function
+                            b,
+                            this.boss,
+                            this.hitBoss,
+                            null,
+                            this
+                          );
+                          //refresh bullet group
+                          if (b.y < 0) { //if bullet off top of screen
+                            b.setActive(false);
+                          }
+                          else if (b.y > 600) { //if bullet off bottom of screen
+                            b.setActive(false);
+                          }
+                          else if (b.x < 0){
+                            b.setActive(false);
+                          }
+                          else if (b.x > 800){
+                            b.setActive(false);
+                          }
+                        }
+                      }.bind(this) //binds to each children
+                    );
+
         //enemys's bullet kills player
         this.enemyBullets.children.each(
                       function (b) {
@@ -527,9 +573,14 @@ hitEnemy(bullet, enemy){
   var randomSpeed = (Math.random()*0.4)+0.5;
   this.screamSound.setRate(randomSpeed);
   this.screamSound.play();
-  if (this.boss.body.enable == false){
-    this.success()
-  }
+}
+
+//triggers when enemy is hit
+hitBoss(bullet, boss){
+  console.log('hit boss');
+  //enemy.disableBody(true, true);
+  bullet.disableBody(true, true);
+  this.bossHurt();
 }
 
 //triggers when player is hit
@@ -598,6 +649,53 @@ hitEnemy(bullet, enemy){
         }
       }
 
+
+      //If boss loses health --------------------------------------------------------
+        bossHurt(){
+          //console.log("Health hurt function called")
+          // Add one to health hurt score
+
+          if (this.bwaitASecond){
+            // Wait a second before taking another damage
+            if (Date.now() >= this.startTime + 900) {
+              this.bwaitASecond = false;
+            }
+          }
+          // If the user has waited a second since last hit
+          else if (!this.bwaitASecond){
+            //this.peggyScream.play();
+            // Enable hit and wait another second after this completes
+            this.bwaitASecond = true;
+            // Set the timer to now
+            this.startTime = Date.now();
+            // Add one hit to the player's health
+            this.bossHealth += 3;
+            // Update the health bar
+            if (this.bossHealth <= 13){
+
+              // Create a temporary path for the animation
+              var tempStringPath = "bossHealthActive";
+              tempStringPath += this.bossHealth;
+
+              // Create the animation for the Health bar to switch to
+              this.anims.create({
+                key: tempStringPath,
+                frames: this.anims.generateFrameNumbers("health", {start: this.bossHealth, end: this.bossHealth}),
+                frameRate: 1,
+                repeat: -1
+              });
+              this.bossbar.anims.play(tempStringPath, true);
+
+
+            }
+            // Check if it's past empty, and if so, game over
+            else{
+              this.success();
+            }
+
+            //Wait a second
+          }
+        }
 
 
 //end game, goes to game over scene

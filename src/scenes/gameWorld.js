@@ -40,7 +40,22 @@ export default class gameWorld extends Phaser.Scene {
 
   create (data) {
     //Create the scene
+    this.player = this.physics.add.sprite(4000, 3968, 'peggy');
+    this.player.setCollideWorldBounds(true);
+    this.player.setScale(1.5);
 
+
+    this.physics.world.setBounds(0, 0, 8000, 8000);
+    this.cameras.main.setBounds(0, 0, 8000, 8000);
+    this.cameras.main.startFollow(this.player);
+
+    const world = this.make.tilemap({ key: 'gameWorld' });
+    var tempTile = world.addTilesetImage('tempTile', 'tempTile');
+    const platforms = world.createStaticLayer('tempTile', tempTile, 0, 0);
+    platforms.setCollisionByExclusion(-1, true);
+
+    //player can stand on the platforms
+    this.physics.add.collider(this.player, platforms);
   }
 
   update (time, delta) {

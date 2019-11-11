@@ -11,19 +11,17 @@ export default class test extends Phaser.Scene {
     this.bootsObtained = false;
     this.jumpCount = 2;
     this.mobile = true;
-    this.bootsObtained = false
+    this.bootsObtained = false;
+    this.spriteValue = 7;
   }
 
   preload () {
     // Preload assets
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/combinedSpritesheet.png", {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.spritesheet('peggyBoots', "./assets/spritesheets/peggyGold.png", {
-      frameHeight: 32,
-      frameWidth: 32
-    });
+
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
 
     this.load.image('shine', './assets/sprites/shine.png');
@@ -91,13 +89,13 @@ export default class test extends Phaser.Scene {
     //create animation from spritesheet
   this.anims.create({
     key: "walk",
-    frames: this.anims.generateFrameNumbers('peggy', {start: 1, end: 5}),
+    frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
     frameRate: 10,
     repeat: -1 //repeat forever
   });
   this.anims.create({
     key: "idle",
-    frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
+    frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
     frameRate: 10,
     repeat: -1
   });
@@ -181,7 +179,7 @@ export default class test extends Phaser.Scene {
     }
   }
   //fast falling for quick movement
-    else if(movement.S.isDown && !this.player.body.onFloor()){
+    else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
       this.player.setVelocityY(300);
 }
 
@@ -207,10 +205,16 @@ export default class test extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
       this.shine = this.physics.add.sprite(this.player.x, this.player.y + 4, 'shine');
       this.shine.body.setAllowGravity(false);
+      this.player.body.setAllowGravity(false);
+      this.player.setVelocityY(0);
+      this.player.setVelocityX(0);
+      this.mobile = false;
     }
     if (Phaser.Input.Keyboard.JustUp(specialButton)){
       if (typeof this.shine !== undefined ){
         this.shine.destroy();
+        this.player.body.setAllowGravity(true);
+        this.mobile = true;
       }
     }
 
@@ -243,6 +247,26 @@ export default class test extends Phaser.Scene {
             );
 
 
+  }
+
+  getBoots(){
+            this.bootsObtained = true;
+            this.boots.disableBody(true, true);
+            this.spriteValue -= 7;
+            this.anims.remove('walk');
+            this.anims.create({
+              key: "walk",
+              frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
+              frameRate: 10,
+              repeat: -1 //repeat forever
+            });
+            this.anims.remove('idle');
+            this.anims.create({
+              key: "idle",
+              frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
+              frameRate: 10,
+              repeat: -1
+            });
   }
 
 }

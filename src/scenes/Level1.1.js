@@ -15,6 +15,8 @@ export default class Level1v2 extends Phaser.Scene {
     //for double jumping
     this.bootsObtained = false;
     this.jumpCount = 2;
+    this.mobile = true;
+    this.spriteValue = 7;
   }
 
   preload () {
@@ -569,24 +571,13 @@ update (time, delta) {
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var speed = 210;
 
 
     //resets your ability to jump once you land on the ground
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
-    }
-
-
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
     }
     if(this.bootsObtained == true){
       //change animations if peggy has boots

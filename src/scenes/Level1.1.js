@@ -112,7 +112,7 @@ export default class Level1v2 extends Phaser.Scene {
 
 
     this.text1 = this.add.text(50, 400, 'Use [W], [A], [S], [D] to walk around.', { font: "20px Arial", fill: "#000000" });
-    this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
+    //this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
     this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
     this.text4 = this.add.text(2500, 1700, 'Collect hearts to boost health!', { font: "15px Arial", fill: "#ffffff" });
 

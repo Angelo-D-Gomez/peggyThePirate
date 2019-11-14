@@ -118,9 +118,7 @@ export default class test extends Phaser.Scene {
     var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
-    var speed = 210;
-
-
+    var speed = 140;
 
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
@@ -138,8 +136,12 @@ export default class test extends Phaser.Scene {
         this.mobile = false;
       }
       else{
-      this.player.setVelocityX(-speed);
+        if (this.player.body.velocity.x > -speed){
+          this.player.setVelocityX(-speed);
+        }
       this.player.flipX = true;
+      this.player.body.acceleration.x = -50;
+      this.player.body.maxVelocity.x = 210;
       this.player.anims.play('walk', true);
     }
     }
@@ -155,8 +157,13 @@ export default class test extends Phaser.Scene {
           this.mobile = false;
       }
       else{
-      this.player.setVelocityX(speed);
+        if (this.player.body.velocity.x < speed){
+          this.player.setVelocityX(speed);
+        }
+      //this.player.setVelocityX(speed);
       this.player.flipX = false;
+      this.player.body.acceleration.x = 50;
+      this.player.body.maxVelocity.x = 210;
       this.player.anims.play('walk', true);
     }
     }

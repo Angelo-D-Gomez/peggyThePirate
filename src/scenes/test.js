@@ -215,7 +215,7 @@ export default class test extends Phaser.Scene {
     if(Phaser.Input.Keyboard.JustDown(jumpButton) && this.mobile == true){
       if(this.jumpCount > 0){
         this.jumpCount --;
-        this.player.setVelocityY(-225);
+        this.player.setVelocityY(-250);
         this.jumpSound.play();
     }
   }
@@ -285,11 +285,13 @@ export default class test extends Phaser.Scene {
                   else if (b.y > 600) { //if bullet off bottom of screen
                     b.setActive(false);
                   }
-                  else if (b.x < 0){
+                  else if (b.x < this.player.x -400){
                     b.setActive(false);
+                    console.log('despawn')
                   }
-                  else if (b.x > 800){
+                  else if (b.x > this.player.x + 400){
                     b.setActive(false);
+                    console.log('despawn')
                   }
                 }
               }.bind(this) //binds to each children

@@ -148,7 +148,6 @@ export default class test extends Phaser.Scene {
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
     var speed = 140;
@@ -159,7 +158,7 @@ export default class test extends Phaser.Scene {
     }
         // Move Left
     if (movement.A.isDown && this.mobile == true){
-      if (Phaser.Input.Keyboard.JustDown(dashButton)){
+      if (Phaser.Input.Keyboard.JustDown(specialButton)){
         console.log('ldash');
         this.player.body.setAllowGravity(false);
         this.player.setVelocityX(0);
@@ -167,6 +166,7 @@ export default class test extends Phaser.Scene {
         this.player.x -= 160;
         this.player.body.setAllowGravity(true);
         this.mobile = false;
+        this.player.body.acceleration.x = 0;
       }
       else{
         if (this.player.body.velocity.x > -speed){
@@ -180,7 +180,7 @@ export default class test extends Phaser.Scene {
     }
     // Move Right
     else if (movement.D.isDown && this.mobile == true){
-      if(Phaser.Input.Keyboard.JustDown(dashButton)){
+      if(Phaser.Input.Keyboard.JustDown(specialButton)){
           console.log('rdash');
           this.player.body.setAllowGravity(false);
           this.player.setVelocityX(0);
@@ -188,6 +188,7 @@ export default class test extends Phaser.Scene {
           this.player.x += 160;
           this.player.body.setAllowGravity(true);
           this.mobile = false;
+          this.player.body.acceleration.x = 0;
       }
       else{
         if (this.player.body.velocity.x < speed){
@@ -260,7 +261,7 @@ export default class test extends Phaser.Scene {
       this.player.anims.play('idle', true);
     }
     if (Phaser.Input.Keyboard.JustUp(specialButton)){
-      if (typeof this.shine !== undefined ){
+      if (this.shine != undefined ){
         this.shine.destroy();
         this.player.body.setAllowGravity(true);
         this.mobile = true;

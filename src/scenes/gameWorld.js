@@ -30,11 +30,16 @@ export default class gameWorld extends Phaser.Scene {
 
     //Load tilemap and tileset
     this.load.image('tempTile', './assets/gameWorld/tempTile.png');
+    this.load.image('jungleTileSheet', './assets/gameWorld/jungleTileSheet.png')
+    this.load.image('beachTilesheet', './assets/gameWorld/shipAndBeachTiles.png')
     this.load.tilemapTiledJSON('gameWorld', './assets/gameWorld/gameWorld.json');
 
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+
+    //load the interactable world objects
+    this.load.image('chest', './assets/gameWorld/treasure.png');
 
 
     // Declare variables for center of the scene
@@ -52,7 +57,7 @@ export default class gameWorld extends Phaser.Scene {
     this.jumpSound.volume = 0.05;
 
     //create the player and add them to the scene
-    this.player = this.physics.add.sprite(4000, 3968, 'peggy');
+    this.player = this.physics.add.sprite(3700, 3968, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -68,7 +73,12 @@ export default class gameWorld extends Phaser.Scene {
     const platforms = world.createStaticLayer('tempTile', tempTile, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
 
+    var jungleTile = world.addTilesetImage('jungleTile', 'jungleTileSheet');
+    const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
+    platforms2.setCollisionByExclusion(-1, true);
+
     this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.player, platforms2);
 
     //Peggy's animations
     this.anims.create({
@@ -85,13 +95,22 @@ export default class gameWorld extends Phaser.Scene {
     });
 
 
+
+    //placing interactable game world assets
+    this.treasureChests = this.physics.add.group({});
+    this.treasureBoots = this.physics.add.sprite(6144, 4352, 'chest');
+    this.treasureChests.add(this.treasureBoots);
+
+
+    this.physics.add.collider(this.treasureChests, platforms);
+    this.physics.add.collider(this.treasureChests, platforms2);
+
   }//END OF CREATE FUNCTION
       // Update the scene
   update (time, delta) {
     //all player input buttons
     var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
     var speed = 140;
@@ -107,7 +126,7 @@ export default class gameWorld extends Phaser.Scene {
     // Move Left
     if (movement.A.isDown && this.mobile == true){
       if (this.bootsObtained == true){
-        if (Phaser.Input.Keyboard.JustDown(dashButton)){
+        if (Phaser.Input.Keyboard.JustDown(specialButton)){
           console.log('ldash');
           this.player.body.setAllowGravity(false);
           this.player.setVelocityX(0);
@@ -139,7 +158,7 @@ export default class gameWorld extends Phaser.Scene {
     // Move Right
     else if (movement.D.isDown && this.mobile == true){
       if(this.bootsObtained == true){
-        if(Phaser.Input.Keyboard.JustDown(dashButton)){
+        if(Phaser.Input.Keyboard.JustDown(specialButton)){
             console.log('rdash');
             this.player.body.setAllowGravity(false);
             this.player.setVelocityX(0);
@@ -192,7 +211,11 @@ export default class gameWorld extends Phaser.Scene {
           this.jumpSound.play();
         }
       }
-  }
+    }
+    //fast falling for quick movement
+    else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
+        this.player.setVelocityY(300);
+    }
 
 
 

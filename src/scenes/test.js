@@ -10,15 +10,21 @@ export default class test extends Phaser.Scene {
     // Initialization code goes here
     this.bootsObtained = false;
     this.jumpCount = 2;
+    this.mobile = true;
+    this.bootsObtained = false;
+    this.spriteValue = 0;
   }
 
   preload () {
     // Preload assets
-    this.load.spritesheet('peggy', "./assets/spritesheets/mainCharacter-gun.png", {
+    this.load.spritesheet('peggy', "./assets/spritesheets/combinedSpritesheet.png", {
       frameHeight: 32,
       frameWidth: 32
     });
+
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
+
+    this.load.image('shine', './assets/sprites/shine.png');
 
     //Load tilemap and tileset
     this.load.image('tiles', './assets/testing/basicTiles.png');
@@ -27,6 +33,9 @@ export default class test extends Phaser.Scene {
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
+
+    //boots
+    this.load.image('boots', './assets/sprites/goldShoes.png' );
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -49,8 +58,6 @@ export default class test extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 1536, 640);
     this.cameras.main.startFollow(this.player);
 
-
-
     const map = this.make.tilemap({ key: 'map' });
     var tileset = map.addTilesetImage('basicTiles', 'tiles');
     const platforms = map.createStaticLayer('ground', tileset, 0, 0);
@@ -58,6 +65,14 @@ export default class test extends Phaser.Scene {
 
     //player can stand on the platforms
     this.physics.add.collider(this.player, platforms);
+
+    this.boots = this.physics.add.sprite(320, 576,'boots');
+    this.physics.add.collider(this.boots, platforms);
+
+
+    this.physics.add.overlap(this.player, this.boots, this.getBoots, null, this);
+
+    this.shine;
 
     //add player's bullet group
     this.bullets = this.physics.add.group({
@@ -74,14 +89,20 @@ export default class test extends Phaser.Scene {
     //create animation from spritesheet
   this.anims.create({
     key: "walk",
-    frames: this.anims.generateFrameNumbers('peggy', {start: 1, end: 5}),
+    frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
     frameRate: 10,
     repeat: -1 //repeat forever
   });
   this.anims.create({
     key: "idle",
-    frames: this.anims.generateFrameNumbers('peggy', {start:0, end:0}),
+    frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
     frameRate: 10,
+    repeat: -1
+  });
+  this.anims.create({
+    key: "dash",
+    frames: this.anims.generateFrameNumbers('peggy', {start:4, end:4}),
+    framerate: 60,
     repeat: -1
   });
 
@@ -89,36 +110,55 @@ export default class test extends Phaser.Scene {
 
   update (time, delta) {
     // Update the scene
-
+    //1000 ms = 60 frames
+    //16.7 ms = 1 frame
     // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+    var speed = 210;
 
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
-    }
+
+
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
+        this.mobile = true;
     }
-    // Move Left
-    if (movement.A.isDown){
+        // Move Left
+    if (movement.A.isDown && this.mobile == true){
+      if (Phaser.Input.Keyboard.JustDown(dashButton)){
+        console.log('ldash');
+        this.player.body.setAllowGravity(false);
+        this.player.setVelocityX(0);
+        this.player.anims.play('dash', true);
+        this.player.x -= 160;
+        this.player.body.setAllowGravity(true);
+        this.mobile = false;
+      }
+      else{
       this.player.setVelocityX(-speed);
       this.player.flipX = true;
       this.player.anims.play('walk', true);
     }
+    }
     // Move Right
-    else if (movement.D.isDown){
+    else if (movement.D.isDown && this.mobile == true){
+      if(Phaser.Input.Keyboard.JustDown(dashButton)){
+          console.log('rdash');
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityX(0);
+          this.player.anims.play('dash', true);
+          this.player.x += 160;
+          this.player.body.setAllowGravity(true);
+          this.mobile = false;
+      }
+      else{
       this.player.setVelocityX(speed);
       this.player.flipX = false;
       this.player.anims.play('walk', true);
+    }
     }
     // Idle
     else {
@@ -131,7 +171,7 @@ export default class test extends Phaser.Scene {
     // removed the bounce because it means you cant jump right away after
     // intial jump because the bounce puts them in air
 
-    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
+    if(Phaser.Input.Keyboard.JustDown(jumpButton) && this.mobile == true){
       if(this.jumpCount > 0){
         this.jumpCount --;
         this.player.setVelocityY(-225);
@@ -139,12 +179,12 @@ export default class test extends Phaser.Scene {
     }
   }
   //fast falling for quick movement
-    else if(movement.S.isDown && !this.player.body.onFloor()){
+    else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
       this.player.setVelocityY(300);
 }
 
 
-    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+
 
     if (Phaser.Input.Keyboard.JustDown(bang)){
       if(this.player.flipX == false){
@@ -159,6 +199,23 @@ export default class test extends Phaser.Scene {
       bullet.body.setAllowGravity(false);
       // Play gun noise
       this.gunSound.play();
+    }
+
+
+    if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
+      this.shine = this.physics.add.sprite(this.player.x, this.player.y + 4, 'shine');
+      this.shine.body.setAllowGravity(false);
+      this.player.body.setAllowGravity(false);
+      this.player.setVelocityY(0);
+      this.player.setVelocityX(0);
+      this.mobile = false;
+    }
+    if (Phaser.Input.Keyboard.JustUp(specialButton)){
+      if (typeof this.shine !== undefined ){
+        this.shine.destroy();
+        this.player.body.setAllowGravity(true);
+        this.mobile = true;
+      }
     }
 
     //player's bullet kills enemies
@@ -191,4 +248,25 @@ export default class test extends Phaser.Scene {
 
 
   }
+
+  getBoots(){
+            this.bootsObtained = true;
+            this.boots.disableBody(true, true);
+            this.spriteValue += 7;
+            this.anims.remove('walk');
+            this.anims.create({
+              key: "walk",
+              frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
+              frameRate: 10,
+              repeat: -1 //repeat forever
+            });
+            this.anims.remove('idle');
+            this.anims.create({
+              key: "idle",
+              frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
+              frameRate: 10,
+              repeat: -1
+            });
+  }
+
 }

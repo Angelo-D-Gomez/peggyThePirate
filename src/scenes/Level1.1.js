@@ -15,6 +15,8 @@ export default class Level1v2 extends Phaser.Scene {
     //for double jumping
     this.bootsObtained = false;
     this.jumpCount = 2;
+    this.mobile = true;
+    this.spriteValue = 7;
   }
 
   preload () {
@@ -107,14 +109,12 @@ export default class Level1v2 extends Phaser.Scene {
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
 
-    this.player = this.physics.add.sprite(32, 546, 'peggy');
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(1.5);
+
 
     this.text1 = this.add.text(50, 400, 'Use [W], [A], [S], [D] to walk around.', { font: "20px Arial", fill: "#000000" });
-    this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
+    //this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
     this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
-    this.text4 = this.add.text(700, 300, 'Collect hearts to boost health!', { font: "20px Arial", fill: "#000000" });
+    this.text4 = this.add.text(2500, 1700, 'Collect hearts to boost health!', { font: "15px Arial", fill: "#ffffff" });
 
     this.text5 = this.add.text(3032, 1700, "You've found super boots!", { font: "15px Arial", fill: "#ffffff" });
     this.text6 = this.add.text(3032, 1750, "Press [W] while in the air to double jump.", { font: "15px Arial", fill: "#ffffff" });
@@ -122,6 +122,9 @@ export default class Level1v2 extends Phaser.Scene {
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });
 
+    this.player = this.physics.add.sprite(32, 546, 'peggy');
+    this.player.setCollideWorldBounds(true);
+    this.player.setScale(1.5);
 
     this.physics.world.setBounds(0, 0, 8000, 1920);
 
@@ -141,8 +144,9 @@ export default class Level1v2 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.player, platforms2);
-    this.heart = this.physics.add.sprite(840, 546, 'heart');
+    this.heart = this.physics.add.sprite(2600, 1750, 'heart');
     this.physics.add.collider(this.heart, platforms);
+    this.physics.add.collider(this.heart, platforms2);
     this.heart.setScale(2);
 
     //add player's bullet group
@@ -569,24 +573,13 @@ update (time, delta) {
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var speed = 210;
 
 
     //resets your ability to jump once you land on the ground
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
-    }
-
-
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
     }
     if(this.bootsObtained == true){
       //change animations if peggy has boots

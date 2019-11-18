@@ -120,7 +120,7 @@ export default class test extends Phaser.Scene {
   });
   this.anims.create({
     key: "dash",
-    frames: this.anims.generateFrameNumbers('peggy', {start:4, end:4}),
+    frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 3, end: this.spriteValue + 3}),
     framerate: 60,
     repeat: -1
   });

@@ -14,6 +14,7 @@ export default class gameWorld extends Phaser.Scene {
     this.peggyHurt1 = false;
     //for double jumping
     this.bootsObtained = false;
+    this.shieldObtained = false;
     this.jumpCount = 2;
     this.mobile = true;
     this.spriteValue = 0;
@@ -39,8 +40,12 @@ export default class gameWorld extends Phaser.Scene {
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
 
+    //load textbox
+    this.load.image('textBorder', './assets/sprites/textBorder.png');
+
     //load the interactable world objects
     this.load.image('boots', './assets/gameWorld/goldShoes.png');
+    this.load.image('shine', './assets/sprites/shine.png');
 
     //load bullets and weapons
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
@@ -108,7 +113,7 @@ export default class gameWorld extends Phaser.Scene {
       repeat: -1
     });
 
-    //add player's bullets
+    //add player's bullets and shield
     // Max 5 at once
     this.bullets = this.physics.add.group({
       defaultKey: "bullet",
@@ -117,6 +122,8 @@ export default class gameWorld extends Phaser.Scene {
     this.bullets.children.iterate(function(child){
     }
   );
+    //adding undefined object to be placeholder for shield
+    this.shine;
 
 
 
@@ -126,11 +133,16 @@ export default class gameWorld extends Phaser.Scene {
     this.treasureBoots = this.physics.add.sprite(4448, 3008, 'boots');
     this.treasures.add(this.treasureBoots);
 
+    this.treasureShield = this.physics.add.sprite(1024, 3008, 'shine');
+    this.treasures.add(this.treasureShield);
+
     this.physics.add.collider(this.treasures, platforms);
     this.physics.add.collider(this.treasures, platforms2);
+    this.physics.add.collider(this.treasures, platforms3);
 
     //player interactions with treasures
     this.physics.add.overlap(this.player, this.treasureBoots, this.getBoots, null, this);
+    this.physics.add.overlap(this.player, this.treasureShield, this.getShield, null, this);
 
 
   }//END OF CREATE FUNCTION
@@ -261,7 +273,7 @@ export default class gameWorld extends Phaser.Scene {
       // Play gun noise
       this.gunSound.play();
     }
-    //player's bullet kills enemies
+    //player's bullet kills enemies or falls out of bounds and despawns
     this.bullets.children.each(
       function (b) {
         if (b.active) {
@@ -289,6 +301,34 @@ export default class gameWorld extends Phaser.Scene {
         }
       }.bind(this) //binds to each children
   );
+
+    //player uses their shield to block a bullet
+    if (this.shieldObtained == true){
+      //summon shield when pressing p and s down
+      if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
+        this.player.setVelocityY(0);
+        this.player.setVelocityX(0);
+        if (this.player.flipX == true){
+          this.shine = this.physics.add.sprite(this.player.x - 16, this.player.y, 'shine');
+          }
+        else{
+          this.shine = this.physics.add.sprite(this.player.x + 16, this.player.y, 'shine');
+        }
+        this.shine.body.setAllowGravity(false);
+        this.player.body.setAllowGravity(false);
+        this.mobile = false;
+        this.player.body.acceleration.x = 0;
+        this.player.anims.play('idle', true);
+      }
+      //upon releasing specialButton if shield is out remove it
+      if (Phaser.Input.Keyboard.JustUp(specialButton)){
+        if (this.shine != undefined ){
+          this.shine.destroy();
+          this.player.body.setAllowGravity(true);
+          this.mobile = true;
+        }
+      }
+    }
 
 
 
@@ -322,6 +362,13 @@ export default class gameWorld extends Phaser.Scene {
       framerate: 60,
       repeat: -1
     });
+  }
+
+  //gain shield from the treasure chests
+  getShield(){
+    this.treasureShield.disableBody(true, true);
+    this.powerupSound.play;
+    this.shieldObtained = true;
   }
 
 

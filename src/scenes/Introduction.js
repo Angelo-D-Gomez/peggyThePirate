@@ -52,7 +52,10 @@ export default class IntroScene extends Phaser.Scene {
     //this.cameras.main.setBackgroundColor('#150033');
 
     //Create the scene
-    this.introContent = ["This is Peggy, an ordinary girl in an ordinary world.\n[ENTER Button]", "Peggy's Grampa just passed away.\n[ENTER Button]", "She's heart-broken.\n[ENTER Button]", "Upon rumaging through Gramps's memorables,\nshe saw he was a pirate.\n[ENTER Button]", "It is now up to her to follow in his footsteps.\n[Escape Button to begin]"];
+    this.introContent = ["This is Peggy, an ordinary girl in an ordinary world.\n[ENTER Button]",
+    "Peggy's Grampa just passed away.\n[ENTER Button]", "She's heart-broken.\n[ENTER Button]",
+    "Upon rumaging through Gramps's memorables,\nshe saw he was a pirate.\n[ENTER Button]",
+    "It is now up to her to follow in his footsteps.\n[Escape Button to begin]"];
 
 
     this.helpTextDisplay = this.add.text(this.centerX, 32, this.helpText, { font: "32px Arial", fill: "#FFF" });

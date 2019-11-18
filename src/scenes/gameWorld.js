@@ -67,6 +67,11 @@ export default class gameWorld extends Phaser.Scene {
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
 
+    // adding any textboxes throughout the level as needed
+    this.textbox1 = this.add.sprite(1952, 2528, 'textBorder');
+    this.textbox1.setScale(4);
+    this.text1 = this.add.text(1866, 2480, "Use [W] to jump.\nUse [A] and [D] \nto move \nleft and right.")
+
     //create the player and add them to the scene
     this.player = this.physics.add.sprite(1984, 2624, 'peggy');
     this.player.setCollideWorldBounds(true);
@@ -255,9 +260,10 @@ export default class gameWorld extends Phaser.Scene {
     }
     //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
+      if (this.player.body.velocity.y < 300){
         this.player.setVelocityY(300);
+      }
     }
-
     //player shoots a bullet
     if (Phaser.Input.Keyboard.JustDown(bang)){
       if(this.player.flipX == false){

@@ -13,6 +13,8 @@ export default class test extends Phaser.Scene {
     this.mobile = true;
     this.bootsObtained = false;
     this.spriteValue = 0;
+    this.startTime = Date.now()
+
   }
 
   preload () {
@@ -85,6 +87,7 @@ export default class test extends Phaser.Scene {
     this.bullets.children.iterate(function(child){
     }
   );
+
 
 
   //create enemy group
@@ -183,12 +186,18 @@ export default class test extends Phaser.Scene {
       if(Phaser.Input.Keyboard.JustDown(specialButton)){
           console.log('rdash');
           this.player.body.setAllowGravity(false);
-          this.player.setVelocityX(0);
+          this.player.setVelocityX(10000);
           this.player.anims.play('dash', true);
-          this.player.x += 160;
+          this.dashTime = Date.now() + 500;
+          while(this.dashTime > Date.now()){
+
+          }
+          this.player.setVelocityX(0);
           this.player.body.setAllowGravity(true);
           this.mobile = false;
           this.player.body.acceleration.x = 0;
+          console.log('stop')
+
       }
       else{
         if (this.player.body.velocity.x < speed){
@@ -222,8 +231,10 @@ export default class test extends Phaser.Scene {
   }
   //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
+      if (this.player.body.velocity.y < 300){
       this.player.setVelocityY(300);
-}
+      }
+    }
 
 
 

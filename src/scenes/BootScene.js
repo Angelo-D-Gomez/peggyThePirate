@@ -24,7 +24,7 @@ export default class BootScene extends Phaser.Scene {
 
   create (data) {
     // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this, 0);
+    ChangeScene.addSceneEventListeners(this, [0]);
     this.cameras.main.setBackgroundColor('#150033');
     this.bootMusic = this.sound.add('bootAudio');
     this.bootMusic.setLoop(true);

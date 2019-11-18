@@ -31,7 +31,7 @@ export default class IntroScene extends Phaser.Scene {
   }
   create (data) {
     // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this, 1);
+    ChangeScene.addSceneEventListeners(this, [1]);
     // Current Letter index and phrase index
     this.currentLetter = 0;
     this.currentPhrase = 0;

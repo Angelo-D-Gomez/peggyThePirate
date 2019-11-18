@@ -79,7 +79,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
-    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
@@ -972,7 +972,7 @@ healthGain(heart, player){
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
-    this.scene.start('Boss1', {health: this.gameHealth});
+    this.scene.start('bossIntroScene', {health: this.gameHealth});
   }
 
   //end game, goes to game over scene

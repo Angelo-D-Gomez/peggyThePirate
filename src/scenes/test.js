@@ -189,9 +189,9 @@ export default class test extends Phaser.Scene {
           this.player.setVelocityX(10000);
           this.player.anims.play('dash', true);
           this.dashTime = Date.now() + 500;
-          while(this.dashTime > Date.now()){
+      //    while(this.dashTime > Date.now()){
 
-          }
+        //  }
           this.player.setVelocityX(0);
           this.player.body.setAllowGravity(true);
           this.mobile = false;

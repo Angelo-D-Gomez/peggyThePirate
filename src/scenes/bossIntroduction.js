@@ -8,6 +8,7 @@ export default class bossIntroScene extends Phaser.Scene {
   init (data) {
     // Initialization code goes here
     this.gameHealth2 = data.health;
+    this.lives2 = data.lives
   }
 
   preload () {
@@ -29,7 +30,7 @@ export default class bossIntroScene extends Phaser.Scene {
   }
   create (data) {
     // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this, [2, this.gameHealth2]);
+    ChangeScene.addSceneEventListeners(this, [2, this.gameHealth2, this.lives2]);
     // Current Letter index and phrase index
     this.currentLetter = 0;
     this.currentPhrase = 0;

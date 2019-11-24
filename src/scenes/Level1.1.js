@@ -122,7 +122,8 @@ export default class Level1v2 extends Phaser.Scene {
     this.text7 = this.add.text(7700, 400, "You've found a pirate ship!", { font: "17px Arial", fill: "#ffffff" });
     this.text7 = this.add.text(7700, 430, "Hmm, wonder what's on board...", { font: "17px Arial", fill: "#ffffff" });
 
-    this.player = this.physics.add.sprite(32, 546, 'peggy');
+    //this.player = this.physics.add.sprite(32, 546, 'peggy');
+    this.player = this.physics.add.sprite(7700, 400, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -972,7 +973,7 @@ healthGain(heart, player){
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
-    this.scene.start('bossIntroScene', {health: this.gameHealth});
+    this.scene.start('bossIntroScene', {health: this.gameHealth, lives: 3});
 
   }
 

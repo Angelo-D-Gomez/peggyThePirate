@@ -10,8 +10,9 @@ export default class Boss1 extends Phaser.Scene {
     this.gameHealth = data.health;
     //this.gameHealth = 0;
     this.jumpCount = 2;
+    this.bossHealth = data.lives;
+    this.speed = 1 + (0.5*(3-data.lives));
 
-    this.bossHealth = 0;
   }
 
   preload () {
@@ -46,7 +47,10 @@ export default class Boss1 extends Phaser.Scene {
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('cannon', './assets/sprites/cannon.png');
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
-
+    this.load.image('heart', './assets/sprites/heart.png');
+    this.load.image('text1', './assets/sprites/speechbubble1.png');
+    this.load.image('text2', './assets/sprites/speechbubble2.png');
+    this.load.image('text3', './assets/sprites/speechbubble3.png');
 
     //Load tilemap and tileset
     this.load.image('tiles', './assets/Boss1/shipAndBeachTiles.png');
@@ -58,6 +62,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
     this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+
 
     // Declare variables for center of the scene
     this.centerX = this.cameras.main.width / 2;
@@ -103,16 +108,18 @@ export default class Boss1 extends Phaser.Scene {
     const platformz = map.createStaticLayer('Boss Room Platforms', tilesetz, 0, 0);
     platformz.setCollisionByExclusion(-1, true);
 
-
     //player can stand on the platforms
     this.physics.add.collider(this.player, platformz);
 
     //add Boss character to level
-    this.boss = this.physics.add.sprite(512, 96, 'boss');
+    this.boss = this.physics.add.sprite(300, 96, 'boss');
     this.boss.setScale(2)
-              .flipX = true;
+              .flipX = false;
 
     this.physics.add.collider(this.boss, platformz);
+    this.heart1 = this.add.sprite(280, 56, 'heart');
+    this.heart2 = this.add.sprite(300, 56, 'heart');
+    this.heart3 = this.add.sprite(320, 56, 'heart');
 
     //add his cannons
     this.cannon1 = this.physics.add.sprite(64, 64, 'cannon');
@@ -122,6 +129,13 @@ export default class Boss1 extends Phaser.Scene {
     this.cannon2.setScale(2);
     this.physics.add.collider(this.cannon1, platformz);
     this.physics.add.collider(this.cannon2, platformz);
+
+    this.text1 = this.add.sprite(550, 50, 'text1');
+    this.text2 = this.add.sprite(550, 50, 'text2');
+    this.text3 = this.add.sprite(550, 50, 'text3');
+    this.text1.setScale(0.5);
+    this.text2.setScale(0.5);
+    this.text3.setScale(0.5);
 
     //adding smaller enemies
     this.enemyGroup = this.physics.add.group({});
@@ -164,7 +178,28 @@ export default class Boss1 extends Phaser.Scene {
     this.enemyBullets.children.iterate(function(child){
 });
 
-
+//text
+this.tweens.add({
+  targets: this.text1,
+  ease: "Linear",
+  alpha: 0,
+  delay: 3000,
+  duration:10
+});
+this.tweens.add({
+  targets: this.text2,
+  ease: "Linear",
+  alpha: 0,
+  delay: 3000,
+  duration:10
+});
+this.tweens.add({
+  targets: this.text3,
+  ease: "Linear",
+  alpha: 0,
+  delay: 3000,
+  duration:10
+});
 
 //cannon1 and cannon2- doesn't move but shoots targeted bullets for player to dodge
 this.tweens.add({
@@ -172,7 +207,7 @@ this.tweens.add({
   ease: "Linear",
   x: '-=0',
   delay: 1000,
-  duration: 3000,
+  duration: 3000/this.speed,
   yoyo: true,
   repeat: -1,
   onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets)},
@@ -183,7 +218,7 @@ this.tweens.add({
   ease: "Linear",
   x: '-=0',
   delay: 1000,
-  duration: 3000,
+  duration: 3000/this.speed,
   yoyo: true,
   repeat: -1,
   onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets)},
@@ -192,9 +227,40 @@ this.tweens.add({
 // pirate boss Movement
 this.tweens.add({
   targets: this.boss,
-  x: '-=224',
+  x: '+=220',
   ease: "Linear",
-  delay: 1000,
+  delay: 3000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+//hearts move w boss
+this.tweens.add({
+  targets: this.heart1,
+  x: '+=220',
+  ease: "Linear",
+  delay: 3000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+this.tweens.add({
+  targets: this.heart2,
+  x: '+=220',
+  ease: "Linear",
+  delay: 3000,
+  duration: 3000,
+  yoyo: true,
+  repeat: -1,
+  flipX: true
+});
+this.tweens.add({
+  targets: this.heart3,
+  x: '+=220',
+  ease: "Linear",
+  delay: 3000,
   duration: 3000,
   yoyo: true,
   repeat: -1,
@@ -207,7 +273,7 @@ this.tweens.add({
   x: '-=180',
   ease: "Linear",
   delay: 1000,
-  duration: 3000,
+  duration: 3000/this.speed,
   yoyo: true,
   repeat: -1,
   flipX: true
@@ -218,7 +284,7 @@ this.add.tween({
   x: '-=180',
   ease: "Linear",
   delay: 2000,
-  duration: 2000,
+  duration: 2000/this.speed,
   yoyo: true,
   repeat: -1,
   flipX: true,
@@ -230,7 +296,7 @@ this.add.tween({
   x: '-=384',
   ease: "Linear",
   delay: 2000,
-  duration: 2000,
+  duration: 2000/this.speed,
   yoyo: true,
   repeat: -1,
   flipX: true,
@@ -311,25 +377,17 @@ this.enemyGroup.children.each(
       repeat: 1
     });
 
-    //boss health bar
-    // Display the health bar based on health score
-    this.bossbar = this.physics.add.sprite(this.cameras.main.x+400, this.cameras.main.y+58, "health", [this.bossHealth])
-    //this.healthbar.frame = this.gameHealth
-    this.bossbar.setScale(2);
-    this.bossbar.body.setAllowGravity(false);
-
-
-      this.anims.create({
-        key: "bossHealthActive",
-        frames: this.anims.generateFrameNumbers("health", {start: this.bossHealth, end: this.bossHealth}),
-        frameRate: 0,
-        repeat: 1
-      });
 
 
   }
 
   update (time, delta) {
+    this.text2.visible = false;
+    this.text3.visible = false;
+
+    if(this.bossHealth == 2){this.heart1.visible = false; this.text2.visible = true; this.text1.visible = false;}
+    if(this.bossHealth == 1){this.heart1.visible = false; this.heart2.visible = false; this.text3.visible = true; this.text1.visible = false;}
+
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -652,49 +710,17 @@ hitBoss(bullet, boss){
 
       //If boss loses health --------------------------------------------------------
         bossHurt(){
-          //console.log("Health hurt function called")
-          // Add one to health hurt score
+          //lose heart or die
+          this.health = 3;
+          this.bossHealth -= 1;
+          console.log(this.bossHealth);
+          console.log(1 + (0.5*(3-this.bossHealth)));
+          if(this.bossHealth == 2){ this.health = 2;}
+          else if(this.bossHealth == 1){ this.health = 1;}
+          else if(this.bossHealth == 0){ this.success(); return}
 
-          if (this.bwaitASecond){
-            // Wait a second before taking another damage
-            if (Date.now() >= this.startTime + 900) {
-              this.bwaitASecond = false;
-            }
-          }
-          // If the user has waited a second since last hit
-          else if (!this.bwaitASecond){
-            //this.peggyScream.play();
-            // Enable hit and wait another second after this completes
-            this.bwaitASecond = true;
-            // Set the timer to now
-            this.startTime = Date.now();
-            // Add one hit to the player's health
-            this.bossHealth += 3;
-            // Update the health bar
-            if (this.bossHealth <= 13){
-
-              // Create a temporary path for the animation
-              var tempStringPath = "bossHealthActive";
-              tempStringPath += this.bossHealth;
-
-              // Create the animation for the Health bar to switch to
-              this.anims.create({
-                key: tempStringPath,
-                frames: this.anims.generateFrameNumbers("health", {start: this.bossHealth, end: this.bossHealth}),
-                frameRate: 1,
-                repeat: -1
-              });
-              this.bossbar.anims.play(tempStringPath, true);
-
-
-            }
-            // Check if it's past empty, and if so, game over
-            else{
-              this.success();
-            }
-
-            //Wait a second
-          }
+          //respawn peggy
+          this.scene.restart({health: this.gameHealth, lives: this.health });
         }
 
 

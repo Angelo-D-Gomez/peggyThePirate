@@ -41,11 +41,14 @@ export default class gameWorld extends Phaser.Scene {
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
 
     //load textbox
-    this.load.image('textBorder', './assets/sprites/textBorder.png');
+    this.load.image('textBorder', './assets/gameWorld/textBorder.png');
 
     //load the interactable world objects
     this.load.image('boots', './assets/gameWorld/goldShoes.png');
     this.load.image('shine', './assets/sprites/shine.png');
+
+    this.load.image('grandpaBox', './assets/gameWorld/grandpaBox.png');
+    this.load.image('grandpaPic', './assets/gameWorld/grandpaPic.png');
 
     //load bullets and weapons
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
@@ -68,18 +71,33 @@ export default class gameWorld extends Phaser.Scene {
     this.powerupSound.setRate(1.5);
 
     // adding any textboxes throughout the level as needed
-    this.textbox1 = this.add.sprite(1952, 2528, 'textBorder');
+    this.textbox1 = this.add.sprite(128, 2240, 'textBorder');
     this.textbox1.setScale(4);
-    this.text1 = this.add.text(1866, 2480, "Use [W] to jump.\nUse [A] and [D] \nto move \nleft and right.")
+    this.text1 = this.add.text(44, 2190, "Use [W] to jump.\n\nUse [A] and [D] \nto move \nleft and right.", {font: "18px Lucida Console"});
+
+    this.textbox2 = this.add.sprite(352, 2240, 'textBorder');
+    this.textbox2.setScale(4);
+    this.text2 = this.add.text(268, 2190, "Use [O] to shoot \nyour grandpa's \ntrusty old gun.\n\nBang!",  {font: "18px Lucida Console"});
+
+    this.textbox3 = this.add.sprite(576, 2240, 'textBorder');
+    this.textbox3.setScale(4);
+    this.text3 = this.add.text(492, 2190, "Acquire new \nequipment to \nprepare for the \nfight with \nthe pirate king.",  {font: "18px Lucida Console"});
+
+
+    //add random decorative/background objects
+    this.grandpaBox = this.add.sprite(60, 2350, 'grandpaBox');
+    this.grandpaPic = this.add.sprite(60, 2318, 'grandpaPic');
+    this.grandpaPic.flipX = true;
 
     //create the player and add them to the scene
-    this.player = this.physics.add.sprite(1984, 2624, 'peggy');
+    this.player = this.physics.add.sprite(112, 2344, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
+    this.player.flipX = true;
 
     //create the game world and set the camera to follow the player
-    this.physics.world.setBounds(0, 0, 5600, 3072);
-    this.cameras.main.setBounds(0, 0, 5600, 3072);
+    this.physics.world.setBounds(0, 0, 7200, 2400);
+    this.cameras.main.setBounds(0, 0, 7200, 2400);
     this.cameras.main.startFollow(this.player);
 
     //create the game world by adding each tileset using the
@@ -91,17 +109,17 @@ export default class gameWorld extends Phaser.Scene {
     const platforms = world.createStaticLayer('tempTile', tempTile, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
 
-    var jungleTile = world.addTilesetImage('jungleTile', 'jungleTileSheet');
-    const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
-    platforms2.setCollisionByExclusion(-1, true);
+  //  var jungleTile = world.addTilesetImage('jungleTile', 'jungleTileSheet');
+    //const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
+  //  platforms2.setCollisionByExclusion(-1, true);
 
-    var beachTile = world.addTilesetImage('shipAndBeachTile', 'beachTileSheet');
-    const platforms3 = world.createStaticLayer('beachTile', beachTile, 0 ,0);
-    platforms3.setCollisionByExclusion(-1, true);
+  //  var beachTile = world.addTilesetImage('shipAndBeachTile', 'beachTileSheet');
+  //  const platforms3 = world.createStaticLayer('beachTile', beachTile, 0 ,0);
+//    platforms3.setCollisionByExclusion(-1, true);
 
     this.physics.add.collider(this.player, platforms);
-    this.physics.add.collider(this.player, platforms2);
-    this.physics.add.collider(this.player, platforms3);
+//    this.physics.add.collider(this.player, platforms2);
+//    this.physics.add.collider(this.player, platforms3);
 
 
     //Peggy's animations
@@ -142,8 +160,8 @@ export default class gameWorld extends Phaser.Scene {
     this.treasures.add(this.treasureShield);
 
     this.physics.add.collider(this.treasures, platforms);
-    this.physics.add.collider(this.treasures, platforms2);
-    this.physics.add.collider(this.treasures, platforms3);
+  //  this.physics.add.collider(this.treasures, platforms2);
+  //  this.physics.add.collider(this.treasures, platforms3);
 
     //player interactions with treasures
     this.physics.add.overlap(this.player, this.treasureBoots, this.getBoots, null, this);
@@ -173,13 +191,13 @@ export default class gameWorld extends Phaser.Scene {
     if (movement.A.isDown && this.mobile == true){
       if (this.bootsObtained == true){
         if (Phaser.Input.Keyboard.JustDown(specialButton)){
-          this.player.body.setAllowGravity(false);
-          this.player.setVelocityX(0);
-          this.player.anims.play('dash', true);
-          this.player.x -= 160;
-          this.player.body.setAllowGravity(true);
           this.mobile = false;
-          this.player.body.acceleration.x = 0;
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 640;
+          this.player.setVelocityX(-640);
+          this.player.anims.play('dash', true);
+          this.time.delayedCall(250,this.dashFinish, null, this );
         }
       else{
         if (this.player.body.velocity.x > -speed){
@@ -205,13 +223,13 @@ export default class gameWorld extends Phaser.Scene {
     else if (movement.D.isDown && this.mobile == true){
       if(this.bootsObtained == true){
         if(Phaser.Input.Keyboard.JustDown(specialButton)){
-            this.player.body.setAllowGravity(false);
-            this.player.setVelocityX(0);
-            this.player.anims.play('dash', true);
-            this.player.x += 160;
-            this.player.body.setAllowGravity(true);
-            this.mobile = false;
-            this.player.body.acceleration.x = 0;
+          this.mobile = false;
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 640;
+          this.player.setVelocityX(640);
+          this.player.anims.play('dash', true);
+          this.time.delayedCall(250,this.dashFinish, null, this );
         }
         else{
           if (this.player.body.velocity.x < speed){
@@ -375,6 +393,13 @@ export default class gameWorld extends Phaser.Scene {
     this.treasureShield.disableBody(true, true);
     this.powerupSound.play;
     this.shieldObtained = true;
+  }
+
+  //called after time for the players dash move to complete
+  dashFinish(){
+    this.player.setVelocityX(0);
+    this.player.body.setAllowGravity(true);
+    this.player.body.acceleration.x = 0;
   }
 
 

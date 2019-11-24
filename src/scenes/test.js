@@ -162,14 +162,14 @@ export default class test extends Phaser.Scene {
         // Move Left
     if (movement.A.isDown && this.mobile == true){
       if (Phaser.Input.Keyboard.JustDown(specialButton)){
+        this.mobile = false;
         console.log('ldash');
         this.player.body.setAllowGravity(false);
-        this.player.setVelocityX(0);
+        this.player.setVelocityY(0);
+        this.player.body.maxVelocity.x = 640;
+        this.player.setVelocityX(-640);
         this.player.anims.play('dash', true);
-        this.player.x -= 160;
-        this.player.body.setAllowGravity(true);
-        this.mobile = false;
-        this.player.body.acceleration.x = 0;
+        this.time.delayedCall(250,this.forTheDash, null, this );
       }
       else{
         if (this.player.body.velocity.x > -speed){
@@ -184,20 +184,14 @@ export default class test extends Phaser.Scene {
     // Move Right
     else if (movement.D.isDown && this.mobile == true){
       if(Phaser.Input.Keyboard.JustDown(specialButton)){
+          this.mobile = false;
           console.log('rdash');
           this.player.body.setAllowGravity(false);
-          this.player.setVelocityX(10000);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 640;
+          this.player.setVelocityX(640);
           this.player.anims.play('dash', true);
-          this.dashTime = Date.now() + 500;
-      //    while(this.dashTime > Date.now()){
-
-        //  }
-          this.player.setVelocityX(0);
-          this.player.body.setAllowGravity(true);
-          this.mobile = false;
-          this.player.body.acceleration.x = 0;
-          console.log('stop')
-
+          this.time.delayedCall(250,this.forTheDash, null, this );
       }
       else{
         if (this.player.body.velocity.x < speed){
@@ -386,6 +380,15 @@ enemyShoot (enemy, bullets, player) {
     bullet.body.setAllowGravity(false);
   }
   }
+}
+
+//test if this function is called
+forTheDash(){
+  console.log(this.player.body.velocity.x);
+  this.player.setVelocityX(0);
+  this.player.body.setAllowGravity(true);
+  this.player.body.acceleration.x = 0;
+  console.log('stop')
 }
 
 //triggers when player is hit

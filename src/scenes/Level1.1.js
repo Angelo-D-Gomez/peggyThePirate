@@ -694,8 +694,9 @@ update (time, delta) {
   }
   //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor()){
+      if  (this.player.body.velocity.y < 300){
       this.player.setVelocityY(300);
-}
+      }}
 
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
 

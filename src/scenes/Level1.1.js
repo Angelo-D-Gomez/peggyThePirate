@@ -15,6 +15,8 @@ export default class Level1v2 extends Phaser.Scene {
     //for double jumping
     this.bootsObtained = false;
     this.jumpCount = 2;
+    this.mobile = true;
+    this.spriteValue = 7;
   }
 
   preload () {
@@ -77,7 +79,7 @@ export default class Level1v2 extends Phaser.Scene {
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
-    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
@@ -110,7 +112,7 @@ export default class Level1v2 extends Phaser.Scene {
 
 
     this.text1 = this.add.text(50, 400, 'Use [W], [A], [S], [D] to walk around.', { font: "20px Arial", fill: "#000000" });
-    this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
+    //this.text2 = this.add.text(50, 430, 'Use [SHIFT] to run.', { font: "20px Arial", fill: "#000000" });
     this.text3 = this.add.text(50, 460, 'Use [O] to shoot enemies.', { font: "20px Arial", fill: "#000000" });
     this.text4 = this.add.text(2500, 1700, 'Collect hearts to boost health!', { font: "15px Arial", fill: "#ffffff" });
 
@@ -571,24 +573,13 @@ update (time, delta) {
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard  .addKeys('A, S, D, SHIFT');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var speed = 210;
 
 
     //resets your ability to jump once you land on the ground
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
-    }
-
-
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
     }
     if(this.bootsObtained == true){
       //change animations if peggy has boots
@@ -981,7 +972,8 @@ healthGain(heart, player){
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
-    this.scene.start('bossIntroScene', {health: this.gameHealth, lives: 3});
+    this.scene.start('bossIntroScene', {health: this.gameHealth});
+
   }
 
   //end game, goes to game over scene

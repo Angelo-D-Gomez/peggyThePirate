@@ -23,10 +23,11 @@ export default class successScene extends Phaser.Scene {
 
   create (data) {
     // add event addSceneEventListeners
-    ChangeScene.addSceneEventListeners(this);
+    ChangeScene.addSceneEventListeners(this, [3]);
     //Create the scene
     var text = this.add.text(this.centerX-150, this.centerY, 'you have won!!!!')
     var text = this.add.text(this.centerX-185, this.centerY + 50, 'congratz')
+    var text = this.add.text(this.centerX-200, this.centerY-100, 'Press [ESCAPE] to play again :)')
     var peggyAvatar = this.add.image(0.5*this.centerX, 1.8*this.centerY, 'peggyIcon');
     var parrot = this.add.image(1.5*this.centerX, 1.8*this.centerY, 'parrot');
     this.winnerMusic = this.sound.add('winnerAudio');

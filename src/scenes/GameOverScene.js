@@ -1,5 +1,5 @@
 /*global Phaser*/
-//import * as ChangeScene from'./Changescene.js';
+import * as ChangeScene from'./Changescene.js';
 export default class GameOver extends Phaser.Scene {
   constructor () {
     super('GameOver');
@@ -25,7 +25,8 @@ export default class GameOver extends Phaser.Scene {
   }
 
   create (data) {
-    // add event addSceneEventListeners
+    /// add event addSceneEventListeners
+    ChangeScene.addSceneEventListeners(this, [3]);
 
     this.cameras.main.setBackgroundColor('#150033');
     this.losingMusic = this.sound.add('losingAudio');
@@ -42,6 +43,7 @@ export default class GameOver extends Phaser.Scene {
 
     var peggyAvatar = this.add.image(0.5*this.centerX, 1.8*this.centerY, 'peggyIcon');
     var parrot = this.add.image(1.5*this.centerX, 1.8*this.centerY, 'parrot');
+    var text = this.add.text(this.centerX-150, this.centerY-100, 'Press [ESCAPE] to play again :)')
     //Create the scene
     var title = this.add.text(this.centerX, (0.2*this.centerY), 'You Lose', {
       fill: '#ff00ff',
@@ -66,7 +68,6 @@ export default class GameOver extends Phaser.Scene {
 
   update (time, delta) {
     // Update the scene
-
     this.overSign.anims.play("gameDone", true);
 
 

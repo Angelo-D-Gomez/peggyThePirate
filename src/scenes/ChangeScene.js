@@ -1,7 +1,7 @@
 export { addSceneEventListeners };
 
 function addSceneEventListeners(that, intScene){
-  if (intScene == 0){
+  if (intScene[0] == 0){
     that.input.keyboard.on(
       "keydown_ENTER",
         function(){
@@ -14,7 +14,7 @@ function addSceneEventListeners(that, intScene){
   }
 
   // If in Intro scene
-  else if (intScene == 1){
+  else if (intScene[0] == 1){
     // Check if Escape is keyPressed
     that.input.keyboard.on(
       "keydown_ESC",
@@ -46,6 +46,57 @@ function addSceneEventListeners(that, intScene){
           }
         );
   }
+  // If in Boss intro scene
+  else if (intScene[0] == 2){
+    // Check if Escape is keyPressed
+    that.input.keyboard.on(
+      "keydown_ESC",
+        function(){
+          if (!that.toNextScene){
+            if(that.bossintroMusic){
+              that.bossintroMusic.stop();
+            }
+            that.toNextScene = true;
+            if(that.bossintroMusic){
+              that.bossintroMusic.stop();
+            }
+            that.scene.start('Boss1', {health: intScene[1]});
 
+          }
+        }
+      );
+
+      // Check if Escape is keyPressed
+      that.input.keyboard.on(
+        "keydown_ENTER",
+          function(){
+            if (that.typingIsDone){
+              that.currentLetter = 0;
+              that.currentPhrase += 1;
+              that.typingIsDone = false;
+              that.animationStarted = false;
+            }
+          }
+        );
+  }
+  else if (intScene[0] == 3){
+    that.input.keyboard.on(
+      "keydown_ESC",
+        function(){
+          //if (!that.toNextScene){
+            if(that.gameMusic){
+              that.gameMusic.stop();
+            }
+            that.toNextScene = true;
+            if(that.gameMusic){
+              that.gameMusic.stop();
+            }
+
+            that.scene.start('Boot');
+
+          //}
+        }
+      );
+  }
 
 }

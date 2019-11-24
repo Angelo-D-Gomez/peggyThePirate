@@ -61,7 +61,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
-    this.load.audio('peggyScream', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
 
 
     // Declare variables for center of the scene
@@ -79,7 +79,7 @@ export default class Boss1 extends Phaser.Scene {
     this.gameMusic.volume = 0.1;
     this.gunSound = this.sound.add('gunAudio');
     this.jumpSound = this.sound.add('jumpAudio');
-    this.jumpSound.volume = 0.1;
+    this.jumpSound.volume = 0.05;
     this.screamSound = this.sound.add('screamAudio');
     this.peggyScream = this.sound.add('peggyScream');
 
@@ -646,8 +646,8 @@ hitBoss(bullet, boss){
       console.log('hit');
       bullet.disableBody(true, true);
       // Play hurt Sound
-      this.screamSound.setRate(1);
-      this.screamSound.play();
+      this.peggyScream.setRate(1);
+      this.peggyScream.play();
       this.healthHurt();
     }
 
@@ -673,7 +673,10 @@ hitBoss(bullet, boss){
         }
         // If the user has waited a second since last hit
         else if (!this.waitASecond){
-          this.peggyScream.play();
+          if (!this.peggyScream.isPlaying){
+            this.peggyScream.play();
+          }
+
           // Enable hit and wait another second after this completes
           this.waitASecond = true;
           // Set the timer to now

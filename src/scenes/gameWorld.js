@@ -39,6 +39,9 @@ export default class gameWorld extends Phaser.Scene {
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
     this.load.audio('powerupAudio', './assets/audio/good(JonECope).mp3');
+    this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
+    this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
+    this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
 
     //load textbox
     this.load.image('textBorder', './assets/gameWorld/textBorder.png');
@@ -46,11 +49,13 @@ export default class gameWorld extends Phaser.Scene {
     //load the interactable world objects
     this.load.image('boots', './assets/gameWorld/goldShoes.png');
     this.load.image('shine', './assets/sprites/shine.png');
+    this.load.image('pirateShip', './assets/gameWorld/pirateShip.png');
 
     //load enemy sprites
     this.load.image('enemyPirate', './assets/gameWorld/enemyPirate.png');
     this.load.image('enemyMonkey', './assets/gameWorld/monkey.png');
     this.load.image('enemyCrab', './assets/gameWorld/Crab_Small.png');
+    this.load.image('enemySnake', './assets/gameWorld/enemySnake.png')
 
     //background images
     this.load.image('grandpaBox', './assets/gameWorld/grandpaBox.png');
@@ -59,6 +64,7 @@ export default class gameWorld extends Phaser.Scene {
 
     //load bullets and weapons
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
+    this.load.image('coconut', './assets/gameworld/coconut_small.png');
 
 
     // Declare variables for center of the scene
@@ -76,13 +82,19 @@ export default class gameWorld extends Phaser.Scene {
     this.jumpSound.volume = 0.05;
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
+    this.screamSound = this.sound.add('screamAudio');
+    this.peggyScream = this.sound.add('peggyScream');
+    this.gameMusic = this.sound.add('gameAudio');
+    this.gameMusic.volume = 0.3;
+    this.gameMusic.setLoop(true);
+  //  this.gameMusic.play();
 
     // adding any textboxes throughout the level as needed
     //text is displaced -84, -50 from the box
 
     this.textbox1 = this.add.sprite(128, 2240, 'textBorder');
     this.textbox1.setScale(4);
-    this.text1 = this.add.text(44, 2190, "Use [W] to jump.\n\nUse [A] and [D] \nto move \nleft and right.", {font: "18px Lucida Console"});
+    this.text1 = this.add.text(44, 2190, "Use [W] to jump.\nPress [S] \nto fastfall.\nUse [A] and [D] \nto move \nleft and right.", {font: "18px Lucida Console"});
 
     this.textbox2 = this.add.sprite(352, 2240, 'textBorder');
     this.textbox2.setScale(4);
@@ -104,6 +116,9 @@ export default class gameWorld extends Phaser.Scene {
     this.textbox6.setScale(4);
     this.text6 = this.add.text(3180, 1934, "Use your new \nboots to monkey \nyour way through \nthe jungle!",  {font: "18px Lucida Console"});
 
+    this.textbox7 = this.add.sprite(96, 992, 'textBorder');
+    this.textbox7.setScale(4);
+    this.text7 = this.add.text(12, 942, "You found \nthe shield. \nPress \n[S] and [P] \nto pull out \nthe shield.",  {font: "18px Lucida Console"});
 
     //add random decorative/background objects
     this.grandpaBox = this.add.sprite(60, 2350, 'grandpaBox');
@@ -112,10 +127,13 @@ export default class gameWorld extends Phaser.Scene {
     this.houseDoor = this.add.sprite(760, 2338, 'door');
     this.houseDoor.flipX = true;
     this.houseDoor.setScale(4);
+    this.pirateShip = this.physics.add.sprite(4432, 702, 'pirateShip');
+    this.pirateShip.setScale(3);
+
 
     //create the player and add them to the scene
     //112, 2344
-    this.player = this.physics.add.sprite(2000, 2344, 'peggy');
+    this.player = this.physics.add.sprite(1360, 2344, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.player.flipX = true;
@@ -145,42 +163,111 @@ export default class gameWorld extends Phaser.Scene {
     this.physics.add.collider(this.player, platforms);
     this.physics.add.collider(this.player, platforms2);
     this.physics.add.collider(this.player, platforms3);
+    //adding ship collider with player colliders
+    this.physics.add.collider(this.pirateShip, platforms3);
 
 
     //adding enemy sprites to the gameWorld
     this.enemyGroup = this.physics.add.group({});
 
     //pirate enemies
-    this.pirate1 = this.physics.add.sprite(1344, 2080, 'enemyPirate');
+    this.pirate1 = this.physics.add.sprite(1360, 2080, 'enemyPirate');
     this.pirate1.setScale(3);
+    this.pirate1.flipX = true;
     this.enemyGroup.add(this.pirate1);
+    this.pirate2 = this.physics.add.sprite(1264, 704, 'enemyPirate');
+    this.pirate2.setScale(3);
+    this.enemyGroup.add(this.pirate2);
+    this.pirate3 = this.physics.add.sprite(1488, 672, 'enemyPirate');
+    this.pirate3.setScale(3);
+    this.enemyGroup.add(this.pirate3);
+    this.pirate4 = this.physics.add.sprite(1712, 704, 'enemyPirate');
+    this.pirate4.setScale(3);
+    this.enemyGroup.add(this.pirate4);
+    this.pirate12 = this.physics.add.sprite(2032, 672, 'enemyPirate');
+    this.pirate12.setScale(3);
+    this.enemyGroup.add(this.pirate12);
+    this.pirate5 = this.physics.add.sprite(2224, 672, 'enemyPirate');
+    this.pirate5.setScale(3);
+    this.enemyGroup.add(this.pirate5);
+    this.pirate6 = this.physics.add.sprite(2416, 576, 'enemyPirate');
+    this.pirate6.setScale(3);
+    this.enemyGroup.add(this.pirate6);
+    this.pirate7 = this.physics.add.sprite(2640, 704, 'enemyPirate');
+    this.pirate7.setScale(3);
+    this.enemyGroup.add(this.pirate7);
+    this.pirate8 = this.physics.add.sprite(2944, 640, 'enemyPirate');
+    this.pirate8.setScale(3);
+    this.enemyGroup.add(this.pirate8);
+    this.pirate9 = this.physics.add.sprite(2944, 736, 'enemyPirate');
+    this.pirate9.setScale(3);
+    this.enemyGroup.add(this.pirate9);
+    this.pirate10 = this.physics.add.sprite(3376, 704, 'enemyPirate');
+    this.pirate10.setScale(3);
+    this.enemyGroup.add(this.pirate10);
+    this.pirate11 = this.physics.add.sprite(3552, 608, 'enemyPirate');
+    this.pirate11.setScale(3);
+    this.enemyGroup.add(this.pirate11);
 
     //monkey enemies
     this.monkey1 = this.physics.add.sprite(2256, 2240, 'enemyMonkey');
     this.enemyGroup.add(this.monkey1);
+    this.monkey2 = this.physics.add.sprite(3728, 2016, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey2);
+    this.monkey3 = this.physics.add.sprite(4464, 2048, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey3);
+    this.monkey4 = this.physics.add.sprite(3248, 1504, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey4);
+    this.monkey5 = this.physics.add.sprite(2752, 1600, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey5);
+    this.monkey6 = this.physics.add.sprite(1760, 1472, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey6);
+    this.monkey7 = this.physics.add.sprite(528, 1600, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey7);
+    this.monkey7 = this.physics.add.sprite(1136, 1472, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey7);
+
 
     //crab enemies
     this.crab1 = this.physics.add.sprite(1440, 736, 'enemyCrab');
+    this.enemyGroup.add(this.crab1);
+    this.crab2 = this.physics.add.sprite(1984, 736, 'enemyCrab');
+    this.enemyGroup.add(this.crab2);
+    this.crab3 = this.physics.add.sprite(2176, 736, 'enemyCrab');
+    this.enemyGroup.add(this.crab3);
+    this.crab4 = this.physics.add.sprite(2592, 736, 'enemyCrab');
+    this.enemyGroup.add(this.crab4);
+    this.crab5 = this.physics.add.sprite(3136, 512, 'enemyCrab');
+    this.enemyGroup.add(this.crab5);
 
-
+    //snake enemies
+    this.snake1 = this.physics.add.sprite(3072, 1696, 'enemySnake');
+    this.snake1.setScale(3);
+    this.enemyGroup.add(this.snake1);
+    this.snake2 = this.physics.add.sprite(2512, 1696, 'enemySnake');
+    this.snake2.setScale(3);
+    this.enemyGroup.add(this.snake2);
+    this.snake3 = this.physics.add.sprite(2272, 1696, 'enemySnake');
+    this.snake3.setScale(3);
+    this.enemyGroup.add(this.snake3);
+    this.snake8 = this.physics.add.sprite(2304, 1696, 'enemySnake');
+    this.snake8.setScale(3);
+    this.enemyGroup.add(this.snake8);
+    this.snake4 = this.physics.add.sprite(1376, 1696, 'enemySnake');
+    this.snake4.setScale(3);
+    this.enemyGroup.add(this.snake4);
+    this.snake5 = this.physics.add.sprite(1024, 1696, 'enemySnake');
+    this.snake5.setScale(3);
+    this.enemyGroup.add(this.snake5);
+    this.snake6 = this.physics.add.sprite(384, 1696, 'enemySnake');
+    this.snake6.setScale(3);
+    this.enemyGroup.add(this.snake6);
+    this.snake7 = this.physics.add.sprite(704, 1696, 'enemySnake');
+    this.snake7.setScale(3);
+    this.enemyGroup.add(this.snake7);
 
     this.physics.add.collider(this.enemyGroup, platforms2);
     this.physics.add.collider(this.enemyGroup, platforms3);
-
-
-    //Peggy's animations
-    this.anims.create({
-      key: "walk",
-      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
-      frameRate: 10,
-      repeat: -1 //repeat forever
-    });
-    this.anims.create({
-      key: "idle",
-      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
-      frameRate: 10,
-      repeat: -1
-    });
 
     //add player's bullets and shield
     // Max 5 at once
@@ -188,11 +275,25 @@ export default class gameWorld extends Phaser.Scene {
       defaultKey: "bullet",
       maxSize: 10
     });
-    this.bullets.children.iterate(function(child){
-    }
-      );
+
+    this.physics.add.collider(this.bullets, platforms, this.hitWall, null, this);
+    this.physics.add.collider(this.bullets, platforms2, this.hitWall, null, this);
+    this.physics.add.collider(this.bullets, platforms3, this.hitWall, null, this);
+
     //adding undefined object to be placeholder for shield
     this.shine;
+
+    //add enemy bullets or coconuts
+    //add enemy's bullet group
+    this.enemyBullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 100
+    });
+    //add enemy's coconut group
+    this.enemyCoconuts = this.physics.add.group({
+      defaultKey: "coconut",
+      maxSize: 100
+    });
 
     //add treasure chests to game
     this.treasures = this.physics.add.group({});
@@ -210,6 +311,126 @@ export default class gameWorld extends Phaser.Scene {
     //player interactions with treasures
     this.physics.add.overlap(this.player, this.treasureBoots, this.getBoots, null, this);
     this.physics.add.overlap(this.player, this.treasureShield, this.getShield, null, this);
+
+    //ANIMATIONS
+
+    //Peggy's animations
+    this.anims.create({
+      key: "walk",
+      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
+      frameRate: 10,
+      repeat: -1 //repeat forever
+    });
+    this.anims.create({
+      key: "idle",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
+      frameRate: 10,
+      repeat: -1
+    });
+
+    //Enemy Movement via tweens
+    //Pirates
+    this.tweens.add({
+      targets: this.pirate1,
+      x: '+=200',
+      ease: "Linear",
+      delay: 0,
+      duration: 1500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+
+    //Monkeys
+    this.add.tween({
+      targets: this.monkey1,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.monkey1, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey2,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey2, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey3,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey3, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey4,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey4, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey5,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey5, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey6,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey6, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.monkey7,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey7, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
+
+
+    //Snakes
+
+    //Crabs
+
 
 
   }//END OF CREATE FUNCTION
@@ -369,7 +590,6 @@ export default class gameWorld extends Phaser.Scene {
         }
       }.bind(this) //binds to each children
   );
-
     //player uses their shield to block a bullet
     if (this.shieldObtained == true){
       //summon shield when pressing p and s down
@@ -397,12 +617,154 @@ export default class gameWorld extends Phaser.Scene {
         }
       }
     }
+    //enemys's bullet injure player
+    this.enemyBullets.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches player, calls function
+            b,
+            this.player,
+            this.hitPlayer,
+            null,
+            this
+            );
+          this.physics.add.overlap(
+            b,
+            this.shine,
+            this.hitShield,
+            null,
+            this
+            );
+          //refresh bullet group
+          //enemy bullets despawn when they fall off the map
+          if (b.y < 0) {
+            b.setActive(false);
+            }
+          else if (b.y > 2400) {
+            b.setActive(false);
+            }
+          else if (b.x < 0){
+            b.setActive(false);
+            }
+          else if (b.x > 4480){
+            b.setActive(false);
+            }
+          }
+        }.bind(this) //binds to each children
+      );
+    //enemy coconuts injure player
+    this.enemyCoconuts.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches player, calls function
+            b,
+            this.player,
+            this.hitPlayer,
+            null,
+            this
+            );
+          this.physics.add.overlap(
+            b,
+            this.shine,
+            this.hitShield,
+            null,
+            this
+            );
+          //refresh bullet groupe
+          //enemy coconuts despawn when they fall off the map
+          if (b.y < 0) {
+            b.setActive(false);
+            }
+          else if (b.y > 2400) {
+            b.setActive(false);
+            }
+          else if (b.x < 0){
+            b.setActive(false);
+            }
+          else if (b.x > 4480){
+            b.setActive(false);
+            }
+          }
+        }.bind(this) //binds to each children
+      );
+
+
 
 
 
   }//END OF UPDATE FUNCTION
 
   //additional functions to be called
+
+  //triggers when player hits an enemy
+  hitEnemy(bullet, enemy){
+      console.log('hit');
+      enemy.disableBody(true, true);
+      bullet.disableBody(true, true);
+      //play hurt sound
+      var randomSpeed = (Math.random()*0.4)+0.5;
+      this.screamSound.setRate(randomSpeed);
+      this.screamSound.play();
+    }
+  //triggers when player hits a wall
+  hitWall(bullet, wall){
+    if (bullet.active) {
+        bullet.disableBody(true, true);
+    }
+  }
+  //enemy fires a projectile at the player
+  enemyShoot (enemy, bullets, player){
+    var distance = enemy.x - player.x;
+    //only fire if enemy active and certain distance
+    if(enemy.active){
+      if(distance < 450 && distance > -450){
+        console.log('enemy shoots!');
+        if(distance <= 0){
+          enemy.flipX = true
+          var velocity = {x: 700, y: 0};
+        }
+        else{
+          enemy.flipX = false
+          var velocity = {x: -700, y: 0};
+        }
+        var bullet = bullets.get();
+        bullet.enableBody(true, enemy.x, enemy.y, true, true)
+            .setVelocity(velocity.x, velocity.y);
+        bullet.body.setAllowGravity(false);
+      }
+    }
+    }
+
+  //targeted version of above function
+  enemyShootTargeted (enemy, bullets, player) {
+    var distance = enemy.x - player.x;
+    var distanceY = enemy.y - player.y;
+    if(enemy.active){
+      if(distanceY < 200 && distanceY > -200){
+        if(distance < 450 && distance > -450){ //only fire is enemy active and certain distance
+          var betweenPoints = Phaser.Math.Angle.BetweenPoints;
+          var angle = betweenPoints(enemy, this.player);
+          var velocityFromRotation = this.physics.velocityFromRotation;
+          //create variable called velocity from a vector2
+          var velocity = new Phaser.Math.Vector2();
+          velocityFromRotation(angle, 500, velocity);
+          //get bullet group
+          var bullet = bullets.get();
+          bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
+          bullet.enableBody(true, enemy.x, enemy.y, true, true)
+                .setVelocity(velocity.x, velocity.y);
+                bullet.body.setAllowGravity(false);
+          }
+        }
+      }
+    }
+
+  //triggers when player is hit by an enemy with a projectile
+  hitPlayer(bullet, player){
+    console.log('hit');
+    bullet.disableBody(true, true);
+    this.peggyScream.play();
+  }
 
   //gain boots from the treasure chest
   getBoots(){

@@ -13,7 +13,7 @@ export default class gameWorld extends Phaser.Scene {
     this.startTime = Date.now();
     this.peggyHurt1 = false;
     //for double jumping
-    this.bootsObtained = false;
+    this.bootsObtained = true;
     this.shieldObtained = false;
     this.jumpCount = 2;
     this.mobile = true;
@@ -133,7 +133,7 @@ export default class gameWorld extends Phaser.Scene {
 
     //create the player and add them to the scene
     //112, 2344
-    this.player = this.physics.add.sprite(1360, 2344, 'peggy');
+    this.player = this.physics.add.sprite(112, 2344, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.player.flipX = true;
@@ -199,8 +199,9 @@ export default class gameWorld extends Phaser.Scene {
     this.pirate8 = this.physics.add.sprite(2944, 640, 'enemyPirate');
     this.pirate8.setScale(3);
     this.enemyGroup.add(this.pirate8);
-    this.pirate9 = this.physics.add.sprite(2944, 736, 'enemyPirate');
+    this.pirate9 = this.physics.add.sprite(2820, 736, 'enemyPirate');
     this.pirate9.setScale(3);
+    this.pirate9.flipX = true;
     this.enemyGroup.add(this.pirate9);
     this.pirate10 = this.physics.add.sprite(3376, 704, 'enemyPirate');
     this.pirate10.setScale(3);
@@ -224,12 +225,12 @@ export default class gameWorld extends Phaser.Scene {
     this.enemyGroup.add(this.monkey6);
     this.monkey7 = this.physics.add.sprite(528, 1600, 'enemyMonkey');
     this.enemyGroup.add(this.monkey7);
-    this.monkey7 = this.physics.add.sprite(1136, 1472, 'enemyMonkey');
-    this.enemyGroup.add(this.monkey7);
+    this.monkey8 = this.physics.add.sprite(1136, 1472, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey8);
 
 
     //crab enemies
-    this.crab1 = this.physics.add.sprite(1440, 736, 'enemyCrab');
+    this.crab1 = this.physics.add.sprite(1456, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab1);
     this.crab2 = this.physics.add.sprite(1984, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab2);
@@ -242,27 +243,34 @@ export default class gameWorld extends Phaser.Scene {
 
     //snake enemies
     this.snake1 = this.physics.add.sprite(3072, 1696, 'enemySnake');
+    this.snake1.flipX = true;
     this.snake1.setScale(3);
     this.enemyGroup.add(this.snake1);
     this.snake2 = this.physics.add.sprite(2512, 1696, 'enemySnake');
+    this.snake2.flipX = true;
     this.snake2.setScale(3);
     this.enemyGroup.add(this.snake2);
     this.snake3 = this.physics.add.sprite(2272, 1696, 'enemySnake');
     this.snake3.setScale(3);
     this.enemyGroup.add(this.snake3);
-    this.snake8 = this.physics.add.sprite(2304, 1696, 'enemySnake');
+    this.snake8 = this.physics.add.sprite(2320, 1696, 'enemySnake');
+    this.snake8.flipX = true;
     this.snake8.setScale(3);
     this.enemyGroup.add(this.snake8);
     this.snake4 = this.physics.add.sprite(1376, 1696, 'enemySnake');
+    this.snake4.flipX = true;
     this.snake4.setScale(3);
     this.enemyGroup.add(this.snake4);
     this.snake5 = this.physics.add.sprite(1024, 1696, 'enemySnake');
+    this.snake5.flipX = true;
     this.snake5.setScale(3);
     this.enemyGroup.add(this.snake5);
     this.snake6 = this.physics.add.sprite(384, 1696, 'enemySnake');
+    this.snake6.flipX = true;
     this.snake6.setScale(3);
     this.enemyGroup.add(this.snake6);
     this.snake7 = this.physics.add.sprite(704, 1696, 'enemySnake');
+    this.snake7.flipX = true;
     this.snake7.setScale(3);
     this.enemyGroup.add(this.snake7);
 
@@ -330,7 +338,7 @@ export default class gameWorld extends Phaser.Scene {
 
     //Enemy Movement via tweens
     //Pirates
-    this.tweens.add({
+    this.add.tween({
       targets: this.pirate1,
       x: '+=200',
       ease: "Linear",
@@ -339,6 +347,129 @@ export default class gameWorld extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
       flipX: true
+    });
+    this.add.tween({
+      targets: this.pirate2,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate2, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate3,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate3, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate4,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate4, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate5,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate5, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate6,
+      ease: "Linear",
+      x: '-=0',
+      delay: 500,
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.pirate6, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate7,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate7, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate8,
+      ease: "Linear",
+      x: '-=0',
+      delay: 500,
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.pirate8, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate9,
+      x: '+=384d',
+      ease: "Linear",
+      delay: 0,
+      duration: 1500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });;
+    this.add.tween({
+      targets: this.pirate10,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate10, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate11,
+      ease: "Linear",
+      x: '-=0',
+      delay: 1000,
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.pirate11, this.enemyBullets, this.player)},
+     onRepeatScope: this
+    });
+    this.add.tween({
+      targets: this.pirate12,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      onRepeat: function(){this.enemyShoot(this.pirate12, this.enemyBullets, this.player)},
+     onRepeatScope: this
     });
 
     //Monkeys
@@ -425,11 +556,105 @@ export default class gameWorld extends Phaser.Scene {
       onRepeat: function(){this.enemyShootTargeted(this.monkey7, this.enemyCoconuts, this.player)},
      onRepeatScope: this
     });
-
+    this.add.tween({
+      targets: this.monkey8,
+      x: '-=0',
+      ease: "Linear",
+      delay: 2000,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true,
+      onRepeat: function(){this.enemyShootTargeted(this.monkey8, this.enemyCoconuts, this.player)},
+     onRepeatScope: this
+    });
 
     //Snakes
+    this.tweens.add({
+      targets: this.snake1,
+      x: '+=312',
+      ease: "Linear",
+      duration: 2000,
+      repeatDelay: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake2,
+      x: '+=176',
+      ease: "Linear",
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake3,
+      x: '-=80',
+      ease: "Linear",
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake8,
+      x: '+=90',
+      ease: "Linear",
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake4,
+      x: '+=540',
+      ease: "Linear",
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake5,
+      x: '+=540',
+      ease: "Linear",
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake6,
+      x: '+=540',
+      ease: "Linear",
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.tweens.add({
+      targets: this.snake7,
+      x: '+=540',
+      ease: "Linear",
+      duration: 3000,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
 
     //Crabs
+    this.add.tween({
+      targets: this.crab1,
+      x: '-=160',
+      ease: "Linear",
+      duration: 2000,
+      repeatDelay: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
 
 
 
@@ -718,7 +943,6 @@ export default class gameWorld extends Phaser.Scene {
     //only fire if enemy active and certain distance
     if(enemy.active){
       if(distance < 450 && distance > -450){
-        console.log('enemy shoots!');
         if(distance <= 0){
           enemy.flipX = true
           var velocity = {x: 700, y: 0};
@@ -734,7 +958,6 @@ export default class gameWorld extends Phaser.Scene {
       }
     }
     }
-
   //targeted version of above function
   enemyShootTargeted (enemy, bullets, player) {
     var distance = enemy.x - player.x;

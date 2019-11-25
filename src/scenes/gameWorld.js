@@ -47,8 +47,15 @@ export default class gameWorld extends Phaser.Scene {
     this.load.image('boots', './assets/gameWorld/goldShoes.png');
     this.load.image('shine', './assets/sprites/shine.png');
 
+    //load enemy sprites
+    this.load.image('enemyPirate', './assets/gameWorld/enemyPirate.png');
+    this.load.image('enemyMonkey', './assets/gameWorld/monkey.png');
+    this.load.image('enemyCrab', './assets/gameWorld/Crab_Small.png');
+
+    //background images
     this.load.image('grandpaBox', './assets/gameWorld/grandpaBox.png');
     this.load.image('grandpaPic', './assets/gameWorld/grandpaPic.png');
+    this.load.image('door', './assets/gameWorld/Door.png');
 
     //load bullets and weapons
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
@@ -71,6 +78,8 @@ export default class gameWorld extends Phaser.Scene {
     this.powerupSound.setRate(1.5);
 
     // adding any textboxes throughout the level as needed
+    //text is displaced -84, -50 from the box
+
     this.textbox1 = this.add.sprite(128, 2240, 'textBorder');
     this.textbox1.setScale(4);
     this.text1 = this.add.text(44, 2190, "Use [W] to jump.\n\nUse [A] and [D] \nto move \nleft and right.", {font: "18px Lucida Console"});
@@ -83,21 +92,37 @@ export default class gameWorld extends Phaser.Scene {
     this.textbox3.setScale(4);
     this.text3 = this.add.text(492, 2190, "Acquire new \nequipment to \nprepare for the \nfight with \nthe pirate king.",  {font: "18px Lucida Console"});
 
+    this.textbox4 = this.add.sprite(2784, 2208, 'textBorder');
+    this.textbox4.setScale(4);
+    this.text4 = this.add.text(2700, 2158, "Collect the \nBoots of Hermes \nand double jump \nto the tall \nplatform.",  {font: "18px Lucida Console"});
+
+    this.textbox5 = this.add.sprite(3072, 1984, 'textBorder');
+    this.textbox5.setScale(4);
+    this.text5 = this.add.text(2988, 1934, "Press [A] or [D] \nwith [P] \nto dash\nto quickly \nusing your \nboots.",  {font: "18px Lucida Console"});
+
+    this.textbox6 = this.add.sprite(3264, 1984, 'textBorder');
+    this.textbox6.setScale(4);
+    this.text6 = this.add.text(3180, 1934, "Use your new \nboots to monkey \nyour way through \nthe jungle!",  {font: "18px Lucida Console"});
+
 
     //add random decorative/background objects
     this.grandpaBox = this.add.sprite(60, 2350, 'grandpaBox');
     this.grandpaPic = this.add.sprite(60, 2318, 'grandpaPic');
     this.grandpaPic.flipX = true;
+    this.houseDoor = this.add.sprite(760, 2338, 'door');
+    this.houseDoor.flipX = true;
+    this.houseDoor.setScale(4);
 
     //create the player and add them to the scene
-    this.player = this.physics.add.sprite(112, 2344, 'peggy');
+    //112, 2344
+    this.player = this.physics.add.sprite(2000, 2344, 'peggy');
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
     this.player.flipX = true;
 
     //create the game world and set the camera to follow the player
-    this.physics.world.setBounds(0, 0, 7200, 2400);
-    this.cameras.main.setBounds(0, 0, 7200, 2400);
+    this.physics.world.setBounds(0, 0, 4480, 2400);
+    this.cameras.main.setBounds(0, 0, 4480, 2400);
     this.cameras.main.startFollow(this.player);
 
     //create the game world by adding each tileset using the
@@ -109,17 +134,38 @@ export default class gameWorld extends Phaser.Scene {
     const platforms = world.createStaticLayer('tempTile', tempTile, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
 
-  //  var jungleTile = world.addTilesetImage('jungleTile', 'jungleTileSheet');
-    //const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
-  //  platforms2.setCollisionByExclusion(-1, true);
+    var jungleTile = world.addTilesetImage('jungleTileSheet', 'jungleTileSheet');
+    const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
+    platforms2.setCollisionByExclusion(-1, true);
 
-  //  var beachTile = world.addTilesetImage('shipAndBeachTile', 'beachTileSheet');
-  //  const platforms3 = world.createStaticLayer('beachTile', beachTile, 0 ,0);
-//    platforms3.setCollisionByExclusion(-1, true);
+    var beachTile = world.addTilesetImage('shipAndBeachTile', 'beachTileSheet');
+    const platforms3 = world.createStaticLayer('beachTile', beachTile, 0 ,0);
+    platforms3.setCollisionByExclusion(-1, true);
 
     this.physics.add.collider(this.player, platforms);
-//    this.physics.add.collider(this.player, platforms2);
-//    this.physics.add.collider(this.player, platforms3);
+    this.physics.add.collider(this.player, platforms2);
+    this.physics.add.collider(this.player, platforms3);
+
+
+    //adding enemy sprites to the gameWorld
+    this.enemyGroup = this.physics.add.group({});
+
+    //pirate enemies
+    this.pirate1 = this.physics.add.sprite(1344, 2080, 'enemyPirate');
+    this.pirate1.setScale(3);
+    this.enemyGroup.add(this.pirate1);
+
+    //monkey enemies
+    this.monkey1 = this.physics.add.sprite(2256, 2240, 'enemyMonkey');
+    this.enemyGroup.add(this.monkey1);
+
+    //crab enemies
+    this.crab1 = this.physics.add.sprite(1440, 736, 'enemyCrab');
+
+
+
+    this.physics.add.collider(this.enemyGroup, platforms2);
+    this.physics.add.collider(this.enemyGroup, platforms3);
 
 
     //Peggy's animations
@@ -144,24 +190,22 @@ export default class gameWorld extends Phaser.Scene {
     });
     this.bullets.children.iterate(function(child){
     }
-  );
+      );
     //adding undefined object to be placeholder for shield
     this.shine;
-
-
 
     //add treasure chests to game
     this.treasures = this.physics.add.group({});
 
-    this.treasureBoots = this.physics.add.sprite(4448, 3008, 'boots');
+    this.treasureBoots = this.physics.add.sprite(2784, 2336, 'boots');
     this.treasures.add(this.treasureBoots);
 
-    this.treasureShield = this.physics.add.sprite(1024, 3008, 'shine');
+    this.treasureShield = this.physics.add.sprite(96, 1216, 'shine');
     this.treasures.add(this.treasureShield);
 
     this.physics.add.collider(this.treasures, platforms);
-  //  this.physics.add.collider(this.treasures, platforms2);
-  //  this.physics.add.collider(this.treasures, platforms3);
+    this.physics.add.collider(this.treasures, platforms2);
+    this.physics.add.collider(this.treasures, platforms3);
 
     //player interactions with treasures
     this.physics.add.overlap(this.player, this.treasureBoots, this.getBoots, null, this);
@@ -194,8 +238,8 @@ export default class gameWorld extends Phaser.Scene {
           this.mobile = false;
           this.player.body.setAllowGravity(false);
           this.player.setVelocityY(0);
-          this.player.body.maxVelocity.x = 640;
-          this.player.setVelocityX(-640);
+          this.player.body.maxVelocity.x = 768;
+          this.player.setVelocityX(-768);
           this.player.anims.play('dash', true);
           this.time.delayedCall(250,this.dashFinish, null, this );
         }
@@ -226,8 +270,8 @@ export default class gameWorld extends Phaser.Scene {
           this.mobile = false;
           this.player.body.setAllowGravity(false);
           this.player.setVelocityY(0);
-          this.player.body.maxVelocity.x = 640;
-          this.player.setVelocityX(640);
+          this.player.body.maxVelocity.x = 768;
+          this.player.setVelocityX(768);
           this.player.anims.play('dash', true);
           this.time.delayedCall(250,this.dashFinish, null, this );
         }

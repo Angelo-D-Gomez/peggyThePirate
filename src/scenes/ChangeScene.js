@@ -60,7 +60,7 @@ function addSceneEventListeners(that, intScene){
             if(that.bossintroMusic){
               that.bossintroMusic.stop();
             }
-            that.scene.start('Boss1', {health: intScene[1]});
+            that.scene.start('Boss1', {health: intScene[1], lives: intScene[2]});
 
           }
         }

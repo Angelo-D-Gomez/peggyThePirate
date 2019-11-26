@@ -13,6 +13,8 @@ export default class test extends Phaser.Scene {
     this.mobile = true;
     this.bootsObtained = false;
     this.spriteValue = 0;
+    this.startTime = Date.now()
+
   }
 
   preload () {
@@ -29,6 +31,9 @@ export default class test extends Phaser.Scene {
     //Load tilemap and tileset
     this.load.image('tiles', './assets/testing/basicTiles.png');
     this.load.tilemapTiledJSON('map', './assets/testing/testWorld.json');
+
+    //enemy
+    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
 
     // Load the gun/jump sound effect
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
@@ -84,6 +89,23 @@ export default class test extends Phaser.Scene {
   );
 
 
+
+  //create enemy group
+  this.enemyGroup = this.physics.add.group({});
+  //adding pirate enemies
+  this.pirate1 = this.physics.add.sprite(640, 576, 'enemy');
+  this.pirate1.setScale(3)
+  this.enemyGroup.add(this.pirate1);
+  this.physics.add.collider(this.enemyGroup, platforms);
+
+  //add enemy's bullet group
+    this.enemyBullets = this.physics.add.group({
+      defaultKey: "bullet",
+      maxSize: 100
+  });
+
+
+
     // animations
     // Peggy animations
     //create animation from spritesheet
@@ -101,9 +123,23 @@ export default class test extends Phaser.Scene {
   });
   this.anims.create({
     key: "dash",
-    frames: this.anims.generateFrameNumbers('peggy', {start:4, end:4}),
+    frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 3, end: this.spriteValue + 3}),
     framerate: 60,
     repeat: -1
+  });
+
+  //pirate tweens
+  this.add.tween({
+    targets: this.pirate1,
+    x: '-=0',
+    ease: "Linear",
+    delay: 2000,
+    duration: 2000,
+    yoyo: true,
+    repeat: -1,
+    flipX: true,
+    onRepeat: function(){this.enemyShoot(this.pirate1, this.enemyBullets, this.player)},
+   onRepeatScope: this
   });
 
   }
@@ -115,12 +151,9 @@ export default class test extends Phaser.Scene {
     // Player Movement with WASD and shift to sprint
     var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var dashButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
-    var speed = 210;
-
-
+    var speed = 140;
 
     if (this.player.body.onFloor()){
         this.jumpCount = 2;
@@ -128,35 +161,46 @@ export default class test extends Phaser.Scene {
     }
         // Move Left
     if (movement.A.isDown && this.mobile == true){
-      if (Phaser.Input.Keyboard.JustDown(dashButton)){
+      if (Phaser.Input.Keyboard.JustDown(specialButton)){
+        this.mobile = false;
         console.log('ldash');
         this.player.body.setAllowGravity(false);
-        this.player.setVelocityX(0);
+        this.player.setVelocityY(0);
+        this.player.body.maxVelocity.x = 640;
+        this.player.setVelocityX(-640);
         this.player.anims.play('dash', true);
-        this.player.x -= 160;
-        this.player.body.setAllowGravity(true);
-        this.mobile = false;
+        this.time.delayedCall(250,this.forTheDash, null, this );
       }
       else{
-      this.player.setVelocityX(-speed);
+        if (this.player.body.velocity.x > -speed){
+          this.player.setVelocityX(-speed);
+        }
       this.player.flipX = true;
+      this.player.body.acceleration.x = -50;
+      this.player.body.maxVelocity.x = 210;
       this.player.anims.play('walk', true);
     }
     }
     // Move Right
     else if (movement.D.isDown && this.mobile == true){
-      if(Phaser.Input.Keyboard.JustDown(dashButton)){
+      if(Phaser.Input.Keyboard.JustDown(specialButton)){
+          this.mobile = false;
           console.log('rdash');
           this.player.body.setAllowGravity(false);
-          this.player.setVelocityX(0);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 640;
+          this.player.setVelocityX(640);
           this.player.anims.play('dash', true);
-          this.player.x += 160;
-          this.player.body.setAllowGravity(true);
-          this.mobile = false;
+          this.time.delayedCall(250,this.forTheDash, null, this );
       }
       else{
-      this.player.setVelocityX(speed);
+        if (this.player.body.velocity.x < speed){
+          this.player.setVelocityX(speed);
+        }
+      //this.player.setVelocityX(speed);
       this.player.flipX = false;
+      this.player.body.acceleration.x = 50;
+      this.player.body.maxVelocity.x = 210;
       this.player.anims.play('walk', true);
     }
     }
@@ -165,6 +209,7 @@ export default class test extends Phaser.Scene {
       if (this.player.body.onFloor()){
       this.player.anims.play('idle', true);
       this.player.setVelocityX(0);
+      this.player.body.acceleration.x =0;
       }
     }
     // player can jump if they are touching the ground
@@ -174,14 +219,16 @@ export default class test extends Phaser.Scene {
     if(Phaser.Input.Keyboard.JustDown(jumpButton) && this.mobile == true){
       if(this.jumpCount > 0){
         this.jumpCount --;
-        this.player.setVelocityY(-225);
+        this.player.setVelocityY(-250);
         this.jumpSound.play();
     }
   }
   //fast falling for quick movement
     else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
+      if (this.player.body.velocity.y < 300){
       this.player.setVelocityY(300);
-}
+      }
+    }
 
 
 
@@ -202,16 +249,24 @@ export default class test extends Phaser.Scene {
     }
 
 
+    //the shine
     if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
-      this.shine = this.physics.add.sprite(this.player.x, this.player.y + 4, 'shine');
-      this.shine.body.setAllowGravity(false);
-      this.player.body.setAllowGravity(false);
       this.player.setVelocityY(0);
       this.player.setVelocityX(0);
+      if (this.player.flipX == true){
+        this.shine = this.physics.add.sprite(this.player.x - 16, this.player.y, 'shine');
+        }
+      else{
+        this.shine = this.physics.add.sprite(this.player.x + 16, this.player.y, 'shine');
+      }
+      this.shine.body.setAllowGravity(false);
+      this.player.body.setAllowGravity(false);
       this.mobile = false;
+      this.player.body.acceleration.x = 0;
+      this.player.anims.play('idle', true);
     }
     if (Phaser.Input.Keyboard.JustUp(specialButton)){
-      if (typeof this.shine !== undefined ){
+      if (this.shine != undefined ){
         this.shine.destroy();
         this.player.body.setAllowGravity(true);
         this.mobile = true;
@@ -236,20 +291,57 @@ export default class test extends Phaser.Scene {
                   else if (b.y > 600) { //if bullet off bottom of screen
                     b.setActive(false);
                   }
-                  else if (b.x < 0){
+                  else if (b.x < this.player.x -400){
                     b.setActive(false);
+                    console.log('despawn')
                   }
-                  else if (b.x > 800){
+                  else if (b.x > this.player.x + 400){
                     b.setActive(false);
+                    console.log('despawn')
                   }
                 }
               }.bind(this) //binds to each children
             );
 
+    //enemys's bullet kills player
+        this.enemyBullets.children.each(
+                                  function (b) {
+                                    if (b.active) {
+                                      this.physics.add.overlap( //if bullet touches player, calls function
+                                        b,
+                                        this.player,
+                                        this.hitPlayer,
+                                        null,
+                                        this
+                                      );
+                                      this.physics.add.overlap(
+                                        b,
+                                        this.shine,
+                                        this.hitShield,
+                                        null,
+                                        this
+                                      );
+                                      //refresh bullet group
+                                      if (b.y < 0) { //if bullet off top of screen
+                                        b.setActive(false);
+                                      }
+                                      else if (b.y > 1920) { //if bullet off bottom of screen
+                                        b.setActive(false);
+                                      }
+                                      else if (b.x < 0){
+                                        b.setActive(false);
+                                      }
+                                      else if (b.x > 8000){
+                                        b.setActive(false);
+                                      }
+                                    }
+                                  }.bind(this) //binds to each children
+                                );
+
 
   }
 
-  getBoots(){
+getBoots(){
             this.bootsObtained = true;
             this.boots.disableBody(true, true);
             this.spriteValue += 7;
@@ -268,5 +360,53 @@ export default class test extends Phaser.Scene {
               repeat: -1
             });
   }
+
+  //function for enemy to shoot in a straight line, no aim
+enemyShoot (enemy, bullets, player) {
+
+    var distance = enemy.x - player.x
+    if(enemy.active){
+    if(distance < 450 && distance > -450){ //only fire is enemy active and certain distance
+      console.log('enemy shoots!');
+    if(enemy.flipX == true){
+      var velocity = {x: 700, y: 0};
+    }
+    else{
+      var velocity = {x: -700, y: 0};
+    }
+    var bullet = bullets.get();
+    bullet.enableBody(true, enemy.x, enemy.y, true, true)
+    .setVelocity(velocity.x, velocity.y);
+    bullet.body.setAllowGravity(false);
+  }
+  }
+}
+
+//test if this function is called
+forTheDash(){
+  console.log(this.player.body.velocity.x);
+  this.player.setVelocityX(0);
+  this.player.body.setAllowGravity(true);
+  this.player.body.acceleration.x = 0;
+  console.log('stop')
+}
+
+//triggers when player is hit
+    hitPlayer(bullet, player){
+      console.log('hit');
+      bullet.disableBody(true, true);
+      // Play hurt Sound
+      //this.screamSound.setRate(1);
+      //this.screamSound.play();
+      //this.healthHurt();
+    }
+
+//when bullet hits shield
+hitShield(bullet, shield){
+    bullet.disableBody(true, true);
+    console.log('hit shine');
+
+}
+
 
 }

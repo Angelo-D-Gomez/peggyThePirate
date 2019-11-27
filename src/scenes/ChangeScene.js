@@ -27,15 +27,15 @@ function addSceneEventListeners(that, intScene){
             if(that.introMusic){
               that.introMusic.stop();
             }
-            that.scene.start('Level1v2'); //changes from start screen to cutscene
-
+            //that.scene.start('Level1v2'); //changes from start screen to cutscene
+            that.scene.start('gameWorld');
           }
         }
       );
 
       // Check if Escape is keyPressed
       that.input.keyboard.on(
-        "keydown_ENTER",
+        "keydown_O",
           function(){
             if (that.typingIsDone){
               that.currentLetter = 0;

@@ -53,7 +53,7 @@ export default class bossIntroScene extends Phaser.Scene {
     //this.cameras.main.setBackgroundColor('#150033');
 
     //Create the scene
-    this.introContent = ["Peggy has just discovered the hidden ship.\n[ENTER Button]", "Is she strong enough to defeat the King Pirate?\n[ENTER Button]", "Let's find out...\n[ESCAPE Button]"];
+    this.introContent = ["Peggy has just discovered the hidden ship.\n...[O]", "Is she strong enough to defeat the King Pirate?\n...[O]", "Let's find out...\n[ESCAPE]"];
 
 
     this.helpTextDisplay = this.add.text(this.centerX, 32, this.helpText, { font: "32px Arial", fill: "#FFF" });

@@ -35,6 +35,8 @@ export default class gameWorld extends Phaser.Scene {
     this.load.image('beachTileSheet', './assets/gameWorld/shipAndBeachTiles.png')
     this.load.tilemapTiledJSON('gameWorld', './assets/gameWorld/gameWorld.json');
 
+    this.load.image('wallPaper', './assets/gameWorld/wallpaper.png');
+
     // Load sound effects and music for the game
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
     this.load.audio('jumpAudio', './assets/audio/277219__thedweebman__8-bit-jump-2.mp3');
@@ -87,10 +89,19 @@ export default class gameWorld extends Phaser.Scene {
     this.gameMusic = this.sound.add('gameAudio');
     this.gameMusic.volume = 0.3;
     this.gameMusic.setLoop(true);
-  //  this.gameMusic.play();
+    this.gameMusic.play();
 
     // adding any textboxes throughout the level as needed
     //text is displaced -84, -50 from the box
+
+    this.wallPaper = this.add.sprite(128, 2280, 'wallPaper');
+    this.wallPaper.setScale(3.5);
+    this.wallPaper4 = this.add.sprite(630, 2280, 'wallPaper');
+    this.wallPaper4.setScale(3.5);
+    this.wallPaper2 = this.add.sprite(352, 2280, 'wallPaper');
+    this.wallPaper2.setScale(3.5);
+    this.wallPaper3 = this.add.sprite(576, 2280, 'wallPaper');
+    this.wallPaper3.setScale(3.5);
 
     this.textbox1 = this.add.sprite(128, 2240, 'textBorder');
     this.textbox1.setScale(4);
@@ -125,7 +136,7 @@ export default class gameWorld extends Phaser.Scene {
     this.grandpaPic = this.add.sprite(60, 2318, 'grandpaPic');
     this.grandpaPic.flipX = true;
     this.houseDoor = this.add.sprite(760, 2338, 'door');
-    this.houseDoor.flipX = true;
+    this.houseDoor.flipX = false;
     this.houseDoor.setScale(4);
     this.pirateShip = this.physics.add.sprite(4432, 702, 'pirateShip');
     this.pirateShip.setScale(3);
@@ -151,6 +162,8 @@ export default class gameWorld extends Phaser.Scene {
     var tempTile = world.addTilesetImage('tempTile', 'tempTile');
     const platforms = world.createStaticLayer('tempTile', tempTile, 0, 0);
     platforms.setCollisionByExclusion(-1, true);
+
+
 
     var jungleTile = world.addTilesetImage('jungleTileSheet', 'jungleTileSheet');
     const platforms2 = world.createStaticLayer('jungleTile', jungleTile, 0, 0);
@@ -243,34 +256,35 @@ export default class gameWorld extends Phaser.Scene {
 
     //snake enemies
     this.snake1 = this.physics.add.sprite(3072, 1696, 'enemySnake');
-    this.snake1.flipX = true;
+    this.snake1.flipX = false;
     this.snake1.setScale(3);
     this.enemyGroup.add(this.snake1);
     this.snake2 = this.physics.add.sprite(2512, 1696, 'enemySnake');
-    this.snake2.flipX = true;
+    this.snake2.flipX = false;
     this.snake2.setScale(3);
     this.enemyGroup.add(this.snake2);
     this.snake3 = this.physics.add.sprite(2272, 1696, 'enemySnake');
     this.snake3.setScale(3);
+    this.snake3.flipX = true;
     this.enemyGroup.add(this.snake3);
     this.snake8 = this.physics.add.sprite(2320, 1696, 'enemySnake');
-    this.snake8.flipX = true;
+    this.snake8.flipX = false;
     this.snake8.setScale(3);
     this.enemyGroup.add(this.snake8);
     this.snake4 = this.physics.add.sprite(1376, 1696, 'enemySnake');
-    this.snake4.flipX = true;
+    this.snake4.flipX = false;
     this.snake4.setScale(3);
     this.enemyGroup.add(this.snake4);
     this.snake5 = this.physics.add.sprite(1024, 1696, 'enemySnake');
-    this.snake5.flipX = true;
+    this.snake5.flipX = false;
     this.snake5.setScale(3);
     this.enemyGroup.add(this.snake5);
     this.snake6 = this.physics.add.sprite(384, 1696, 'enemySnake');
-    this.snake6.flipX = true;
+    this.snake6.flipX = false;
     this.snake6.setScale(3);
     this.enemyGroup.add(this.snake6);
     this.snake7 = this.physics.add.sprite(704, 1696, 'enemySnake');
-    this.snake7.flipX = true;
+    this.snake7.flipX = false;
     this.snake7.setScale(3);
     this.enemyGroup.add(this.snake7);
 

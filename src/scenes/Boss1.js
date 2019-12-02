@@ -389,8 +389,6 @@ this.enemyGroup.children.each(
       this.player.body.setVelocityY(0);
       this.player.body.acceleration.x = 0
       this.player.anims.play('hurt', true);
-      this.mobile = false;
-      this.jumpCount = 0;
     }
     // Move Left
     else if (movement.A.isDown && this.mobile == true){

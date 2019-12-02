@@ -839,8 +839,6 @@ export default class gameWorld extends Phaser.Scene {
       this.player.body.setVelocityY(0);
       this.player.body.acceleration.x = 0
       this.player.anims.play('hurt', true);
-      this.mobile = false;
-      this.jumpCount = 0;
     }
     // Move Left
     else if (movement.A.isDown && this.mobile == true){
@@ -1218,7 +1216,7 @@ export default class gameWorld extends Phaser.Scene {
   //gain shield from the treasure chests
   getShield(){
     this.treasureShield.disableBody(true, true);
-    this.powerupSound.play;
+    this.powerupSound.play();
     this.shieldObtained = true;
   }
   //when bullet hits shield

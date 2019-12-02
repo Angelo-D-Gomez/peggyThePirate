@@ -98,7 +98,7 @@ export default class gameWorld extends Phaser.Scene {
     this.gameMusic = this.sound.add('gameAudio');
     this.gameMusic.volume = 0.3;
     this.gameMusic.setLoop(true);
-    //this.gameMusic.play();
+    this.gameMusic.play();
 
     //add backgrounds to the game
 
@@ -1234,7 +1234,7 @@ export default class gameWorld extends Phaser.Scene {
   }
   //when bullet hits shield
   hitShield(bullet, shield){
-      bullet.disableBody(true, true);  
+      bullet.disableBody(true, true);
   }
   //called after time for the players dash move to complete
   dashFinish(){

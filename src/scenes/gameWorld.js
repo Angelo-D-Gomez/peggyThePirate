@@ -3,10 +3,8 @@ export default class gameWorld extends Phaser.Scene {
   constructor () {
     super('gameWorld');
   }
-
+  // Initialization code goes here
   init (data) {
-    // Initialization code goes here
-
     // Load the health score
     this.gameHealth = 0;
     this.waitASecond = false;
@@ -17,7 +15,6 @@ export default class gameWorld extends Phaser.Scene {
     this.jumpCount = 2;
     this.mobile = true;
     this.spriteValue = 0;
-
   }//END OF DATA INITIALIZATION
 
 // Preload assets
@@ -810,8 +807,6 @@ export default class gameWorld extends Phaser.Scene {
       frameRate: 0,
       repeat: 1
     });
-
-
   }//END OF CREATE FUNCTION
 
   // Update the scene
@@ -1082,18 +1077,12 @@ export default class gameWorld extends Phaser.Scene {
           }
         }.bind(this) //binds to each children
       );
-
-
-
-
-
   }//END OF UPDATE FUNCTION
 
   //additional functions to be called
 
   //triggers when player hits an enemy
   hitEnemy(bullet, enemy){
-      console.log('hit');
       enemy.disableBody(true, true);
       bullet.disableBody(true, true);
       //play hurt sound
@@ -1101,7 +1090,7 @@ export default class gameWorld extends Phaser.Scene {
       this.screamSound.setRate(randomSpeed);
       this.screamSound.play();
     }
-  //triggers when player hits a wall
+  //triggers when player bullet hits a wall
   hitWall(bullet, wall){
     if (bullet.active) {
         bullet.disableBody(true, true);

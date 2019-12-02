@@ -5,30 +5,28 @@ export default class Boss1 extends Phaser.Scene {
   }
 
   init (data) {
-    // Initialization code goes here
-
+    // Load the health score
     this.gameHealth = data.health;
     //this.gameHealth = 0;
+    this.waitASecond = false;
+    this.startTime = Date.now();
+    //for double jumping
+    this.bootsObtained = true;
+    this.shieldObtained = true;
     this.jumpCount = 2;
+    this.mobile = true;
+    this.spriteValue = 8;
     this.bossHealth = data.lives;
     this.speed = 1 + (0.5*(3-data.lives));
+  }//END OF DATA INITIALIZATION
 
-  }
-
+  // Preload assets
   preload () {
-    // Preload assets
-    //Peggy spritesheet
-    this.load.spritesheet('peggyGold', "./assets/spritesheets/PeggyGold.png", {
+    //the player's spritesheet
+    this.load.spritesheet('peggy', "./assets/spritesheets/combinedSpritesheet.png", {
       frameHeight: 32,
       frameWidth: 32
     });
-
-    // Peggy (Hurt) spritesheet
-    this.load.spritesheet('peggyHurt', "./assets/spritesheets/peggyHurt2.png", {
-      frameHeight: 32,
-      frameWidth: 32
-    });
-
 
     // Load the health spriteSheet
     this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
@@ -44,6 +42,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.image('background', './assets/Boss1/bossBackground.png');
 
     //other game objects
+    this.load.image('shine', './assets/sprites/shine.png');
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('cannon', './assets/sprites/cannon.png');
     this.load.image("enemy", "./assets/possibleAssets/pirate.png");
@@ -68,8 +67,9 @@ export default class Boss1 extends Phaser.Scene {
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;
     var bullets;
-  }
+  }//END OF PRELOAD FUNCTION
 
+  //Create the scene
   create (data) {
     //load level background first, everything built on top of it
     var background = this.add.image(800/2, 600/2, "background");
@@ -90,7 +90,7 @@ export default class Boss1 extends Phaser.Scene {
 
 
     //Create player character
-    this.player = this.physics.add.sprite(400, 550, 'peggyGold');
+    this.player = this.physics.add.sprite(400, 550, 'peggy', [this.spriteValue]);
     this.player.setCollideWorldBounds(true);
     this.player.setScale(1.5);
 
@@ -164,21 +164,14 @@ export default class Boss1 extends Phaser.Scene {
       defaultKey: "bullet",
       maxSize: 10
     });
-    this.bullets.children.iterate(function(child){
-});
-
-
-    this.physics.add.collider(this.bullets, platformz, this.callbackFunc, null, this);
+    this.physics.add.collider(this.bullets, platformz, this.hitWall, null, this);
     //add enemy's bullet group
     this.enemyBullets = this.physics.add.group({
       defaultKey: "bullet",
       maxSize: 100
-});
-    //how to get gravity of bullets to be zero??
-    this.enemyBullets.children.iterate(function(child){
-});
+    });
 
-//text
+  //text
 this.tweens.add({
   targets: this.text1,
   ease: "Linear",
@@ -210,7 +203,7 @@ this.tweens.add({
   duration: 3000/this.speed,
   yoyo: true,
   repeat: -1,
-  onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets)},
+  onRepeat: function(){this.enemyShootTargeted(this.cannon1, this.enemyBullets, this.player)},
  onRepeatScope: this
 });
 this.tweens.add({
@@ -221,7 +214,7 @@ this.tweens.add({
   duration: 3000/this.speed,
   yoyo: true,
   repeat: -1,
-  onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets)},
+  onRepeat: function(){this.enemyShootTargeted(this.cannon2, this.enemyBullets, this.player)},
  onRepeatScope: this
 });
 // pirate boss Movement
@@ -267,7 +260,6 @@ this.tweens.add({
   flipX: true
 });
 //now tweens for the lil guys movements
-//enemy 1
 this.tweens.add({
   targets: this.enemy1,
   x: '-=180',
@@ -278,7 +270,6 @@ this.tweens.add({
   repeat: -1,
   flipX: true
 });
-// enemy 2
 this.add.tween({
   targets: this.enemy2,
   x: '-=180',
@@ -288,7 +279,7 @@ this.add.tween({
   yoyo: true,
   repeat: -1,
   flipX: true,
-  onRepeat: function(){this.enemyShoot(this.enemy2, this.enemyBullets)},
+  onRepeat: function(){this.enemyShoot(this.enemy2, this.enemyBullets, this.player)},
  onRepeatScope: this
 });
 this.add.tween({
@@ -300,7 +291,7 @@ this.add.tween({
   yoyo: true,
   repeat: -1,
   flipX: true,
-  onRepeat: function(){this.enemyShoot(this.enemy3, this.enemyBullets)},
+  onRepeat: function(){this.enemyShoot(this.enemy3, this.enemyBullets, this.player)},
  onRepeatScope: this
 });
 
@@ -321,53 +312,37 @@ this.enemyGroup.children.each(
     );
 
 
-    // animations
-    // Peggy animations
-    //peggy hurt
+    //HERE ARE PEGGY'S ANIMATIONS
     this.anims.create({
-      key: "hurtwalk",
-      frames: this.anims.generateFrameNumbers('peggyHurt', {start:1, end:5}),
+      key: "walk",
+      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue + 1, end: this.spriteValue + 5}),
       frameRate: 10,
-      repeat: -1 //repeat just for a small amount of time
+      repeat: -1
     });
     this.anims.create({
-      key: "hurtidle",
-      frames: this.anims.generateFrameNumbers('peggyHurt', {start:0, end:0}),
+      key: "idle",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue, end:this.spriteValue}),
       frameRate: 10,
-      repeat: -1 //repeat just for a small amount of time
+      repeat: -1
     });
     this.anims.create({
-      key: "hurthurt",
-      frames: this.anims.generateFrameNumbers('peggyHurt', {start:6, end:6}),
+      key: "hurt",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 6, end:this.spriteValue + 7}),
       frameRate: 10,
-      repeat: 1 //repeat just for a small amount of time
+      repeat: -1
+    });
+    this.anims.create({
+      key: "dash",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 3, end: this.spriteValue + 3}),
+      framerate: 60,
+      repeat: -1
     });
 
-    //create animation from spritesheet
-  this.anims.create({
-    key: "goldwalk",
-    frames: this.anims.generateFrameNumbers('peggyGold', {start: 1, end: 5}),
-    frameRate: 10,
-    repeat: -1 //repeat forever
-  });
-  this.anims.create({
-    key: "goldidle",
-    frames: this.anims.generateFrameNumbers('peggyGold', {start:0, end:0}),
-    frameRate: 10,
-    repeat: -1
-  });
-  this.anims.create({
-    key: "goldhurt",
-    frames: this.anims.generateFrameNumbers('peggyGold', {start:6, end:6}),
-    frameRate: 10,
-    repeat: 1 //repeat just for a small amount of time
-  });
-
-  // Display the health bar based on health score
-  this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health", [this.gameHealth])
-  //this.healthbar.frame = this.gameHealth
-  this.healthbar.setScale(2);
-  this.healthbar.body.setAllowGravity(false);
+    // Display the health bar based on health score
+    this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health", [this.gameHealth])
+    //this.healthbar.frame = this.gameHealth
+    this.healthbar.setScale(2);
+    this.healthbar.body.setAllowGravity(false);
 
 
     this.anims.create({
@@ -376,11 +351,9 @@ this.enemyGroup.children.each(
       frameRate: 0,
       repeat: 1
     });
+  }//END OF CREATE FUNCTION
 
-
-
-  }
-
+  // Update the scene
   update (time, delta) {
     this.text2.visible = false;
     this.text3.visible = false;
@@ -388,84 +361,133 @@ this.enemyGroup.children.each(
     if(this.bossHealth == 2){this.heart1.visible = false; this.text2.visible = true; this.text1.visible = false;}
     if(this.bossHealth == 1){this.heart1.visible = false; this.heart2.visible = false; this.text3.visible = true; this.text1.visible = false;}
 
-    // Player Movement with WASD and shift to sprint
-    var movement = this.input.keyboard.addKeys('A, S, D, SHIFT');
+    //all player input buttons
+    var movement = this.input.keyboard.addKeys('A, S, D');
     var jumpButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    var speed;
+    var specialButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+    var speed = 140;
 
-    if (this.player.body.onFloor()){
+    //keep track of time after being hit
+    if (this.waitASecond){
+      // Wait half of a second before taking another damage
+      if (Date.now() >= this.startTime + 900) {
+        this.waitASecond = false;
+      }
+    }
+
+
+    //Player Input Functions
+    //if player is on ground, reset jump jumpCount to 2
+    //and reset player's mobility
+    if (this.player.body.onFloor() && this.waitASecond == false){
         this.jumpCount = 2;
+        this.mobile = true;
     }
-    // Hold down shift to make Peggy sprint
-    // this must come before input detection of WASD because
-    // otherwise it wont change the speed variable before she
-    // starts moving
-    if (movement.SHIFT.isDown){
-      speed = 210;
-    }
-    else{
-      speed = 135;
+    if (this.peggyScream.isPlaying){
+      this.player.body.setVelocityX(0);
+      this.player.body.setVelocityY(0);
+      this.player.body.acceleration.x = 0
+      this.player.anims.play('hurt', true);
+      this.mobile = false;
+      this.jumpCount = 0;
     }
     // Move Left
-    if (movement.A.isDown){
-      if (this.peggyScream.isPlaying){
-        this.player.setVelocityX(-speed);
+    else if (movement.A.isDown && this.mobile == true){
+      if (this.bootsObtained == true){
+        if (Phaser.Input.Keyboard.JustDown(specialButton)){
+          this.mobile = false;
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 768;
+          this.player.setVelocityX(-768);
+          this.player.anims.play('dash', true);
+          this.time.delayedCall(250,this.dashFinish, null, this );
+        }
+      else{
+        if (this.player.body.velocity.x > -speed){
+          this.player.setVelocityX(-speed);
+          }
         this.player.flipX = true;
-        this.player.anims.play('hurtwalk', true);
+        this.player.body.acceleration.x = -50;
+        this.player.body.maxVelocity.x = 210;
+        this.player.anims.play('walk', true);
       }
-      else {
+    }
+    else{
+      if (this.player.body.velocity.x > -speed){
         this.player.setVelocityX(-speed);
+        }
         this.player.flipX = true;
-        this.player.anims.play('goldwalk', true);
+        this.player.body.acceleration.x = -50;
+        this.player.body.maxVelocity.x = 210;
+        this.player.anims.play('walk', true);
       }
-
     }
     // Move Right
-    else if (movement.D.isDown){
-      if (this.peggyScream.isPlaying){
-        this.player.setVelocityX(speed);
-        this.player.flipX = false;
-        this.player.anims.play('hurtwalk', true);
+    else if (movement.D.isDown && this.mobile == true){
+      if(this.bootsObtained == true){
+        if(Phaser.Input.Keyboard.JustDown(specialButton)){
+          this.mobile = false;
+          this.player.body.setAllowGravity(false);
+          this.player.setVelocityY(0);
+          this.player.body.maxVelocity.x = 768;
+          this.player.setVelocityX(768);
+          this.player.anims.play('dash', true);
+          this.time.delayedCall(250,this.dashFinish, null, this );
+        }
+        else{
+          if (this.player.body.velocity.x < speed){
+            this.player.setVelocityX(speed);
+            }
+            this.player.flipX = false;
+            this.player.body.acceleration.x = 50;
+            this.player.body.maxVelocity.x = 210;
+            this.player.anims.play('walk', true);
+        }
       }
-      else {
-        this.player.setVelocityX(speed);
-        this.player.flipX = false;
-        this.player.anims.play('goldwalk', true);
+      else{
+        if (this.player.body.velocity.x < speed){
+          this.player.setVelocityX(speed);
+          }
+          this.player.flipX = false;
+          this.player.body.acceleration.x = 50;
+          this.player.body.maxVelocity.x = 210;
+          this.player.anims.play('walk', true);
+        }
       }
-
-    }
     // Idle
     else {
       if (this.player.body.onFloor()){
-        if (this.peggyScream.isPlaying){
-          this.player.anims.play('hurtidle', true);
-          this.player.setVelocityX(0);
+        this.player.anims.play('idle', true);
+        this.player.setVelocityX(0);
+        this.player.body.acceleration.x = 0;
+      }
+    }
+    //Jump command
+    if(Phaser.Input.Keyboard.JustDown(jumpButton) && this.mobile == true){
+      if (this.bootsObtained == true){
+        if(this.jumpCount > 0){
+          this.jumpCount --;
+          this.player.setVelocityY(-225);
+          this.jumpSound.play();
         }
-        else{
-          this.player.anims.play('goldidle', true);
-          this.player.setVelocityX(0);
+      }
+      else{
+        if(this.jumpCount > 1){
+          this.jumpCount --;
+          this.player.setVelocityY(-225);
+          this.jumpSound.play();
         }
       }
     }
-    // player can jump if they are touching the ground
-    // removed the bounce because it means you cant jump right away after
-    // intial jump because the bounce puts them in air
-
-    if(Phaser.Input.Keyboard.JustDown(jumpButton)){
-      if(this.jumpCount > 0){
-        this.jumpCount --;
-        this.player.setVelocityY(-225);
-        this.jumpSound.play();
+    //fast falling for quick movement
+    else if(movement.S.isDown && !this.player.body.onFloor() && this.mobile == true){
+      if (this.player.body.velocity.y < 300){
+        this.player.setVelocityY(300);
+      }
     }
-  }
-  //fast falling for quick movement
-    else if(movement.S.isDown && !this.player.body.onFloor()){
-      this.player.setVelocityY(300);
-}
-
-    //Player fires weapon
-    var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
-
+    //player shoots a bullet
     if (Phaser.Input.Keyboard.JustDown(bang)){
       if(this.player.flipX == false){
         var velocity = {x: 1000, y: 0};
@@ -480,266 +502,314 @@ this.enemyGroup.children.each(
       // Play gun noise
       this.gunSound.play();
     }
-
-    //player's bullet kills enemies
-        this.bullets.children.each(
-              function (b) {
-                if (b.active) {
-                  this.physics.add.overlap( //if bullet touches enemyGroup, calls function
-                    b,
-                    this.enemyGroup,
-                    this.hitEnemy,
-                    null,
-                    this
-                  );
-                  //refresh bullet group
-                  if (b.y < 0) { //if bullet off top of screen
-                    b.setActive(false);
-                  }
-                  else if (b.y > 600) { //if bullet off bottom of screen
-                    b.setActive(false);
-                  }
-                  else if (b.x < 0){
-                    b.setActive(false);
-                  }
-                  else if (b.x > 800){
-                    b.setActive(false);
-                  }
-                }
-              }.bind(this) //binds to each children
-            );
-
-            //player's bullet hurts boss
-                this.bullets.children.each(
-                      function (b) {
-                        if (b.active) {
-                          this.physics.add.overlap( //if bullet touches boss, calls function
-                            b,
-                            this.boss,
-                            this.hitBoss,
-                            null,
-                            this
-                          );
-                          //refresh bullet group
-                          if (b.y < 0) { //if bullet off top of screen
-                            b.setActive(false);
-                          }
-                          else if (b.y > 600) { //if bullet off bottom of screen
-                            b.setActive(false);
-                          }
-                          else if (b.x < 0){
-                            b.setActive(false);
-                          }
-                          else if (b.x > 800){
-                            b.setActive(false);
-                          }
-                        }
-                      }.bind(this) //binds to each children
-                    );
-
-        //enemys's bullet kills player
-        this.enemyBullets.children.each(
-                      function (b) {
-                        if (b.active) {
-                          this.physics.add.overlap( //if bullet touches player, calls function
-                            b,
-                            this.player,
-                            this.hitPlayer,
-                            null,
-                            this
-                          );
-                          //refresh bullet group
-                          if (b.y < 0) { //if bullet off top of screen
-                            b.setActive(false);
-                          }
-                          else if (b.y > 600) { //if bullet off bottom of screen
-                            b.setActive(false);
-                          }
-                          else if (b.x < 0){
-                            b.setActive(false);
-                          }
-                          else if (b.x > 800){
-                            b.setActive(false);
-                          }
-                        }
-                      }.bind(this) //binds to each children
-                    );
-
-
-  }
-
-
-//player shoots
-shoot() {
-  if(this.player.flipX == false){
-    var velocity = {x: 1000, y: 0};
-  }
-  else{
-    var velocity = {x: -1000, y: 0};
-  }
-  var bullet = this.bullets.get();
-  bullet.enableBody(true, this.player.x, this.player.y, true, true)
-  .setVelocity(velocity.x, velocity.y);
-  bullet.body.setAllowGravity(false);
-  // Play gun noise
-  this.gunSound.play();
-}
-
-//function for enemy to shoot in a straight line, no aim
-enemyShoot (enemy, bullets) {
-  console.log('enemy shoots!');
-  if(enemy.active){
-  if(enemy.flipX == true){
-    var velocity = {x: 700, y: 0};
-  }
-  else{
-    var velocity = {x: -700, y: 0};
-  }
-  var bullet = bullets.get();
-  bullet.enableBody(true, enemy.x, enemy.y, true, true)
-  .setVelocity(velocity.x, velocity.y);
-  bullet.body.setAllowGravity(false);
-}
-}
-
-
-//targeted version of above function
-enemyShootTargeted (enemy, bullets) {
-  console.log('enemy shoots, targeted!');
-  if(enemy.active){
-    var betweenPoints = Phaser.Math.Angle.BetweenPoints;
-var angle = betweenPoints(enemy, this.player);
-var velocityFromRotation = this.physics.velocityFromRotation;
-//create variable called velocity from a vector2
-var velocity = new Phaser.Math.Vector2();
-velocityFromRotation(angle, 500, velocity);
-//get bullet group
-  var bullet = bullets.get();
-  bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
-  bullet.enableBody(true, enemy.x, enemy.y, true, true)
-  .setVelocity(velocity.x, velocity.y);
-  bullet.body.setAllowGravity(false);
-}
-}
-
-//triggers when enemy is hit
-hitEnemy(bullet, enemy){
-  console.log('hit');
-  enemy.disableBody(true, true);
-  bullet.disableBody(true, true);
-  //play hurt sound
-  var randomSpeed = (Math.random()*0.4)+0.5;
-  this.screamSound.setRate(randomSpeed);
-  this.screamSound.play();
-}
-
-//triggers when enemy is hit
-hitBoss(bullet, boss){
-  console.log('hit boss');
-  //enemy.disableBody(true, true);
-  bullet.disableBody(true, true);
-  this.bossHurt();
-}
-
-//triggers when player is hit
-    hitPlayer(bullet, player){
-      console.log('hit');
-      bullet.disableBody(true, true);
-      // Play hurt Sound
-      this.peggyScream.setRate(1);
-      this.peggyScream.play();
-      this.healthHurt();
-    }
-
-    //bullet collisions
-    callbackFunc(bullet, target)
-    {
-        if ( bullet.active === true ) {
-            console.log("Hit!");
-
-            bullet.disableBody(true, true);
+    //player's bullet kills enemies or falls out of bounds and despawns
+    this.bullets.children.each(
+      function (b) {
+        if (b.active) {
+          //if bullet touches enemyGroup, calls function
+          this.physics.add.overlap(
+            b,
+            this.enemyGroup,
+            this.hitEnemy,
+            null,
+            this
+          );
+            //refresh bullet group
+            if (b.y < this.player.y - 300) { //if bullet off top of screen
+              b.setActive(false);
+            }
+            else if (b.y > this.player.y + 300) { //if bullet off bottom of screen
+              b.setActive(false);
+            }
+            else if (b.x < this.player.x -400){
+              b.setActive(false);
+            }
+            else if (b.x > this.player.x + 400){
+              b.setActive(false);
+            }
         }
-    }
-    //If player loses health --------------------------------------------------------
-      healthHurt(){
-        //console.log("Health hurt function called")
-        // Add one to health hurt score
-
-        if (this.waitASecond){
-          // Wait a second before taking another damage
-          if (Date.now() >= this.startTime + 900) {
-            this.waitASecond = false;
+      }.bind(this) //binds to each children
+  );
+    //player uses their shield to block a bullet
+    if (this.shieldObtained == true){
+      //summon shield when pressing p and s down
+      if (Phaser.Input.Keyboard.JustDown(specialButton) && movement.S.isDown){
+        this.player.setVelocityY(0);
+        this.player.setVelocityX(0);
+        if (this.player.flipX == true){
+          this.shine = this.physics.add.sprite(this.player.x - 16, this.player.y, 'shine');
           }
+        else{
+          this.shine = this.physics.add.sprite(this.player.x + 16, this.player.y, 'shine');
         }
-        // If the user has waited a second since last hit
-        else if (!this.waitASecond){
-          if (!this.peggyScream.isPlaying){
-            this.peggyScream.play();
-          }
-
-          // Enable hit and wait another second after this completes
-          this.waitASecond = true;
-          // Set the timer to now
-          this.startTime = Date.now();
-          // Add one hit to the player's health
-          this.gameHealth += 1;
-          // Update the health bar
-          if (this.gameHealth <= 13){
-
-            // Create a temporary path for the animation
-            var tempStringPath = "healthActive";
-            tempStringPath += this.gameHealth;
-
-            // Create the animation for the Health bar to switch to
-            this.anims.create({
-              key: tempStringPath,
-              frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
-              frameRate: 1,
-              repeat: -1
-            });
-            this.healthbar.anims.play(tempStringPath, true);
-
-
-          }
-          // Check if it's past empty, and if so, game over
-          else{
-            this.gameOver();
-          }
-
-          //Wait a second
+        this.shine.body.setAllowGravity(false);
+        this.player.body.setAllowGravity(false);
+        this.mobile = false;
+        this.player.body.acceleration.x = 0;
+        this.player.anims.play('idle', true);
+      }
+      //upon releasing specialButton if shield is out remove it
+      if (Phaser.Input.Keyboard.JustUp(specialButton)){
+        if (this.shine != undefined ){
+          this.shine.destroy();
+          this.player.body.setAllowGravity(true);
+          this.mobile = true;
         }
       }
-
-
-      //If boss loses health --------------------------------------------------------
-        bossHurt(){
-          //lose heart or die
-          this.health = 3;
-          this.bossHealth -= 1;
-          console.log(this.bossHealth);
-          console.log(1 + (0.5*(3-this.bossHealth)));
-          if(this.bossHealth == 2){ this.health = 2;}
-          else if(this.bossHealth == 1){ this.health = 1;}
-          else if(this.bossHealth == 0){ this.success(); return}
-
-          //respawn peggy
-          this.scene.restart({health: this.gameHealth, lives: this.health });
+    }
+    //enemys's bullet injure player
+    this.enemyBullets.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches player, calls function
+            b,
+            this.player,
+            this.hitPlayer,
+            null,
+            this
+            );
+          this.physics.add.overlap(
+            b,
+            this.shine,
+            this.hitShield,
+            null,
+            this
+            );
+          //refresh bullet group
+          //enemy bullets despawn when they fall off the map
+          if (b.y < 0) {
+            b.setActive(false);
+            }
+          else if (b.y > 2400) {
+            b.setActive(false);
+            }
+          else if (b.x < 0){
+            b.setActive(false);
+            }
+          else if (b.x > 4480){
+            b.setActive(false);
+            }
+          }
+        }.bind(this) //binds to each children
+    );
+    //player's bullet kills enemies
+    this.bullets.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches enemyGroup, calls function
+            b,
+            this.enemyGroup,
+            this.hitEnemy,
+            null,
+            this
+          );
+          this.physics.add.overlap( //if bullet touches boss, calls function
+            b,
+            this.boss,
+            this.hitBoss,
+            null,
+            this
+          );
+          //refresh bullet group
+          if (b.y < 0) { //if bullet off top of screen
+            b.setActive(false);
+          }
+          else if (b.y > 600) { //if bullet off bottom of screen
+            b.setActive(false);
+          }
+          else if (b.x < 0){
+            b.setActive(false);
+          }
+          else if (b.x > 800){
+            b.setActive(false);
+          }
         }
+      }.bind(this) //binds to each children
+    );
+    //enemys's bullet injure player
+    this.enemyBullets.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches player, calls function
+            b,
+            this.player,
+            this.hitPlayer,
+            null,
+            this
+            );
+          this.physics.add.overlap(
+            b,
+            this.shine,
+            this.hitShield,
+            null,
+            this
+            );
+          //refresh bullet group
+          //enemy bullets despawn when they fall off the map
+          if (b.y < 0) {
+            b.setActive(false);
+            }
+          else if (b.y > 2400) {
+            b.setActive(false);
+            }
+          else if (b.x < 0){
+            b.setActive(false);
+            }
+          else if (b.x > 4480){
+            b.setActive(false);
+            }
+          }
+        }.bind(this) //binds to each children
+      );
+    }//END OF UPDATE FUNCTION
+  //additional functions to be called
 
+  //triggers when player bullet hits a wall
+  hitWall(bullet, wall){
+    if (bullet.active) {
+        bullet.disableBody(true, true);
+    }
+  }
+  //called after time for the players dash move to complete
+  dashFinish(){
+    this.player.setVelocityX(0);
+    this.player.body.setAllowGravity(true);
+    this.player.body.acceleration.x = 0;
+  }
+  //enemy fires a projectile at the player
+  enemyShoot (enemy, bullets, player){
+    var distance = enemy.x - player.x;
+    //only fire if enemy active and certain distance
+    if(enemy.active){
+      if(distance < 450 && distance > -450){
+        if(distance <= 0){
+          enemy.flipX = true
+          var velocity = {x: 700, y: 0};
+        }
+        else{
+          enemy.flipX = false
+          var velocity = {x: -700, y: 0};
+        }
+        var bullet = bullets.get();
+        bullet.enableBody(true, enemy.x, enemy.y, true, true)
+            .setVelocity(velocity.x, velocity.y);
+        bullet.body.setAllowGravity(false);
+      }
+    }
+  }
+  //targeted version of above function
+  enemyShootTargeted (enemy, bullets, player) {
+    var distance = enemy.x - player.x;
+    var distanceY = enemy.y - player.y;
+    if(enemy.active){
+      if(distanceY < 600 && distanceY > -600){
+        if(distance < 800 && distance > -800){ //only fire is enemy active and certain distance
+          var betweenPoints = Phaser.Math.Angle.BetweenPoints;
+          var angle = betweenPoints(enemy, this.player);
+          var velocityFromRotation = this.physics.velocityFromRotation;
+          //create variable called velocity from a vector2
+          var velocity = new Phaser.Math.Vector2();
+          velocityFromRotation(angle, 500, velocity);
+          //get bullet group
+          var bullet = bullets.get();
+          bullet.setAngle(Phaser.Math.RAD_TO_DEG * angle);
+          bullet.enableBody(true, enemy.x, enemy.y, true, true)
+                .setVelocity(velocity.x, velocity.y);
+                bullet.body.setAllowGravity(false);
+          }
+        }
+      }
+    }
+  //triggers when player hits an enemy
+  hitEnemy(bullet, enemy){
+    enemy.disableBody(true, true);
+    bullet.disableBody(true, true);
+    //play hurt sound
+    var randomSpeed = (Math.random()*0.4)+0.5;
+    this.screamSound.setRate(randomSpeed);
+    this.screamSound.play();
+  }
+  //triggers when player is hit by an enemy with a projectile
+  hitPlayer(bullet, player){
+    bullet.disableBody(true, true);
+    this.peggyScream.play();
+    this.healthHurt();
+  }
+  //when bullet hits shield
+  hitShield(bullet, shield){
+      bullet.disableBody(true, true);
+  }
+  //If player loses health add one to health hurt score
+  healthHurt(){
+    // If the user has waited a second since last hit
+    if (!this.waitASecond){
+      this.peggyScream.play();
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 13){
 
-//end game, goes to game over scene
-gameOver(){
-  // Stop music if playing
-  this.gameMusic.stop();
-console.log('game over!');
-this.scene.start('GameOver');
-}
-//successfully completed game, changes to success scene
-success(){
-  //Stop the music
-  this.gameMusic.stop();
+          // Create a temporary path for the animation
+          var tempStringPath = "healthActive";
+          tempStringPath += this.gameHealth;
+
+          // Create the animation for the Health bar to switch to
+          this.anims.create({
+            key: tempStringPath,
+            frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+            frameRate: 1,
+            repeat: -1
+          });
+          this.healthbar.anims.play(tempStringPath, true);
+
+        }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+      //Wait a second
+    }
+  }
+  //triggers when enemy is hit
+  hitBoss(bullet, boss){
+    bullet.disableBody(true, true);
+    this.bossHurt();
+  }
+  //If boss loses health --------------------------------------------------------
+  bossHurt(){
+    //lose heart or die
+    this.health = 3;
+    this.bossHealth -= 1;
+    if(this.bossHealth == 2){
+      this.health = 2;
+    }
+    else if(this.bossHealth == 1){
+      this.health = 1;
+    }
+    else if(this.bossHealth == 0){
+      this.success();
+      return
+     }
+    //respawn peggy
+    this.scene.restart({health: this.gameHealth, lives: this.health });
+    }
+  //end game, goes to game over scene
+  gameOver(){
+    // Stop music if playing
+    this.gameMusic.stop();
+    console.log('game over!');
+    this.scene.start('GameOver');
+  }
+  //successfully completed game, changes to success scene
+  success(){
+    //Stop the music
+    this.gameMusic.stop();
     console.log('success!');
     this.scene.start('successScene');
-}
+  }
 
 }

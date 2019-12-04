@@ -3,22 +3,18 @@ export default class gameWorld extends Phaser.Scene {
   constructor () {
     super('gameWorld');
   }
-
+  // Initialization code goes here
   init (data) {
-    // Initialization code goes here
-
     // Load the health score
     this.gameHealth = 0;
     this.waitASecond = false;
     this.startTime = Date.now();
-    this.peggyHurt1 = false;
     //for double jumping
-    this.bootsObtained = true;
+    this.bootsObtained = false;
     this.shieldObtained = false;
     this.jumpCount = 2;
     this.mobile = true;
     this.spriteValue = 0;
-
   }//END OF DATA INITIALIZATION
 
 // Preload assets
@@ -29,13 +25,23 @@ export default class gameWorld extends Phaser.Scene {
       frameWidth: 32
     });
 
+    // Load the health spriteSheet
+    this.load.spritesheet('health', "./assets/spritesheets/healthSpriteSheet.png", {
+      frameHeight: 48,
+      frameWidth: 16
+    });
+
     //Load tilemap and tileset
     this.load.image('tempTile', './assets/gameWorld/tempTile.png');
     this.load.image('jungleTileSheet', './assets/gameWorld/jungleTileSheet.png')
     this.load.image('beachTileSheet', './assets/gameWorld/shipAndBeachTiles.png')
     this.load.tilemapTiledJSON('gameWorld', './assets/gameWorld/gameWorld.json');
 
+    //load backgrounds
     this.load.image('wallPaper', './assets/gameWorld/wallpaper.png');
+    this.load.image('jungle', './assets/gameWorld/jungle.png');
+    this.load.image('beachArtwork', './assets/gameWorld/beachArtwork.png');
+    this.load.image('sky', './assets/gameWorld/openSourceSky.png');
 
     // Load sound effects and music for the game
     this.load.audio('gunAudio', './assets/audio/477346__mattiagiovanetti__some-laser-gun-shots-iii.mp3');
@@ -91,8 +97,55 @@ export default class gameWorld extends Phaser.Scene {
     this.gameMusic.setLoop(true);
     this.gameMusic.play();
 
-    // adding any textboxes throughout the level as needed
-    //text is displaced -84, -50 from the box
+    //add backgrounds to the game
+
+
+    //bottom level layer
+    this.jungleBackground1 = this.add.sprite(320, 2048, 'jungle');
+    this.jungleBackground1.setScale(5);
+    this.jungleBackground2 = this.add.sprite(960, 2048, 'jungle');
+    this.jungleBackground2.setScale(5);
+    this.jungleBackground3 = this.add.sprite(1600, 2048, 'jungle');
+    this.jungleBackground3.setScale(5);
+    this.jungleBackground4 = this.add.sprite(2240, 2048, 'jungle');
+    this.jungleBackground4.setScale(5);
+    this.jungleBackground5 = this.add.sprite(2880, 2048, 'jungle');
+    this.jungleBackground5.setScale(5);
+    this.jungleBackground6 = this.add.sprite(3520, 2048, 'jungle');
+    this.jungleBackground6.setScale(5);
+    this.jungleBackground7 = this.add.sprite(4160, 2048, 'jungle');
+    this.jungleBackground7.setScale(5);
+
+    //second layer
+    this.jungleBackground8 = this.add.sprite(4160, 1632, 'jungle');
+    this.jungleBackground8.setScale(5);
+    this.jungleBackground9 = this.add.sprite(4160, 1312, 'jungle');
+    this.jungleBackground9.setScale(5);
+    this.jungleBackground10 = this.add.sprite(3520, 1408, 'jungle');
+    this.jungleBackground10.setScale(5);
+    this.jungleBackground11 = this.add.sprite(2880, 1408, 'jungle');
+    this.jungleBackground11.setScale(5);
+    this.jungleBackground12 = this.add.sprite(2240, 1408, 'jungle');
+    this.jungleBackground12.setScale(5);
+    this.jungleBackground13 = this.add.sprite(1600, 1408, 'jungle');
+    this.jungleBackground13.setScale(5);
+    this.jungleBackground14 = this.add.sprite(960, 1408, 'jungle');
+    this.jungleBackground14.setScale(5);
+    this.jungleBackground15 = this.add.sprite(320, 1408, 'jungle');
+    this.jungleBackground15.setScale(5);
+
+    //third layer
+    this.skyBackground1 = this.add.sprite(750, 492, 'sky');
+    this.skyBackground1.setScale(6);
+    this.skyBackground2 = this.add.sprite(2250, 492, 'sky');
+    this.skyBackground2.setScale(6);
+    this.skyBackground3 = this.add.sprite(3750, 492, 'sky');
+    this.skyBackground3.setScale(6);
+    this.skyBackground4 = this.add.sprite(5250, 492, 'sky');
+    this.skyBackground4.setScale(6);
+
+
+
 
     this.wallPaper = this.add.sprite(128, 2280, 'wallPaper');
     this.wallPaper.setScale(3.5);
@@ -103,6 +156,10 @@ export default class gameWorld extends Phaser.Scene {
     this.wallPaper3 = this.add.sprite(576, 2280, 'wallPaper');
     this.wallPaper3.setScale(3.5);
 
+
+
+    // adding any textboxes throughout the level as needed
+    //text is displaced -84, -50 from the box
     this.textbox1 = this.add.sprite(128, 2240, 'textBorder');
     this.textbox1.setScale(4);
     this.text1 = this.add.text(44, 2190, "Use [W] to jump.\nPress [S] \nto fastfall.\nUse [A] and [D] \nto move \nleft and right.", {font: "18px Lucida Console"});
@@ -140,6 +197,7 @@ export default class gameWorld extends Phaser.Scene {
     this.houseDoor.setScale(4);
     this.pirateShip = this.physics.add.sprite(4432, 702, 'pirateShip');
     this.pirateShip.setScale(3);
+
 
 
     //create the player and add them to the scene
@@ -245,11 +303,11 @@ export default class gameWorld extends Phaser.Scene {
     //crab enemies
     this.crab1 = this.physics.add.sprite(1456, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab1);
-    this.crab2 = this.physics.add.sprite(1984, 736, 'enemyCrab');
+    this.crab2 = this.physics.add.sprite(2000, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab2);
-    this.crab3 = this.physics.add.sprite(2176, 736, 'enemyCrab');
+    this.crab3 = this.physics.add.sprite(2192, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab3);
-    this.crab4 = this.physics.add.sprite(2592, 736, 'enemyCrab');
+    this.crab4 = this.physics.add.sprite(2602, 736, 'enemyCrab');
     this.enemyGroup.add(this.crab4);
     this.crab5 = this.physics.add.sprite(3136, 512, 'enemyCrab');
     this.enemyGroup.add(this.crab5);
@@ -290,6 +348,22 @@ export default class gameWorld extends Phaser.Scene {
 
     this.physics.add.collider(this.enemyGroup, platforms2);
     this.physics.add.collider(this.enemyGroup, platforms3);
+
+    //player gets damaged with enemy collision
+    this.enemyGroup.children.each(
+          function (b) {
+            if (b.active) {
+              this.physics.add.overlap( //if enemyGroup touches player, calls function
+                b,
+                this.player,
+                this.healthHurt,
+                null,
+                this
+              );
+            }
+          }.bind(this) //binds to each children
+        );
+
 
     //add player's bullets and shield
     // Max 5 at once
@@ -333,13 +407,16 @@ export default class gameWorld extends Phaser.Scene {
     //player interactions with treasures
     this.physics.add.overlap(this.player, this.treasureBoots, this.getBoots, null, this);
     this.physics.add.overlap(this.player, this.treasureShield, this.getShield, null, this);
+    //player interactions with ship
+    this.physics.add.collider(this.pirateShip, platforms);
+    this.physics.add.overlap(this.player, this.pirateShip, this.bossFight, null, this);
 
     //ANIMATIONS
 
     //Peggy's animations
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
+      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue + 1, end: this.spriteValue + 5}),
       frameRate: 10,
       repeat: -1 //repeat forever
     });
@@ -349,6 +426,13 @@ export default class gameWorld extends Phaser.Scene {
       frameRate: 10,
       repeat: -1
     });
+    this.anims.create({
+      key: "hurt",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 6, end:this.spriteValue + 7}),
+      frameRate: 10,
+      repeat: -1
+    });
+
 
     //Enemy Movement via tweens
     //Pirates
@@ -669,9 +753,60 @@ export default class gameWorld extends Phaser.Scene {
       repeat: -1,
       flipX: true
     });
+    this.add.tween({
+      targets: this.crab2,
+      x: '-=256',
+      ease: "Linear",
+      duration: 2000,
+      repeatDelay: 250,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.add.tween({
+      targets: this.crab3,
+      x: '-=132',
+      ease: "Linear",
+      duration: 1000,
+      repeatDelay: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.add.tween({
+      targets: this.crab4,
+      x: '-=300',
+      ease: "Linear",
+      duration: 2000,
+      repeatDelay: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
+    this.add.tween({
+      targets: this.crab5,
+      x: '-=288',
+      ease: "Linear",
+      duration: 2000,
+      repeatDelay: 500,
+      yoyo: true,
+      repeat: -1,
+      flipX: true
+    });
 
-
-
+    // Display player health bar based on health score
+    this.healthbar = this.physics.add.sprite(this.cameras.main.x+20, this.cameras.main.y+58, "health");
+    this.healthbar.setScale(2);
+    this.healthbar.body.setAllowGravity(false);
+    // Move as the camera moves
+    this.healthbar.setScrollFactor(0,0);
+    //animation that decreses the health bar as you take damage
+    this.anims.create({
+      key: "healthActive",
+      frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+      frameRate: 0,
+      repeat: 1
+    });
   }//END OF CREATE FUNCTION
 
   // Update the scene
@@ -683,16 +818,30 @@ export default class gameWorld extends Phaser.Scene {
     var bang = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
     var speed = 140;
 
+    //keep track of time after being hit
+    if (this.waitASecond){
+      // Wait half of a second before taking another damage
+      if (Date.now() >= this.startTime + 900) {
+        this.waitASecond = false;
+      }
+    }
+
 
     //Player Input Functions
     //if player is on ground, reset jump jumpCount to 2
     //and reset player's mobility
-    if (this.player.body.onFloor()){
+    if (this.player.body.onFloor() && this.waitASecond == false){
         this.jumpCount = 2;
         this.mobile = true;
     }
+    if (this.peggyScream.isPlaying){
+      this.player.body.setVelocityX(0);
+      this.player.body.setVelocityY(0);
+      this.player.body.acceleration.x = 0
+      this.player.anims.play('hurt', true);
+    }
     // Move Left
-    if (movement.A.isDown && this.mobile == true){
+    else if (movement.A.isDown && this.mobile == true){
       if (this.bootsObtained == true){
         if (Phaser.Input.Keyboard.JustDown(specialButton)){
           this.mobile = false;
@@ -926,18 +1075,12 @@ export default class gameWorld extends Phaser.Scene {
           }
         }.bind(this) //binds to each children
       );
-
-
-
-
-
   }//END OF UPDATE FUNCTION
 
   //additional functions to be called
 
   //triggers when player hits an enemy
   hitEnemy(bullet, enemy){
-      console.log('hit');
       enemy.disableBody(true, true);
       bullet.disableBody(true, true);
       //play hurt sound
@@ -945,7 +1088,7 @@ export default class gameWorld extends Phaser.Scene {
       this.screamSound.setRate(randomSpeed);
       this.screamSound.play();
     }
-  //triggers when player hits a wall
+  //triggers when player bullet hits a wall
   hitWall(bullet, wall){
     if (bullet.active) {
         bullet.disableBody(true, true);
@@ -995,24 +1138,57 @@ export default class gameWorld extends Phaser.Scene {
         }
       }
     }
-
   //triggers when player is hit by an enemy with a projectile
   hitPlayer(bullet, player){
-    console.log('hit');
     bullet.disableBody(true, true);
     this.peggyScream.play();
+    this.healthHurt();
   }
+  //If player loses health add one to health hurt score
+  healthHurt(){
+    // If the user has waited a second since last hit
+    if (!this.waitASecond){
+      this.peggyScream.play();
+      // Enable hit and wait another second after this completes
+      this.waitASecond = true;
+      // Set the timer to now
+      this.startTime = Date.now();
+      // Add one hit to the player's health
+      this.gameHealth += 1;
+      // Update the health bar
+      if (this.gameHealth <= 13){
 
+          // Create a temporary path for the animation
+          var tempStringPath = "healthActive";
+          tempStringPath += this.gameHealth;
+
+          // Create the animation for the Health bar to switch to
+          this.anims.create({
+            key: tempStringPath,
+            frames: this.anims.generateFrameNumbers("health", {start: this.gameHealth, end: this.gameHealth}),
+            frameRate: 1,
+            repeat: -1
+          });
+          this.healthbar.anims.play(tempStringPath, true);
+
+        }
+      // Check if it's past empty, and if so, game over
+      else{
+        this.gameOver();
+      }
+      //Wait a second
+    }
+  }
   //gain boots from the treasure chest
   getBoots(){
     this.treasureBoots.disableBody(true, true);
     this.powerupSound.play();
     this.bootsObtained = true;
-    this.spriteValue += 7;
+    this.spriteValue += 8;
     this.anims.remove('walk');
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue, end: this.spriteValue + 5}),
+      frames: this.anims.generateFrameNumbers('peggy', {start: this.spriteValue + 1, end: this.spriteValue + 5}),
       frameRate: 10,
       repeat: -1
     });
@@ -1023,6 +1199,13 @@ export default class gameWorld extends Phaser.Scene {
       frameRate: 10,
       repeat: -1
     });
+    this.anims.remove('hurt');
+    this.anims.create({
+      key: "hurt",
+      frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 6, end:this.spriteValue + 7}),
+      frameRate: 10,
+      repeat: -1
+    });
     this.anims.create({
       key: "dash",
       frames: this.anims.generateFrameNumbers('peggy', {start:this.spriteValue + 3, end: this.spriteValue + 3}),
@@ -1030,19 +1213,33 @@ export default class gameWorld extends Phaser.Scene {
       repeat: -1
     });
   }
-
   //gain shield from the treasure chests
   getShield(){
     this.treasureShield.disableBody(true, true);
-    this.powerupSound.play;
+    this.powerupSound.play();
     this.shieldObtained = true;
   }
-
+  //when bullet hits shield
+  hitShield(bullet, shield){
+      bullet.disableBody(true, true);
+  }
   //called after time for the players dash move to complete
   dashFinish(){
     this.player.setVelocityX(0);
     this.player.body.setAllowGravity(true);
     this.player.body.acceleration.x = 0;
+  }
+  //move onto the bossfight
+  bossFight(){
+    this.gameMusic.stop();
+    this.scene.start('bossIntroScene', {health: this.gameHealth, lives: 3});
+  }
+  //end game, goes to game over scene
+  gameOver(){
+    // Stop music if playing
+    this.gameMusic.stop();
+    console.log('game over!');
+    this.scene.start('GameOver');
   }
 
 

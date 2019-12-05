@@ -416,6 +416,7 @@ export default class gameWorld extends Phaser.Scene {
     //ANIMATIONS
 
     if (this.anims.remove('walk')){
+      this.anims.remove('idle');
       this.anims.remove('hurt');
     }
     //Peggy's animations

@@ -116,6 +116,18 @@ export default class gameWorld extends Phaser.Scene {
     this.jungleBackground7 = this.add.sprite(4160, 2048, 'jungle');
     this.jungleBackground7.setScale(5);
 
+
+
+    //third layer
+    this.skyBackground1 = this.add.sprite(750, 492-100, 'sky');
+    this.skyBackground1.setScale(20);
+    this.skyBackground2 = this.add.sprite(2250, 492-100, 'sky');
+    this.skyBackground2.setScale(12);
+    this.skyBackground3 = this.add.sprite(3750, 492-100, 'sky');
+    this.skyBackground3.setScale(12);
+    this.skyBackground4 = this.add.sprite(5250, 492-100, 'sky');
+    this.skyBackground4.setScale(12);
+
     //second layer
     this.jungleBackground8 = this.add.sprite(4160, 1632, 'jungle');
     this.jungleBackground8.setScale(5);
@@ -133,16 +145,6 @@ export default class gameWorld extends Phaser.Scene {
     this.jungleBackground14.setScale(5);
     this.jungleBackground15 = this.add.sprite(320, 1408, 'jungle');
     this.jungleBackground15.setScale(5);
-
-    //third layer
-    this.skyBackground1 = this.add.sprite(750, 492, 'sky');
-    this.skyBackground1.setScale(6);
-    this.skyBackground2 = this.add.sprite(2250, 492, 'sky');
-    this.skyBackground2.setScale(6);
-    this.skyBackground3 = this.add.sprite(3750, 492, 'sky');
-    this.skyBackground3.setScale(6);
-    this.skyBackground4 = this.add.sprite(5250, 492, 'sky');
-    this.skyBackground4.setScale(6);
 
 
 
@@ -413,6 +415,10 @@ export default class gameWorld extends Phaser.Scene {
 
     //ANIMATIONS
 
+    if (this.anims.remove('walk')){
+      this.anims.remove('idle');
+      this.anims.remove('hurt');
+    }
     //Peggy's animations
     this.anims.create({
       key: "walk",

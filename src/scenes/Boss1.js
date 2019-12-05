@@ -45,7 +45,7 @@ export default class Boss1 extends Phaser.Scene {
     this.load.image('shine', './assets/sprites/shine.png');
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
     this.load.image('cannon', './assets/sprites/cannon.png');
-    this.load.image("enemy", "./assets/possibleAssets/pirate.png");
+    this.load.image("enemy", "./assets/gameWorld/enemyPirate.png");
     this.load.image('heart', './assets/sprites/heart.png');
     this.load.image('text1', './assets/sprites/speechbubble1.png');
     this.load.image('text2', './assets/sprites/speechbubble2.png');
@@ -668,6 +668,7 @@ this.enemyGroup.children.each(
         bullet.disableBody(true, true);
     }
   }
+
   //called after time for the players dash move to complete
   dashFinish(){
     this.player.setVelocityX(0);
@@ -793,12 +794,18 @@ this.enemyGroup.children.each(
       return
      }
     //respawn peggy
+    while(this.gameMusic.isPlaying){
+      this.gameMusic.stop();
+    }
     this.scene.restart({health: this.gameHealth, lives: this.health });
     }
   //end game, goes to game over scene
   gameOver(){
     // Stop music if playing
     this.gameMusic.stop();
+    while(this.gameMusic.isPlaying){
+      this.gameMusic.stop();
+    }
     console.log('game over!');
     this.scene.start('GameOver');
   }
@@ -806,6 +813,9 @@ this.enemyGroup.children.each(
   success(){
     //Stop the music
     this.gameMusic.stop();
+    while(this.gameMusic.isPlaying){
+      this.gameMusic.stop();
+    }
     console.log('success!');
     this.scene.start('successScene');
   }

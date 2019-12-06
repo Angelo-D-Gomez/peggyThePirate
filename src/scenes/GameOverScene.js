@@ -14,7 +14,7 @@ export default class GameOver extends Phaser.Scene {
     this.load.image('peggyIcon', './assets/sprites/peggyIcon.png');
     this.load.image('parrot', './assets/sprites/parrot_large.png');
     this.load.audio('losingAudio', './assets/audio/minorInstrumental(JonECope).mp3');
-    this.load.spritesheet("gameOverSheet", "./assets/spriteSheets/GameOver.png", {
+    this.load.spritesheet("gameOverSheet", "./assets/spritesheets/GameOver.png", {
       frameWidth: 32,
       frameHeight: 32
     });

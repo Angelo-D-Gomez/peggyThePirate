@@ -28,7 +28,7 @@ function addSceneEventListeners(that, intScene){
               that.introMusic.stop();
             }
             //that.scene.start('Level1v2'); //changes from start screen to cutscene
-            that.scene.start('gameWorld');
+            that.scene.start('GameWorld');
           }
         }
       );

@@ -1,6 +1,6 @@
 /*global Phaser*/
-import * as ChangeScene from'./Changescene.js';
-export default class bossIntroScene extends Phaser.Scene {
+import * as ChangeScene from'./ChangeScene.js';
+export default class BossIntroScene extends Phaser.Scene {
   constructor () {
     super('bossIntroScene');
   }

@@ -1,7 +1,7 @@
 /*global Phaser*/
-export default class gameWorld extends Phaser.Scene {
+export default class GameWorld extends Phaser.Scene {
   constructor () {
-    super('gameWorld');
+    super('GameWorld');
   }
   // Initialization code goes here
   init (data) {
@@ -72,7 +72,7 @@ export default class gameWorld extends Phaser.Scene {
 
     //load bullets and weapons
     this.load.image('bullet', './assets/sprites/bulletSmall.png');
-    this.load.image('coconut', './assets/gameworld/coconut_small.png');
+    this.load.image('coconut', './assets/gameWorld/coconut_small.png');
 
 
     // Declare variables for center of the scene
@@ -1238,7 +1238,7 @@ export default class gameWorld extends Phaser.Scene {
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
-    this.scene.start('bossIntroScene', {health: this.gameHealth, lives: 3});
+    this.scene.start('BossIntroScene', {health: this.gameHealth, lives: 3});
   }
   //end game, goes to game over scene
   gameOver(){

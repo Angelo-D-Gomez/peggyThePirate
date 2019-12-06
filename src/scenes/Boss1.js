@@ -817,7 +817,7 @@ this.enemyGroup.children.each(
       this.gameMusic.stop();
     }
     console.log('success!');
-    this.scene.start('SuccessScene');
+    this.scene.start('Success');
   }
 
 }

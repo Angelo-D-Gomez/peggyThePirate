@@ -2,7 +2,7 @@
 import * as ChangeScene from'./ChangeScene.js';
 export default class BossIntroScene extends Phaser.Scene {
   constructor () {
-    super('bossIntroScene');
+    super('BossIntroScene');
   }
 
   init (data) {

@@ -1,7 +1,7 @@
 /*global Phaser*/
-export default class GameWorld extends Phaser.Scene {
+export default class World extends Phaser.Scene {
   constructor () {
-    super('GameWorld');
+    super('World');
   }
   // Initialization code goes here
   init (data) {

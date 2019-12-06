@@ -559,6 +559,6 @@ velocityFromRotation(angle, 500, velocity);
   success(){
       console.log('success!');
       this.gameMusic.stop();
-      this.scene.start('SuccessScene');
+      this.scene.start('Success');
   }
 }

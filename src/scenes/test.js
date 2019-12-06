@@ -1,9 +1,9 @@
 /*global Phaser*/
 // this scene exists for experimenting with different
 // additions of mechanics and physics in the game
-export default class test extends Phaser.Scene {
+export default class Test extends Phaser.Scene {
   constructor () {
-    super('test');
+    super('Test');
   }
 
   init (data) {

@@ -12,6 +12,7 @@ export default class World extends Phaser.Scene {
     //for double jumping
     this.bootsObtained = false;
     this.shieldObtained = false;
+    this.shieldAudioIsPlaying = false;
     this.jumpCount = 2;
     this.mobile = true;
     this.spriteValue = 0;
@@ -50,6 +51,7 @@ export default class World extends Phaser.Scene {
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
     this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1-1.mp3');
+    this.load.audio('shieldAudio', './assets/audio/353046__deleted-user-6479820__g-whiff-2.mp3');
 
     //load textbox
     this.load.image('textBorder', './assets/gameWorld/textBorder.png');
@@ -90,6 +92,8 @@ export default class World extends Phaser.Scene {
     this.jumpSound.volume = 0.05;
     this.powerupSound = this.sound.add('powerupAudio');
     this.powerupSound.setRate(1.5);
+    this.shieldSound = this.sound.add('shieldAudio');
+    this.shieldSound.setRate(0.8);
     this.screamSound = this.sound.add('screamAudio');
     this.peggyScream = this.sound.add('peggyScream');
     this.gameMusic = this.sound.add('gameAudio');
@@ -1001,6 +1005,11 @@ export default class World extends Phaser.Scene {
         this.mobile = false;
         this.player.body.acceleration.x = 0;
         this.player.anims.play('idle', true);
+        if (!this.shieldAudioIsPlaying){
+          this.shieldSound.play();
+          this.shieldAudioIsPlaying = true;
+        }
+
       }
       //upon releasing specialButton if shield is out remove it
       if (Phaser.Input.Keyboard.JustUp(specialButton)){
@@ -1008,6 +1017,7 @@ export default class World extends Phaser.Scene {
           this.shine.destroy();
           this.player.body.setAllowGravity(true);
           this.mobile = true;
+          this.shieldAudioIsPlaying = false;
         }
       }
     }
@@ -1238,6 +1248,9 @@ export default class World extends Phaser.Scene {
   //move onto the bossfight
   bossFight(){
     this.gameMusic.stop();
+    if (this.shieldAudio){
+      destroy(this.shieldAudio);
+    }
     this.scene.start('BossIntroScene', {health: this.gameHealth, lives: 3});
   }
   //end game, goes to game over scene

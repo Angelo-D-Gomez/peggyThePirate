@@ -91,7 +91,9 @@ function addSceneEventListeners(that, intScene){
             if(that.gameMusic){
               that.gameMusic.stop();
             }
-
+            if(that.losingMusic){
+              that.losingMusic.stop();
+            }
             that.scene.start('Boot');
 
           //}

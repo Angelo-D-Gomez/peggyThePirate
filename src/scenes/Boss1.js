@@ -13,6 +13,7 @@ export default class Boss1 extends Phaser.Scene {
     //for double jumping
     this.bootsObtained = true;
     this.shieldObtained = true;
+    this.shieldAudioIsPlaying = false;
     this.jumpCount = 2;
     this.mobile = true;
     this.spriteValue = 8;
@@ -61,6 +62,8 @@ export default class Boss1 extends Phaser.Scene {
     this.load.audio('gameAudio', './assets/audio/JonECopeLoop1.mp3');
     this.load.audio('screamAudio', './assets/audio/Wilhelm_Scream_wikipedia(public).ogg');
     this.load.audio('peggyScream', './assets/audio/peggyScream.mp3');
+    this.load.audio('shieldAudio', './assets/audio/353046__deleted-user-6479820__g-whiff-2.mp3');
+
 
 
     // Declare variables for center of the scene
@@ -82,6 +85,9 @@ export default class Boss1 extends Phaser.Scene {
     this.jumpSound.volume = 0.05;
     this.screamSound = this.sound.add('screamAudio');
     this.peggyScream = this.sound.add('peggyScream');
+
+    this.shieldSound = this.sound.add('shieldAudio');
+    this.shieldSound.setRate(0.8);
 
     //speed up the music
     this.gameMusic.setRate(1.5);
@@ -545,6 +551,10 @@ this.enemyGroup.children.each(
         this.mobile = false;
         this.player.body.acceleration.x = 0;
         this.player.anims.play('idle', true);
+        if (!this.shieldAudioIsPlaying){
+          this.shieldSound.play();
+          this.shieldAudioIsPlaying = true;
+        }
       }
       //upon releasing specialButton if shield is out remove it
       if (Phaser.Input.Keyboard.JustUp(specialButton)){
@@ -552,6 +562,7 @@ this.enemyGroup.children.each(
           this.shine.destroy();
           this.player.body.setAllowGravity(true);
           this.mobile = true;
+          this.shieldAudioIsPlaying = false;
         }
       }
     }
@@ -815,6 +826,9 @@ this.enemyGroup.children.each(
     this.gameMusic.stop();
     while(this.gameMusic.isPlaying){
       this.gameMusic.stop();
+    }
+    if (this.shieldAudio){
+      destroy(this.shieldAudio);
     }
     console.log('success!');
     this.scene.start('Success');

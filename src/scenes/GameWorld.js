@@ -975,15 +975,19 @@ export default class World extends Phaser.Scene {
             //refresh bullet group
             if (b.y < this.player.y - 300) { //if bullet off top of screen
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.y > this.player.y + 300) { //if bullet off bottom of screen
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.x < this.player.x -400){
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.x > this.player.x + 400){
               b.setActive(false);
+              b.setVisible(false);
             }
         }
       }.bind(this) //binds to each children
@@ -1043,15 +1047,19 @@ export default class World extends Phaser.Scene {
           //enemy bullets despawn when they fall off the map
           if (b.y < 0) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.y > 2400) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x < 0){
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x > 4480){
             b.setActive(false);
+            b.setVisible(false);
             }
           }
         }.bind(this) //binds to each children
@@ -1078,15 +1086,19 @@ export default class World extends Phaser.Scene {
           //enemy coconuts despawn when they fall off the map
           if (b.y < 0) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.y > 2400) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x < 0){
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x > 4480){
             b.setActive(false);
+            b.setVisible(false);
             }
           }
         }.bind(this) //binds to each children

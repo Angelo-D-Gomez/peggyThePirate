@@ -521,15 +521,19 @@ this.enemyGroup.children.each(
             //refresh bullet group
             if (b.y < this.player.y - 300) { //if bullet off top of screen
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.y > this.player.y + 300) { //if bullet off bottom of screen
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.x < this.player.x -400){
               b.setActive(false);
+              b.setVisible(false);
             }
             else if (b.x > this.player.x + 400){
               b.setActive(false);
+              b.setVisible(false);
             }
         }
       }.bind(this) //binds to each children
@@ -588,15 +592,19 @@ this.enemyGroup.children.each(
           //enemy bullets despawn when they fall off the map
           if (b.y < 0) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.y > 2400) {
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x < 0){
             b.setActive(false);
+            b.setVisible(false);
             }
           else if (b.x > 4480){
             b.setActive(false);
+            b.setVisible(false);
             }
           }
         }.bind(this) //binds to each children
@@ -622,19 +630,62 @@ this.enemyGroup.children.each(
           //refresh bullet group
           if (b.y < 0) { //if bullet off top of screen
             b.setActive(false);
+            b.setVisible(false);
           }
           else if (b.y > 600) { //if bullet off bottom of screen
             b.setActive(false);
+            b.setVisible(false);
           }
           else if (b.x < 0){
             b.setActive(false);
+            b.setVisible(false);
           }
           else if (b.x > 800){
             b.setActive(false);
+            b.setVisible(false);
           }
         }
       }.bind(this) //binds to each children
     );
+    //enemys's bullet injure player
+    this.enemyBullets.children.each(
+      function (b) {
+        if (b.active) {
+          this.physics.add.overlap( //if bullet touches player, calls function
+            b,
+            this.player,
+            this.hitPlayer,
+            null,
+            this
+            );
+          this.physics.add.overlap(
+            b,
+            this.shine,
+            this.hitShield,
+            null,
+            this
+            );
+          //refresh bullet group
+          //enemy bullets despawn when they fall off the map
+          if (b.y < 0) {
+            b.setActive(false);
+            b.setVisible(false);
+            }
+          else if (b.y > 2400) {
+            b.setActive(false);
+            b.setVisible(false);
+            }
+          else if (b.x < 0){
+            b.setActive(false);
+            b.setVisible(false);
+            }
+          else if (b.x > 4480){
+            b.setActive(false);
+            b.setVisible(false);
+            }
+          }
+        }.bind(this) //binds to each children
+      );
     }//END OF UPDATE FUNCTION
   //additional functions to be called
 
